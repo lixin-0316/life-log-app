@@ -1,0 +1,30 @@
+name: Keep Alive
+
+# Prevent Render.com free tier from sleeping (15-min inactivity timeout)
+# Hits the health endpoint every 10 minutes
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # every 10 minutes
+  workflow_dispatch:  # allow manual trigger
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping render app
+        run: |
+          URL="${{ secrets.RENDER_URL }}"
+          if [ -z "$URL" ]; then
+            echo "::warning::RENDER_URL secret not set — skipping ping"
+            echo "Set it in: GitHub repo → Settings → Secrets → Actions → RENDER_URL"
+            exit 0
+          fi
+          echo "Pinging $URL/api/health ..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL/api/health")
+          echo "Status: $STATUS"
+          if [ "$STATUS" = "200" ]; then
+            echo "✓ OK — render app is awake"
+          else
+            echo "::warning::Unexpected status $STATUS"
+          fi
