@@ -290,6 +290,71 @@ app.get('/api/admin/users', auth, adminOnly, (req, res) => {
   res.json({ users });
 });
 
+// ── Admin Center ──
+const crypto = require('crypto');
+const ADMIN_PASSWORD = '222316';
+const adminTokens = new Map();
+const APPS_FILE = path.join(__dirname, 'admin-apps.json');
+
+function loadApps() {
+  try { return JSON.parse(fs.readFileSync(APPS_FILE, 'utf-8')); }
+  catch { return []; }
+}
+function saveApps(apps) { fs.writeFileSync(APPS_FILE, JSON.stringify(apps, null, 2), 'utf-8'); }
+
+function adminAuth(req, res, next) {
+  const hdr = req.headers.authorization || '';
+  const t = hdr.replace('Bearer ', '');
+  if (!t || !adminTokens.has(t)) return res.status(401).json({ error: '未登录' });
+  next();
+}
+
+app.post('/api/admin-center/login', (req, res) => {
+  if (req.body.password !== ADMIN_PASSWORD) return res.status(401).json({ error: '密码错误' });
+  const token = crypto.randomBytes(32).toString('hex');
+  adminTokens.set(token, Date.now() + 24*3600*1000); // 24h expiry
+  res.json({ ok: true, token });
+});
+
+app.get('/api/admin-center/apps', adminAuth, (req, res) => {
+  res.json({ apps: loadApps() });
+});
+
+app.post('/api/admin-center/apps', adminAuth, (req, res) => {
+  const apps = loadApps();
+  const { icon, name, category, description, url } = req.body;
+  if (!name || !url) return res.status(400).json({ error: '名称和地址不能为空' });
+  const newId = apps.length ? Math.max(...apps.map(a => a.id)) + 1 : 1;
+  const app = { id: newId, name, category: category || '其他', description: description || '', url, icon: icon || '📦', createdAt: new Date().toISOString().slice(0,10) };
+  apps.push(app);
+  saveApps(apps);
+  res.json({ ok: true, app });
+});
+
+app.put('/api/admin-center/apps/:id', adminAuth, (req, res) => {
+  const apps = loadApps();
+  const idx = apps.findIndex(a => a.id === parseInt(req.params.id));
+  if (idx < 0) return res.status(404).json({ error: '应用不存在' });
+  const { icon, name, category, description, url } = req.body;
+  if (name !== undefined) apps[idx].name = name;
+  if (category !== undefined) apps[idx].category = category;
+  if (description !== undefined) apps[idx].description = description;
+  if (url !== undefined) apps[idx].url = url;
+  if (icon !== undefined) apps[idx].icon = icon;
+  saveApps(apps);
+  res.json({ ok: true, app: apps[idx] });
+});
+
+app.delete('/api/admin-center/apps/:id', adminAuth, (req, res) => {
+  const apps = loadApps();
+  const idx = apps.findIndex(a => a.id === parseInt(req.params.id));
+  if (idx < 0) return res.status(404).json({ error: '应用不存在' });
+  apps.splice(idx, 1);
+  saveApps(apps);
+  res.json({ ok: true });
+});
+
+// ── Health ──
 app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
 
 app.listen(PORT, () => {

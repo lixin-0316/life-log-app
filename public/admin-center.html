@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理平台 — 应用管理中心</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, 'Microsoft YaHei', 'PingFang SC', sans-serif; background:#f0f2f5; color:#333; min-height:100vh; }
+
+/* Gate */
+.gate-wrap { display:flex; justify-content:center; align-items:center; min-height:100vh; background:#f0f2f5; }
+.gate-card { width:400px; background:#fff; border-radius:8px; padding:40px; box-shadow:0 2px 12px rgba(0,0,0,0.08); text-align:center; }
+.gate-card h2 { font-size:22px; color:#1a1a2e; margin-bottom:6px; font-weight:600; }
+.gate-card .sub { font-size:13px; color:#999; margin-bottom:28px; }
+.gate-card input { width:100%; height:44px; border:1px solid #d9d9d9; border-radius:6px; padding:0 14px; font-size:15px; outline:none; text-align:center; letter-spacing:4px; }
+.gate-card input:focus { border-color:#1677ff; box-shadow:0 0 0 2px rgba(22,119,255,0.15); }
+.gate-card .err { color:#e74c3c; font-size:13px; margin-top:8px; min-height:20px; }
+.gate-card button { width:100%; height:44px; background:#1677ff; color:#fff; border:none; border-radius:6px; font-size:15px; cursor:pointer; margin-top:18px; }
+.gate-card button:hover { background:#0958d9; }
+
+/* Layout */
+.layout { display:flex; min-height:100vh; }
+.sidebar { width:220px; background:#001529; color:#fff; flex-shrink:0; display:flex; flex-direction:column; }
+.side-logo { padding:20px; font-size:17px; font-weight:600; border-bottom:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; gap:10px; }
+.side-logo span { font-size:13px; color:rgba(255,255,255,0.55); font-weight:400; }
+.side-menu { flex:1; padding:12px 0; }
+.side-item { padding:12px 24px; font-size:14px; cursor:pointer; color:rgba(255,255,255,0.65); display:flex; align-items:center; gap:10px; transition:all .2s; }
+.side-item:hover { color:#fff; background:rgba(255,255,255,0.06); }
+.side-item.active { color:#fff; background:#1677ff; }
+.side-bottom { padding:12px 24px; border-top:1px solid rgba(255,255,255,0.1); font-size:13px; color:rgba(255,255,255,0.45); cursor:pointer; }
+.side-bottom:hover { color:#e74c3c; }
+
+.main { flex:1; display:flex; flex-direction:column; overflow-y:auto; }
+.topbar { height:56px; background:#fff; border-bottom:1px solid #e8e8e8; display:flex; align-items:center; padding:0 24px; justify-content:space-between; }
+.topbar h3 { font-size:15px; color:#1a1a2e; }
+.topbar .user { font-size:13px; color:#999; }
+.content { padding:24px; flex:1; }
+
+/* Cards */
+.toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+.toolbar h4 { font-size:16px; color:#1a1a2e; }
+.btn { height:36px; padding:0 20px; border-radius:6px; font-size:13px; cursor:pointer; border:1px solid #d9d9d9; background:#fff; color:#333; transition:all .2s; display:inline-flex; align-items:center; gap:6px; }
+.btn:hover { border-color:#1677ff; color:#1677ff; }
+.btn-primary { background:#1677ff; color:#fff; border-color:#1677ff; }
+.btn-primary:hover { background:#0958d9; }
+.btn-danger { color:#e74c3c; }
+.btn-danger:hover { border-color:#e74c3c; color:#e74c3c; }
+
+.app-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:18px; }
+.app-card { background:#fff; border-radius:8px; border:1px solid #e8e8e8; padding:24px; transition:box-shadow .2s; }
+.app-card:hover { box-shadow:0 4px 16px rgba(0,0,0,0.08); }
+.app-card .card-icon { font-size:36px; margin-bottom:12px; }
+.app-card .card-name { font-size:16px; font-weight:600; color:#1a1a2e; margin-bottom:6px; }
+.app-card .card-cat { display:inline-block; padding:2px 10px; border-radius:4px; font-size:12px; background:#e6f7ff; color:#1677ff; margin-bottom:10px; }
+.app-card .card-desc { font-size:13px; color:#666; line-height:1.7; margin-bottom:16px; }
+.app-card .card-url { font-size:12px; color:#999; word-break:break-all; margin-bottom:14px; padding:8px 12px; background:#f5f5f5; border-radius:4px; }
+.app-card .card-actions { display:flex; gap:10px; }
+.app-card .card-actions .btn { font-size:12px; height:32px; padding:0 14px; }
+
+/* Modal */
+.modal-mask { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.45); z-index:1000; justify-content:center; align-items:center; }
+.modal-mask.show { display:flex; }
+.modal-box { background:#fff; border-radius:8px; width:520px; padding:0; box-shadow:0 4px 24px rgba(0,0,0,0.15); }
+.modal-hd { padding:18px 24px; border-bottom:1px solid #e8e8e8; font-size:16px; font-weight:600; color:#1a1a2e; display:flex; justify-content:space-between; align-items:center; }
+.modal-hd .close { width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:4px; font-size:18px; color:#999; }
+.modal-hd .close:hover { background:#f5f5f5; color:#333; }
+.modal-bd { padding:24px; }
+.modal-bd label { display:block; font-size:13px; color:#666; margin-bottom:6px; margin-top:16px; }
+.modal-bd label:first-child { margin-top:0; }
+.modal-bd input,.modal-bd textarea,.modal-bd select { width:100%; height:40px; border:1px solid #d9d9d9; border-radius:6px; padding:0 12px; font-size:14px; outline:none; font-family:inherit; }
+.modal-bd textarea { height:80px; padding:10px 12px; resize:vertical; }
+.modal-bd input:focus,.modal-bd textarea:focus,.modal-bd select:focus { border-color:#1677ff; }
+.modal-ft { padding:16px 24px; border-top:1px solid #e8e8e8; display:flex; justify-content:flex-end; gap:10px; }
+.modal-ft .btn { min-width:80px; justify-content:center; }
+
+.empty { text-align:center; padding:80px 20px; color:#999; font-size:14px; }
+.empty .icon { font-size:48px; margin-bottom:16px; }
+</style>
+</head>
+<body>
+
+<!-- ====== Gate ====== -->
+<div id="gate" class="gate-wrap">
+  <div class="gate-card">
+    <h2>管理平台</h2>
+    <div class="sub">请输入管理密码</div>
+    <input type="password" id="pwd" placeholder="请输入管理密码" maxlength="20" autofocus onkeydown="if(event.key==='Enter')login()">
+    <div class="err" id="err"></div>
+    <button onclick="login()">登 录</button>
+  </div>
+</div>
+
+<!-- ====== Main ====== -->
+<div id="main" class="layout" style="display:none">
+  <div class="sidebar">
+    <div class="side-logo">⚙️ 管理平台<span>v1.0</span></div>
+    <nav class="side-menu">
+      <div class="side-item active" onclick="switchTab('apps',this)">📦 应用管理</div>
+    </nav>
+    <div class="side-bottom" onclick="logout()">🔒 退出登录</div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <h3>应用管理</h3>
+      <span class="user">管理员</span>
+    </div>
+    <div class="content">
+      <div class="toolbar">
+        <h4>已管理应用（<span id="appCount">0</span>个）</h4>
+        <button class="btn btn-primary" onclick="openModal()">+ 添加应用</button>
+      </div>
+      <div class="app-grid" id="appList"></div>
+      <div class="empty" id="empty" style="display:none"><div class="icon">📦</div>还没有管理任何应用，点击右上角添加</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== Add/Edit Modal ====== -->
+<div class="modal-mask" id="modal">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <span id="modalTitle">添加应用</span>
+      <span class="close" onclick="closeModal()">✕</span>
+    </div>
+    <div class="modal-bd">
+      <label>图标（emoji或文字）</label>
+      <input id="appIcon" placeholder="📝" maxlength="4">
+      <label>应用名称 *</label>
+      <input id="appName" placeholder="如：随手记" maxlength="30">
+      <label>分类</label>
+      <select id="appCat">
+        <option value="个人工具">个人工具</option>
+        <option value="办公效率">办公效率</option>
+        <option value="数据看板">数据看板</option>
+        <option value="管理系统">管理系统</option>
+        <option value="其他">其他</option>
+      </select>
+      <label>描述</label>
+      <textarea id="appDesc" placeholder="一句话介绍这个应用的功能和用途" maxlength="200"></textarea>
+      <label>访问地址 *</label>
+      <input id="appUrl" placeholder="https://..." maxlength="300">
+    </div>
+    <div class="modal-ft">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveApp()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PASSWORD = '222316';
+const API = '/api/admin-center';
+let token = '';
+let apps = [];
+let editingId = null;
+
+// ====== Auth ======
+function login() {
+  const pwd = document.getElementById('pwd').value;
+  if (!pwd) { document.getElementById('err').textContent = '请输入密码'; return; }
+  fetch(API+'/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ password:pwd }) })
+    .then(r => r.json()).then(d => {
+      if (d.ok) { token = d.token; localStorage.setItem('admin_token', token); showMain(); }
+      else { document.getElementById('err').textContent = '密码错误'; }
+    }).catch(() => { document.getElementById('err').textContent = '网络错误，请重试'; });
+}
+
+function logout() {
+  token = ''; localStorage.removeItem('admin_token');
+  document.getElementById('main').style.display = 'none';
+  document.getElementById('gate').style.display = 'flex';
+  document.getElementById('pwd').value = ''; document.getElementById('err').textContent = '';
+}
+
+function showMain() {
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('main').style.display = 'flex';
+  loadApps();
+}
+
+// ====== Apps ======
+function authHeaders() { return { 'Content-Type':'application/json', 'Authorization':'Bearer '+token }; }
+
+function loadApps() {
+  fetch(API+'/apps', { headers:authHeaders() }).then(r => r.json()).then(d => {
+    apps = d.apps || [];
+    renderApps();
+  });
+}
+
+function renderApps() {
+  const grid = document.getElementById('appList');
+  const empty = document.getElementById('empty');
+  document.getElementById('appCount').textContent = apps.length;
+  if (apps.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  grid.innerHTML = apps.map(a => `
+    <div class="app-card">
+      <div class="card-icon">${a.icon || '📦'}</div>
+      <div class="card-name">${esc(a.name)}</div>
+      <span class="card-cat">${esc(a.category||'未分类')}</span>
+      <div class="card-desc">${esc(a.description||'暂无描述')}</div>
+      <div class="card-url">${esc(a.url||'')}</div>
+      <div class="card-actions">
+        <button class="btn" onclick="window.open('${esc(a.url||'#')}','_blank')">🔗 访问</button>
+        <button class="btn" onclick="editApp(${a.id})">✏️ 编辑</button>
+        <button class="btn btn-danger" onclick="deleteApp(${a.id},'${esc(a.name)}')">🗑 删除</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+function openModal() { editingId = null; document.getElementById('modalTitle').textContent = '添加应用'; clearForm(); document.getElementById('modal').classList.add('show'); }
+function editApp(id) {
+  const a = apps.find(x => x.id === id); if (!a) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = '编辑应用';
+  document.getElementById('appIcon').value = a.icon || '';
+  document.getElementById('appName').value = a.name || '';
+  document.getElementById('appCat').value = a.category || '个人工具';
+  document.getElementById('appDesc').value = a.description || '';
+  document.getElementById('appUrl').value = a.url || '';
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); editingId = null; }
+function clearForm() {
+  document.getElementById('appIcon').value = '';
+  document.getElementById('appName').value = '';
+  document.getElementById('appCat').value = '个人工具';
+  document.getElementById('appDesc').value = '';
+  document.getElementById('appUrl').value = '';
+}
+
+function saveApp() {
+  const data = {
+    icon: document.getElementById('appIcon').value || '📦',
+    name: document.getElementById('appName').value.trim(),
+    category: document.getElementById('appCat').value,
+    description: document.getElementById('appDesc').value.trim(),
+    url: document.getElementById('appUrl').value.trim()
+  };
+  if (!data.name || !data.url) { alert('应用名称和访问地址不能为空'); return; }
+  const method = editingId ? 'PUT' : 'POST';
+  const url = editingId ? API+'/apps/'+editingId : API+'/apps';
+  fetch(url, { method, headers:authHeaders(), body:JSON.stringify(data) })
+    .then(r => r.json()).then(d => {
+      if (d.ok) { closeModal(); loadApps(); } else { alert(d.error||'操作失败'); }
+    }).catch(() => alert('网络错误'));
+}
+
+function deleteApp(id, name) {
+  if (!confirm('确定删除「'+name+'」吗？此操作不可撤销。')) return;
+  fetch(API+'/apps/'+id, { method:'DELETE', headers:authHeaders() })
+    .then(r => r.json()).then(d => {
+      if (d.ok) { loadApps(); } else { alert(d.error||'删除失败'); }
+    }).catch(() => alert('网络错误'));
+}
+
+// ====== Init ======
+const savedToken = localStorage.getItem('admin_token');
+if (savedToken) {
+  token = savedToken;
+  fetch(API+'/apps', { headers:authHeaders() }).then(r => {
+    if (r.ok) { showMain(); } else { localStorage.removeItem('admin_token'); }
+  }).catch(() => {});
+}
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.side-item').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
