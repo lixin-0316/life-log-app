@@ -1,7 +1,4 @@
-FROM node:18-alpine
-
-# 国内源加速
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tencent.com/g' /etc/apk/repositories
+FROM node:18-slim
 
 WORKDIR /app
 
@@ -12,7 +9,7 @@ RUN npm config set registry https://mirrors.cloud.tencent.com/npm/ && \
 
 COPY . .
 
-# CloudBase 云托管会自动注入 PORT 环境变量
+ENV PORT=80
 EXPOSE 80
 
 CMD ["node", "server.js"]
