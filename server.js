@@ -258,6 +258,33 @@ app.delete('/api/records/:id', auth, (req, res) => {
   res.json({ ok: true });
 });
 
+// ── Admin: Export / Import ──
+app.get('/api/admin/export', auth, adminOnly, (req, res) => {
+  const users = db.prepare('SELECT id, phone, username, password_hash, role, created_at FROM users').all();
+  const records = db.prepare('SELECT * FROM records').all();
+  const data = { version: 1, exportedAt: new Date().toISOString(), users, records };
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Disposition', 'attachment; filename="life-log-backup-' + new Date().toISOString().slice(0,10) + '.json"');
+  res.json(data);
+});
+
+app.post('/api/admin/import', auth, adminOnly, (req, res) => {
+  const { users, records } = req.body;
+  if (!users || !records) return res.status(400).json({ error: '无效的备份文件' });
+  try {
+    db.exec('BEGIN');
+    db.prepare('DELETE FROM records').run();
+    db.prepare('DELETE FROM users WHERE role != ?').run('admin');
+    const insUser = db.prepare('INSERT OR IGNORE INTO users (id, phone, username, password_hash, role, created_at) VALUES (?, ?, ?, ?, ?, ?)');
+    for (const u of users) insUser.run(u.id, u.phone, u.username, u.password_hash || '', u.role, u.created_at);
+    const insRec = db.prepare('INSERT OR IGNORE INTO records (id, user_id, type, title, content, date, done, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+    for (const r of records) insRec.run(r.id, r.user_id, r.type, r.title, r.content || '', r.date, r.done || 0, r.created_at);
+    db.exec('COMMIT');
+    const n = db.prepare('SELECT COUNT(*) as c FROM records').get().c;
+    res.json({ ok: true, msg: '导入成功，共 ' + n + ' 条记录' });
+  } catch (e) { db.exec('ROLLBACK'); res.status(500).json({ error: '导入失败：' + e.message }); }
+});
+
 app.get('/api/admin/users', auth, adminOnly, (req, res) => {
   const users = db.prepare('SELECT id, phone, username, role, created_at FROM users ORDER BY id').all();
   res.json({ users });
