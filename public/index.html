@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>随手记 · 多人版</title>
+<style>
+:root {
+  --bg: #faf8f5; --card: #ffffff; --side: #f5f0eb; --text: #3c362e;
+  --sub: #8b8178; --border: #e8e2d9; --accent: #e8964c; --accent2: #6b9e85;
+  --danger: #d4786e; --shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); }
+::selection { background: rgba(232,150,76,.25); }
+button { cursor: pointer; font-family: inherit; }
+input, textarea, select { font-family: inherit; }
+
+/* Login */
+.login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #faf8f5 0%, #f0e8db 100%); }
+.login-card { background: #fff; border-radius: 20px; padding: 40px 36px; width: 420px; box-shadow: 0 8px 40px rgba(0,0,0,.08); }
+.login-card h1 { font-size: 26px; text-align: center; margin-bottom: 4px; color: var(--accent); }
+.login-card .sub { text-align: center; font-size: 13px; color: var(--sub); margin-bottom: 24px; }
+.login-card .field { margin-bottom: 14px; }
+.login-card label { display: block; font-size: 13px; font-weight: 600; color: var(--sub); margin-bottom: 4px; }
+.login-card input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 14px; background: #fafaf8; }
+.login-card input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232,150,76,.1); }
+.login-card .phone-row { display: flex; gap: 10px; }
+.login-card .phone-row input { flex: 1; }
+.login-card .code-btn { white-space: nowrap; padding: 11px 16px; border-radius: 10px; border: 1.5px solid var(--accent); background: #fff8f0; color: var(--accent); font-size: 13px; font-weight: 600; cursor: pointer; min-width: 110px; }
+.login-card .code-btn:disabled { border-color: var(--border); background: #f5f5f5; color: var(--sub); cursor: not-allowed; }
+.login-card .btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 15px; font-weight: 700; margin-top: 8px; }
+.login-card .btn.primary { background: var(--accent); color: #fff; }
+.login-card .btn.primary:hover { background: #d88540; }
+.login-card .toggle { text-align: center; margin-top: 14px; font-size: 13px; color: var(--sub); }
+.login-card .toggle a { color: var(--accent); cursor: pointer; font-weight: 600; }
+.login-card .admin-link { text-align: center; margin-top: 8px; font-size: 12px; }
+.login-card .admin-link a { color: var(--sub); cursor: pointer; text-decoration: underline; }
+.error-msg { color: var(--danger); font-size: 13px; text-align: center; margin-top: 6px; min-height: 18px; }
+.success-msg { color: var(--accent2); font-size: 13px; text-align: center; margin-top: 6px; min-height: 18px; }
+
+/* App */
+.app { display: flex; height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--side); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; }
+.side-head { padding: 18px 16px; font-size: 18px; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); }
+.side-head .badge { font-size: 11px; background: var(--accent); color: #fff; padding: 2px 7px; border-radius: 8px; margin-left: auto; }
+.cal-box { padding: 12px; }
+.cal-box .ch { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 13px; margin-bottom: 8px; }
+.cal-box .ch button { background: none; border: none; font-size: 14px; color: var(--sub); padding: 2px 6px; border-radius: 4px; }
+.cal-box .ch button:hover { background: var(--border); }
+.cal-box .cw { display: grid; grid-template-columns: repeat(7,1fr); text-align: center; font-size: 10px; color: var(--sub); margin-bottom: 2px; }
+.cal-box .cd { display: grid; grid-template-columns: repeat(7,1fr); gap: 1px; }
+.cal-box .cd span { height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 12px; cursor: pointer; position: relative; }
+.cal-box .cd span:hover { background: var(--border); }
+.cal-box .cd span.other { color: #ccc; cursor: default; }
+.cal-box .cd span.today { border: 2px solid var(--accent); font-weight: 700; }
+.cal-box .cd span.active { background: var(--accent); color: #fff; }
+.cal-box .cd span.dot::after { content: ''; position: absolute; bottom: 2px; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+.side-bag { flex: 1; overflow-y: auto; padding: 8px 12px; }
+.side-bag h3 { font-size: 12px; color: var(--sub); margin-bottom: 6px; padding: 0 4px; }
+.bag-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+.bag-item:hover { background: var(--border); }
+.bag-item.active { background: var(--accent); color: #fff; }
+.bag-item .cnt { margin-left: auto; font-size: 11px; background: var(--border); padding: 1px 7px; border-radius: 10px; }
+.bag-item.active .cnt { background: rgba(255,255,255,.25); }
+.bag-tags { display: flex; gap: 2px; margin-left: 2px; }
+.bag-tags span { width: 6px; height: 6px; border-radius: 50%; }
+.side-user { padding: 12px 16px; border-top: 1px solid var(--border); font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.side-user .uname { font-weight: 600; }
+.side-user .urole { font-size: 10px; background: var(--accent2); color: #fff; padding: 1px 6px; border-radius: 6px; }
+.side-user .logout { margin-left: auto; font-size: 12px; color: var(--sub); cursor: pointer; background: none; border: none; }
+.side-user .logout:hover { color: var(--danger); }
+
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.main-top { padding: 18px 28px 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+.main-top h2 { font-size: 20px; }
+.main-top h2 em { font-style: normal; color: var(--accent); }
+.main-acts { display: flex; gap: 8px; align-items: center; }
+.search-w { position: relative; }
+.search-w input { padding: 7px 12px 7px 30px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; background: var(--card); }
+.search-w input:focus { outline: none; border-color: var(--accent); }
+.search-w .sicon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: var(--sub); font-size: 13px; }
+.btn { padding: 8px 16px; border-radius: 8px; border: none; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+.btn.primary { background: var(--accent); color: #fff; }
+.btn.primary:hover { background: #d88540; }
+.btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn.ghost:hover { background: var(--border); }
+.btn.admin-t { background: #f0e6ff; color: #7c5cbf; border: 1px solid #d4c4f0; }
+.btn.admin-t.active { background: #7c5cbf; color: #fff; }
+.type-bar { padding: 10px 28px; display: flex; gap: 6px; flex-wrap: wrap; }
+.type-chip { padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--sub); }
+.type-chip:hover, .type-chip.active { border-color: var(--accent); color: var(--accent); background: #fff8f0; }
+.type-chip .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 3px; vertical-align: middle; }
+.rec-scroll { flex: 1; overflow-y: auto; padding: 0 28px 20px; }
+.records { display: flex; flex-direction: column; gap: 8px; padding-top: 4px; }
+.rec-card { background: var(--card); border-radius: 10px; padding: 14px 18px; box-shadow: var(--shadow); cursor: pointer; transition: .2s; display: flex; gap: 12px; align-items: flex-start; border-left: 4px solid transparent; }
+.rec-card:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.07); }
+.rec-card.done { opacity: .55; }
+.rec-card.done .rec-title { text-decoration: line-through; }
+.rec-check { width: 18px; min-width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border); margin-top: 3px; display: flex; align-items: center; justify-content: center; }
+.rec-check:hover { border-color: var(--accent); }
+.rec-check.checked { background: var(--accent2); border-color: var(--accent2); }
+.rec-check.checked::after { content: '✓'; color: #fff; font-size: 11px; font-weight: 700; }
+.rec-body { flex: 1; min-width: 0; }
+.rec-meta { display: flex; gap: 6px; align-items: center; margin-bottom: 2px; flex-wrap: wrap; }
+.rec-type { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+.type-todo { background: #fff4e8; color: #e8964c; }
+.type-fun { background: #fff8e8; color: #c48830; }
+.type-meeting { background: #e8f2f8; color: #5b8ea8; }
+.type-memorial { background: #f8e8f2; color: #c47ba0; }
+.type-general { background: #eef2f5; color: #7b8ea0; }
+.rec-owner { font-size: 10px; background: #f0e6ff; color: #7c5cbf; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+.rec-date-s { font-size: 11px; color: var(--sub); }
+.rec-title { font-size: 14px; font-weight: 600; }
+.rec-preview { font-size: 12px; color: var(--sub); margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.rec-acts { display: flex; gap: 2px; opacity: 0; }
+.rec-card:hover .rec-acts { opacity: 1; }
+.rec-act { background: none; border: none; padding: 3px 7px; border-radius: 4px; font-size: 11px; color: var(--sub); }
+.rec-act:hover { background: var(--border); }
+.rec-act.danger:hover { background: #fee; color: var(--danger); }
+.empty { text-align: center; padding: 60px 20px; color: var(--sub); font-size: 14px; }
+
+/* Modal */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 200; display: flex; align-items: center; justify-content: center; }
+.overlay:not(.show) { display: none; }
+.modal { background: #fff; border-radius: 16px; padding: 28px; width: 520px; max-width: 92vw; max-height: 88vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.15); }
+.modal h3 { font-size: 18px; margin-bottom: 18px; }
+.modal label { display: block; font-size: 13px; font-weight: 600; color: var(--sub); margin-bottom: 3px; margin-top: 14px; }
+.modal label:first-of-type { margin-top: 0; }
+.modal input, .modal textarea, .modal select { width: 100%; padding: 9px 13px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: #fafaf8; }
+.modal input:focus, .modal textarea:focus { outline: none; border-color: var(--accent); }
+.modal textarea { min-height: 80px; resize: vertical; }
+.modal .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+.type-sel { display: flex; gap: 6px; flex-wrap: wrap; }
+.type-opt { padding: 6px 13px; border-radius: 20px; font-size: 12px; cursor: pointer; border: 2px solid var(--border); background: var(--card); }
+.type-opt.selected { border-color: var(--accent); background: #fff8f0; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div id="loginPage" class="login-page">
+  <div class="login-card">
+    <h1>📦 随手记</h1>
+    <p class="sub" id="loginSub">手机号登录</p>
+
+    <!-- Login fields -->
+    <div id="loginFields">
+      <div class="field"><label>手机号</label><input type="tel" id="loginPhone" placeholder="输入手机号" maxlength="11" autocomplete="tel"></div>
+      <div class="field"><label>密码</label><input type="password" id="loginPass" placeholder="输入密码" autocomplete="current-password"></div>
+    </div>
+
+    <!-- Register fields (hidden by default) -->
+    <div id="regFields" style="display:none">
+      <div class="field"><label>手机号</label><input type="tel" id="regPhone" placeholder="输入手机号" maxlength="11" autocomplete="off"></div>
+      <div class="field"><label>验证码</label>
+        <div class="phone-row"><input type="text" id="regCode" placeholder="6位验证码" maxlength="6" autocomplete="off"><button class="code-btn" id="regCodeBtn" onclick="sendCode('register')">获取验证码</button></div>
+      </div>
+      <div class="field"><label>设置密码</label><input type="password" id="regPass" placeholder="至少4位密码" autocomplete="new-password"></div>
+      <div class="field"><label>昵称 <span style="font-weight:400;color:var(--sub)">（可选）</span></label><input type="text" id="regNick" placeholder="给自己起个名字" maxlength="20" autocomplete="off"></div>
+    </div>
+
+    <!-- Reset fields (hidden by default) -->
+    <div id="resetFields" style="display:none">
+      <div class="field"><label>手机号</label><input type="tel" id="resetPhone" placeholder="输入已注册的手机号" maxlength="11" autocomplete="off"></div>
+      <div class="field"><label>验证码</label>
+        <div class="phone-row"><input type="text" id="resetCode" placeholder="6位验证码" maxlength="6" autocomplete="off"><button class="code-btn" id="resetCodeBtn" onclick="sendCode('reset')">获取验证码</button></div>
+      </div>
+      <div class="field"><label>新密码</label><input type="password" id="resetPass" placeholder="至少4位新密码" autocomplete="new-password"></div>
+    </div>
+
+    <!-- Admin login fields (hidden by default) -->
+    <div id="adminFields" style="display:none">
+      <div class="field"><label>用户名</label><input type="text" id="adminUser" placeholder="输入管理员用户名" autocomplete="username"></div>
+      <div class="field"><label>密码</label><input type="password" id="adminPass" placeholder="输入密码" autocomplete="current-password"></div>
+    </div>
+
+    <div class="error-msg" id="loginError"></div>
+    <div class="success-msg" id="loginSuccess"></div>
+    <button class="btn primary" id="loginBtn" onclick="doLogin()">登 录</button>
+    <p class="toggle"><span id="toggleText">没有账号？</span> <a id="toggleLink" onclick="toggleMode()">去注册</a></p>
+    <p class="toggle" id="forgotLink"><a onclick="toggleMode('reset')">忘记密码？</a></p>
+    <p class="admin-link"><a onclick="toggleMode('admin')">管理员入口</a></p>
+  </div>
+</div>
+
+<div id="appPage" class="app" style="display:none">
+  <aside class="sidebar">
+    <div class="side-head">📦 随手记 <span class="badge" id="roleBadge"></span></div>
+    <div class="cal-box" id="calWidget"></div>
+    <div class="side-bag"><h3>📁 记录袋</h3><div id="bagList"></div></div>
+    <div class="side-user">
+      <span>👤</span><span class="uname" id="sideName"></span><span class="urole" id="sideRole"></span>
+      <button class="logout" onclick="logout()">退出</button>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="main-top">
+      <h2 id="viewTitle">📋 <em>全部记录</em></h2>
+      <div class="main-acts">
+        <button class="btn admin-t" id="adminToggle" style="display:none" onclick="toggleAdminView()">👁 查看全员</button>
+        <div class="search-w"><span class="sicon">🔍</span><input type="text" id="searchInput" placeholder="搜索..." oninput="loadRecords()"></div>
+        <button class="btn primary" onclick="openModal()">+ 新增</button>
+      </div>
+    </div>
+    <div class="type-bar" id="typeBar"></div>
+    <div class="rec-scroll"><div class="records" id="recordsList"></div></div>
+  </main>
+</div>
+
+<div class="overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3 id="modalTitle">新增记录</h3>
+    <input type="hidden" id="editId">
+    <label>记录类型</label>
+    <div class="type-sel" id="typeSel"></div>
+    <label>标题</label>
+    <input type="text" id="recTitle" placeholder="起个名字...">
+    <label>日期</label>
+    <input type="date" id="recDate">
+    <label>内容</label>
+    <textarea id="recContent" placeholder="写点什么..."></textarea>
+    <div class="modal-footer">
+      <button class="btn ghost" onclick="closeModal()">取消</button>
+      <button class="btn ghost" id="btnDel" style="color:var(--danger);border-color:var(--danger);display:none" onclick="deleteRec()">删除</button>
+      <button class="btn primary" onclick="saveRec()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+const TYPES = [
+  { id:'todo', label:'待办', icon:'📋', color:'#e8964c' },
+  { id:'fun', label:'趣事', icon:'😄', color:'#e8a84c' },
+  { id:'meeting', label:'会议', icon:'📝', color:'#5b8ea8' },
+  { id:'memorial', label:'纪念日', icon:'📅', color:'#c47ba0' },
+  { id:'general', label:'通用', icon:'📌', color:'#7b8ea0' },
+];
+const WD = ['日','一','二','三','四','五','六'];
+
+let token = '', me = null, records = [], viewDate = null, adminView = false;
+let calYear, calMonth, mode = 'login', typeFilters = new Set();
+let codeTimer = null;
+
+function toggleMode(m) {
+  if (m) mode = m; else if (mode === 'login') mode = 'register'; else if (mode === 'register') mode = 'login'; else mode = 'login';
+  document.getElementById('loginError').textContent = '';
+  document.getElementById('loginSuccess').textContent = '';
+  const isLogin = mode === 'login', isReg = mode === 'register', isReset = mode === 'reset', isAdmin = mode === 'admin';
+
+  document.getElementById('loginFields').style.display = isLogin ? '' : 'none';
+  document.getElementById('regFields').style.display = isReg ? '' : 'none';
+  document.getElementById('resetFields').style.display = isReset ? '' : 'none';
+  document.getElementById('adminFields').style.display = isAdmin ? '' : 'none';
+
+  if (isLogin) {
+    document.getElementById('loginBtn').textContent = '登 录';
+    document.getElementById('loginSub').textContent = '手机号登录';
+    document.getElementById('toggleText').textContent = '没有账号？';
+    document.getElementById('toggleLink').textContent = '去注册';
+    document.getElementById('toggleLink').onclick = () => toggleMode('register');
+    document.getElementById('forgotLink').style.display = '';
+  } else if (isReg) {
+    document.getElementById('loginBtn').textContent = '注 册';
+    document.getElementById('loginSub').textContent = '创建新账号';
+    document.getElementById('toggleText').textContent = '已有账号？';
+    document.getElementById('toggleLink').textContent = '去登录';
+    document.getElementById('toggleLink').onclick = () => toggleMode('login');
+    document.getElementById('forgotLink').style.display = 'none';
+  } else if (isReset) {
+    document.getElementById('loginBtn').textContent = '重置密码';
+    document.getElementById('loginSub').textContent = '找回密码';
+    document.getElementById('toggleText').textContent = '想起密码了？';
+    document.getElementById('toggleLink').textContent = '去登录';
+    document.getElementById('toggleLink').onclick = () => toggleMode('login');
+    document.getElementById('forgotLink').style.display = 'none';
+  } else if (isAdmin) {
+    document.getElementById('loginBtn').textContent = '管理员登录';
+    document.getElementById('loginSub').textContent = '管理员入口';
+    document.getElementById('toggleText').textContent = '返回手机号登录？';
+    document.getElementById('toggleLink').textContent = '返回';
+    document.getElementById('toggleLink').onclick = () => toggleMode('login');
+    document.getElementById('forgotLink').style.display = 'none';
+  }
+}
+
+async function sendCode(scene) {
+  const phoneEl = scene === 'register' ? document.getElementById('regPhone') : document.getElementById('resetPhone');
+  const btnEl = scene === 'register' ? document.getElementById('regCodeBtn') : document.getElementById('resetCodeBtn');
+  const phone = phoneEl.value.trim();
+  const errEl = document.getElementById('loginError');
+  errEl.textContent = '';
+  if (!/^1[3-9]\d{9}$/.test(phone)) { errEl.textContent = '请输入正确的手机号'; return; }
+
+  btnEl.disabled = true;
+  try {
+    const res = await fetch('/api/send-code', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ phone, scene }) });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.error; btnEl.disabled = false; return; }
+    document.getElementById('loginSuccess').textContent = data.devCode ? '验证码已发送（开发模式：' + data.devCode + '）' : '验证码已发送';
+    // Countdown
+    let sec = 60;
+    btnEl.textContent = sec + 's';
+    if (codeTimer) clearInterval(codeTimer);
+    codeTimer = setInterval(() => {
+      sec--;
+      if (sec <= 0) { clearInterval(codeTimer); btnEl.textContent = '获取验证码'; btnEl.disabled = false; }
+      else btnEl.textContent = sec + 's';
+    }, 1000);
+  } catch(e) { errEl.textContent = '发送失败，请重试'; btnEl.disabled = false; }
+}
+
+async function doLogin() {
+  const errEl = document.getElementById('loginError');
+  const succEl = document.getElementById('loginSuccess');
+  errEl.textContent = ''; succEl.textContent = '';
+
+  try {
+    let url, body;
+    if (mode === 'login') {
+      const phone = document.getElementById('loginPhone').value.trim();
+      const pass = document.getElementById('loginPass').value;
+      if (!phone || !pass) { errEl.textContent = '请输入手机号和密码'; return; }
+      url = '/api/login'; body = { phone, password: pass };
+    } else if (mode === 'register') {
+      const phone = document.getElementById('regPhone').value.trim();
+      const code = document.getElementById('regCode').value.trim();
+      const pass = document.getElementById('regPass').value;
+      const nick = document.getElementById('regNick').value.trim();
+      if (!phone || !code || !pass) { errEl.textContent = '请完整填写'; return; }
+      if (pass.length < 4) { errEl.textContent = '密码至少4位'; return; }
+      url = '/api/register'; body = { phone, code, password: pass, nickname: nick };
+    } else if (mode === 'reset') {
+      const phone = document.getElementById('resetPhone').value.trim();
+      const code = document.getElementById('resetCode').value.trim();
+      const pass = document.getElementById('resetPass').value;
+      if (!phone || !code || !pass) { errEl.textContent = '请完整填写'; return; }
+      if (pass.length < 4) { errEl.textContent = '新密码至少4位'; return; }
+      url = '/api/reset-password'; body = { phone, code, password: pass };
+    } else if (mode === 'admin') {
+      const user = document.getElementById('adminUser').value.trim();
+      const pass = document.getElementById('adminPass').value;
+      if (!user || !pass) { errEl.textContent = '请输入用户名和密码'; return; }
+      url = '/api/login'; body = { username: user, password: pass };
+    }
+
+    const res = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.error; return; }
+
+    if (mode === 'reset') {
+      succEl.textContent = data.msg + '，请登录';
+      toggleMode('login'); return;
+    }
+
+    token = data.token; me = data.user;
+    localStorage.setItem('ll_token', token);
+    localStorage.setItem('ll_user', JSON.stringify(me));
+    showApp();
+  } catch(e) { errEl.textContent = '网络错误，请重试'; }
+}
+
+function logout() {
+  localStorage.removeItem('ll_token'); localStorage.removeItem('ll_user');
+  token = ''; me = null;
+  document.getElementById('appPage').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('loginPhone').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').textContent = '';
+  document.getElementById('loginSuccess').textContent = '';
+  if (codeTimer) clearInterval(codeTimer);
+}
+
+function showApp() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('appPage').style.display = 'flex';
+  document.getElementById('sideName').textContent = me.username;
+  document.getElementById('sideRole').textContent = me.role === 'admin' ? '管理员' : '用户';
+  document.getElementById('roleBadge').textContent = me.role === 'admin' ? '管理' : '';
+  document.getElementById('adminToggle').style.display = me.role === 'admin' ? '' : 'none';
+  renderTypeBar();
+  const now = new Date();
+  calYear = now.getFullYear(); calMonth = now.getMonth();
+  loadRecords();
+}
+
+async function loadRecords() {
+  const params = new URLSearchParams();
+  if (adminView) params.set('all', 'true');
+  if (viewDate) params.set('date', viewDate);
+  const search = document.getElementById('searchInput').value.trim();
+  if (search) params.set('search', search);
+  if (typeFilters.size === 1) params.set('type', [...typeFilters][0]);
+
+  try {
+    const res = await fetch(API + '/api/records?' + params, { headers: { Authorization: 'Bearer ' + token } });
+    if (res.status === 401) { logout(); return; }
+    records = (await res.json()).records;
+  } catch(e) { records = []; }
+  renderAll();
+}
+
+async function toggleAdminView() {
+  adminView = !adminView;
+  const btn = document.getElementById('adminToggle');
+  btn.classList.toggle('active', adminView);
+  btn.textContent = adminView ? '👁 查看全员 (开)' : '👁 查看全员';
+  await loadRecords();
+}
+
+async function toggleTodo(id) {
+  const r = records.find(r => r.id == id);
+  if (!r) return;
+  await fetch(API + '/api/records/' + id, {
+    method: 'PUT', headers: { 'Content-Type':'application/json', Authorization:'Bearer '+token },
+    body: JSON.stringify({ done: r.done ? 0 : 1 })
+  });
+  r.done = !r.done;
+  renderRecords();
+}
+
+async function saveRec() {
+  const id = document.getElementById('editId').value;
+  const title = document.getElementById('recTitle').value.trim();
+  const date = document.getElementById('recDate').value;
+  const content = document.getElementById('recContent').value.trim();
+  const type = document.querySelector('#typeSel .selected')?.dataset?.type || 'general';
+  if (!title || !date) { alert('请填写标题和日期'); return; }
+  const body = { type, title, content, date };
+  const url = id ? API + '/api/records/' + id : API + '/api/records';
+  const method = id ? 'PUT' : 'POST';
+  await fetch(url, { method, headers:{'Content-Type':'application/json', Authorization:'Bearer '+token}, body: JSON.stringify(body) });
+  closeModal();
+  await loadRecords();
+}
+
+async function deleteRec() {
+  const id = document.getElementById('editId').value;
+  if (!confirm('确定删除？')) return;
+  await fetch(API + '/api/records/' + id, { method:'DELETE', headers:{Authorization:'Bearer '+token} });
+  closeModal();
+  await loadRecords();
+}
+
+async function deleteRecById(id) {
+  if (!confirm('确定删除？')) return;
+  await fetch(API + '/api/records/' + id, { method:'DELETE', headers:{Authorization:'Bearer '+token} });
+  await loadRecords();
+}
+
+function openModal(rid) {
+  document.getElementById('typeSel').innerHTML = TYPES.map(t =>
+    '<span class="type-opt" data-type="'+t.id+'" onclick="selType(\''+t.id+'\')">'+t.icon+' '+t.label+'</span>'
+  ).join('');
+  if (rid) {
+    const r = records.find(r => r.id == rid);
+    if (!r) return;
+    document.getElementById('editId').value = r.id;
+    document.getElementById('modalTitle').textContent = '编辑记录';
+    document.getElementById('recTitle').value = r.title;
+    document.getElementById('recDate').value = r.date;
+    document.getElementById('recContent').value = r.content;
+    document.getElementById('btnDel').style.display = '';
+    selType(r.type);
+  } else {
+    document.getElementById('editId').value = '';
+    document.getElementById('modalTitle').textContent = '新增记录';
+    document.getElementById('recTitle').value = '';
+    document.getElementById('recDate').value = fmtDate(new Date());
+    document.getElementById('recContent').value = '';
+    document.getElementById('btnDel').style.display = 'none';
+    selType('general');
+  }
+  document.getElementById('modalOverlay').classList.add('show');
+  document.getElementById('recTitle').focus();
+}
+
+function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+
+function selType(t) {
+  document.querySelectorAll('#typeSel .type-opt').forEach(e => e.classList.toggle('selected', e.dataset.type === t));
+}
+
+function renderTypeBar() {
+  document.getElementById('typeBar').innerHTML = TYPES.map(t =>
+    '<span class="type-chip" onclick="toggleTF(this,\''+t.id+'\')"><span class="dot" style="background:'+t.color+'"></span>'+t.label+'</span>'
+  ).join('');
+}
+
+function toggleTF(el, t) {
+  if (typeFilters.has(t)) { typeFilters.delete(t); el.classList.remove('active'); }
+  else { typeFilters.add(t); el.classList.add('active'); }
+  loadRecords();
+}
+
+function renderAll() { renderCalendar(); renderBagList(); renderRecords(); }
+
+function renderRecords() {
+  let filtered = records;
+  if (typeFilters.size > 0) filtered = filtered.filter(r => typeFilters.has(r.type));
+  filtered.sort((a,b) => {
+    if (a.type==='todo'&&!a.done && (b.type!=='todo'||b.done)) return -1;
+    if (b.type==='todo'&&!b.done && (a.type!=='todo'||a.done)) return 1;
+    return b.date.localeCompare(a.date) || b.id - a.id;
+  });
+  const list = document.getElementById('recordsList');
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty">📭 这里还空着，点「+ 新增」开始记录吧</div>'; return;
+  }
+  list.innerHTML = filtered.map(r => {
+    const t = TYPES.find(x=>x.id===r.type) || TYPES[4];
+    return '<div class="rec-card '+(r.done?'done':'')+'" style="border-left-color:'+t.color+'" onclick="openModal('+r.id+')">'+
+      (r.type==='todo' ? '<div class="rec-check '+(r.done?'checked':'')+'" onclick="event.stopPropagation();toggleTodo('+r.id+')"></div>' : '')+
+      '<div class="rec-body"><div class="rec-meta">'+
+      '<span class="rec-type type-'+r.type+'">'+t.icon+' '+t.label+'</span>'+
+      (adminView ? '<span class="rec-owner">@'+esc(r.username)+'</span>' : '')+
+      '<span class="rec-date-s">'+r.date+'</span>'+
+      (r.done ? '<span style="font-size:11px;color:var(--accent2)">✓</span>' : '')+
+      '</div><div class="rec-title">'+esc(r.title)+'</div>'+
+      (r.content ? '<div class="rec-preview">'+esc(r.content)+'</div>' : '')+
+      '</div><div class="rec-acts">'+
+      '<button class="rec-act" onclick="event.stopPropagation();openModal('+r.id+')">编辑</button>'+
+      '<button class="rec-act danger" onclick="event.stopPropagation();deleteRecById('+r.id+')">删除</button></div></div>';
+  }).join('');
+}
+
+function getDateSet() {
+  const s = new Set(); records.forEach(r => s.add(r.date)); return s;
+}
+
+function renderCalendar() {
+  const now = new Date();
+  const today = fmtDate(now);
+  const dots = getDateSet();
+  const fd = new Date(calYear, calMonth, 1).getDay();
+  const dim = new Date(calYear, calMonth+1, 0).getDate();
+  const pdim = new Date(calYear, calMonth, 0).getDate();
+
+  let h = '<div class="ch"><button onclick="calMonth--;if(calMonth<0){calMonth=11;calYear--};renderCalendar()">◀</button><span>'+calYear+'年 '+(calMonth+1)+'月</span><button onclick="calMonth++;if(calMonth>11){calMonth=0;calYear++};renderCalendar()">▶</button></div>';
+  h += '<div class="cw">'+WD.map(d=>'<span>'+d+'</span>').join('')+'</div><div class="cd">';
+  for (let i=fd-1;i>=0;i--) h+='<span class="other">'+(pdim-i)+'</span>';
+  for (let d=1;d<=dim;d++) {
+    const ds = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    let cls = '';
+    if (ds===today) cls+=' today';
+    if (ds===viewDate) cls+=' active';
+    if (dots.has(ds)) cls+=' dot';
+    h+='<span class="'+cls+'" onclick="selectDate(\''+ds+'\')">'+d+'</span>';
+  }
+  const rem = 7 - ((fd+dim)%7);
+  if (rem<7) for (let d=1;d<=rem;d++) h+='<span class="other">'+d+'</span>';
+  h+='</div>';
+  document.getElementById('calWidget').innerHTML = h;
+}
+
+function renderBagList() {
+  const dm = {};
+  records.forEach(r => { if(!dm[r.date]) dm[r.date]=new Set(); dm[r.date].add(r.type); });
+  const dates = Object.keys(dm).sort().reverse();
+  const today = fmtDate(new Date());
+  const yest = (d=>{d.setDate(d.getDate()-1);return fmtDate(d)})(new Date());
+  let h = '<div class="bag-item '+(viewDate===null?'active':'')+'" onclick="selectDate(null)"><span>📦</span>全部<span class="cnt">'+records.length+'</span></div>';
+  dates.forEach(ds => {
+    const d = new Date(ds); const w = WD[d.getDay()];
+    const label = ds===today?'今天':ds===yest?'昨天':(d.getMonth()+1)+'/'+d.getDate();
+    const tags = [...dm[ds]].slice(0,3).map(t=>'<span style="background:'+(TYPES.find(x=>x.id===t)||{}).color+'"></span>').join('');
+    const cnt = records.filter(r=>r.date===ds).length;
+    h+='<div class="bag-item '+(viewDate===ds?'active':'')+'" onclick="selectDate(\''+ds+'\')"><span>📁</span>'+label+' <span style="font-size:11px;color:var(--sub)">'+w+'</span>'+(tags?'<span class="bag-tags">'+tags+'</span>':'')+'<span class="cnt">'+cnt+'</span></div>';
+  });
+  document.getElementById('bagList').innerHTML = h;
+}
+
+function selectDate(ds) {
+  viewDate = ds;
+  if (ds) {
+    const [y,m] = ds.split('-');
+    calYear = +y; calMonth = +m - 1;
+    document.getElementById('viewTitle').innerHTML = '📁 记录袋：<em>'+ds+'</em>';
+  } else {
+    document.getElementById('viewTitle').innerHTML = '📋 <em>全部记录</em>';
+  }
+  loadRecords();
+}
+
+function fmtDate(d) { return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function esc(s) { const e=document.createElement('div'); e.textContent=s; return e.innerHTML; }
+
+// Init
+const savedToken = localStorage.getItem('ll_token');
+const savedUser = localStorage.getItem('ll_user');
+if (savedToken && savedUser) {
+  token = savedToken; me = JSON.parse(savedUser);
+  const now = new Date(); calYear = now.getFullYear(); calMonth = now.getMonth();
+  showApp();
+}
+
+document.getElementById('loginPhone').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('loginPass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('adminUser').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('adminPass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+</script>
+</body>
+</html>
