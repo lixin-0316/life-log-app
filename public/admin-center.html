@@ -16,7 +16,7 @@ body { font-family: -apple-system, 'Microsoft YaHei', 'PingFang SC', sans-serif;
 .gate-card input { width:100%; height:44px; border:1px solid #d9d9d9; border-radius:6px; padding:0 14px; font-size:15px; outline:none; text-align:center; letter-spacing:4px; }
 .gate-card input:focus { border-color:#1677ff; box-shadow:0 0 0 2px rgba(22,119,255,0.15); }
 .gate-card .err { color:#e74c3c; font-size:13px; margin-top:8px; min-height:20px; }
-.gate-card button { width:100%; height:44px; background:#1677ff; color:#fff; border:none; border-radius:6px; font-size:15px; cursor:pointer; margin-top:18px; }
+.gate-card button { width:100%; height:44px; background:#1677ff; color:#fff; border:none; border-radius:6px; font-size:15px; cursor:pointer; margin-top:18px; display:flex; justify-content:center; align-items:center; }
 .gate-card button:hover { background:#0958d9; }
 
 /* Layout */
@@ -203,7 +203,7 @@ function renderApps() {
       <div class="card-desc">${esc(a.description||'暂无描述')}</div>
       <div class="card-url">${esc(a.url||'')}</div>
       <div class="card-actions">
-        <button class="btn" onclick="window.open('${esc(a.url||'#')}','_blank')">🔗 访问</button>
+        <button class="btn" onclick="gotoApp('${esc(a.url||'#')}')">🔗 访问</button>
         <button class="btn" onclick="editApp(${a.id})">✏️ 编辑</button>
         <button class="btn btn-danger" onclick="deleteApp(${a.id},'${esc(a.name)}')">🗑 删除</button>
       </div>
@@ -271,6 +271,15 @@ if (savedToken) {
 function switchTab(tab, el) {
   document.querySelectorAll('.side-item').forEach(x => x.classList.remove('active'));
   el.classList.add('active');
+}
+
+async function gotoApp(url) {
+  try {
+    const r = await fetch(API+'/goto-token', { method:'POST', headers:authHeaders() });
+    const d = await r.json();
+    if (!d.ok) { alert('穿透失败'); return; }
+    window.open(url + '?admin_goto=' + d.token, '_blank');
+  } catch(e) { alert('穿透失败：'+e.message); }
 }
 </script>
 </body>

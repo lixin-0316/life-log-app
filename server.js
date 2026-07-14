@@ -40,6 +40,28 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_records_user_date ON records(user_id, date);
 `);
 
+// Categories table + seed
+db.exec(`
+  CREATE TABLE IF NOT EXISTS categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    type_key TEXT UNIQUE NOT NULL,
+    label TEXT NOT NULL,
+    icon TEXT DEFAULT '📌',
+    color TEXT DEFAULT '#7b8ea0',
+    sort_order INTEGER DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+  );
+`);
+const catCount = db.prepare('SELECT COUNT(*) as c FROM categories').get().c;
+if (catCount === 0) {
+  db.exec(`
+    INSERT INTO categories (type_key, label, icon, color, sort_order) VALUES
+      ('todo', '待办', '📋', '#e8964c', 1),
+      ('memo', '备忘录', '📝', '#5b8ea8', 2),
+      ('memorial', '纪念日', '📅', '#c47ba0', 3);
+  `);
+}
+
 // Migration: add phone column if missing (for existing DBs from v1)
 try { db.exec('ALTER TABLE users ADD COLUMN phone TEXT UNIQUE'); } catch(e) {}
 
@@ -258,6 +280,34 @@ app.delete('/api/records/:id', auth, (req, res) => {
   res.json({ ok: true });
 });
 
+// ── Categories API ──
+app.get('/api/categories', (req, res) => {
+  const cats = db.prepare('SELECT type_key as id, label, icon, color, sort_order FROM categories ORDER BY sort_order').all();
+  res.json({ categories: cats });
+});
+
+app.post('/api/categories', auth, (req, res) => {
+  const { type_key, label, icon, color } = req.body;
+  if (!type_key || !label) return res.status(400).json({ error: '标识和名称不能为空' });
+  if (!/^[a-z][a-z0-9_-]{0,32}$/.test(type_key)) return res.status(400).json({ error: '标识只能包含小写字母、数字、下划线，且以字母开头' });
+  try {
+    db.prepare('INSERT INTO categories (type_key, label, icon, color) VALUES (?, ?, ?, ?)').run(type_key, label, icon || '📌', color || '#7b8ea0');
+    res.json({ ok: true });
+  } catch(e) {
+    if (e.message.includes('UNIQUE')) return res.status(409).json({ error: '该标识已存在' });
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.delete('/api/categories/:key', auth, (req, res) => {
+  const { key } = req.params;
+  const used = db.prepare('SELECT COUNT(*) as c FROM records WHERE type = ? AND user_id = ?').get(key, req.user.id);
+  if (used.c > 0) return res.status(400).json({ error: `你还有 ${used.c} 条记录使用此分类，请先清理` });
+  const r = db.prepare('DELETE FROM categories WHERE type_key = ?').run(key);
+  if (r.changes === 0) return res.status(404).json({ error: '分类不存在' });
+  res.json({ ok: true });
+});
+
 // ── Admin: Export / Import ──
 app.get('/api/admin/export', auth, adminOnly, (req, res) => {
   const users = db.prepare('SELECT id, phone, username, password_hash, role, created_at FROM users').all();
@@ -352,6 +402,25 @@ app.delete('/api/admin-center/apps/:id', adminAuth, (req, res) => {
   apps.splice(idx, 1);
   saveApps(apps);
   res.json({ ok: true });
+});
+
+// ── Admin Center: Goto Token (穿透管理员登录) ──
+const gotoTokens = new Map();
+app.post('/api/admin-center/goto-token', adminAuth, (req, res) => {
+  const token = crypto.randomBytes(16).toString('hex');
+  gotoTokens.set(token, Date.now() + 60000); // 60s
+  res.json({ ok: true, token });
+});
+
+app.post('/api/goto-admin', (req, res) => {
+  const { token } = req.body;
+  if (!token || !gotoTokens.has(token)) return res.status(401).json({ error: '无效或过期的穿透令牌' });
+  if (Date.now() > gotoTokens.get(token)) { gotoTokens.delete(token); return res.status(401).json({ error: '令牌已过期' }); }
+  gotoTokens.delete(token);
+  const admin = db.prepare('SELECT id, username, role FROM users WHERE role = ?').get('admin');
+  if (!admin) return res.status(500).json({ error: '管理员账号不存在' });
+  const jwtToken = jwt.sign({ id: admin.id, username: admin.username, role: 'admin' }, JWT_SECRET, { expiresIn: '24h' });
+  res.json({ ok: true, token: jwtToken, user: { id: admin.id, username: admin.username, role: 'admin' } });
 });
 
 // ── Health ──

@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>随手记 · 多人版</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
 :root {
   --bg: #faf8f5; --card: #ffffff; --side: #f5f0eb; --text: #3c362e;
@@ -29,7 +30,7 @@ input, textarea, select { font-family: inherit; }
 .login-card .phone-row input { flex: 1; }
 .login-card .code-btn { white-space: nowrap; padding: 11px 16px; border-radius: 10px; border: 1.5px solid var(--accent); background: #fff8f0; color: var(--accent); font-size: 13px; font-weight: 600; cursor: pointer; min-width: 110px; }
 .login-card .code-btn:disabled { border-color: var(--border); background: #f5f5f5; color: var(--sub); cursor: not-allowed; }
-.login-card .btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 15px; font-weight: 700; margin-top: 8px; }
+.login-card .btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 15px; font-weight: 700; margin-top: 8px; display:flex; justify-content:center; align-items:center; }
 .login-card .btn.primary { background: var(--accent); color: #fff; }
 .login-card .btn.primary:hover { background: #d88540; }
 .login-card .toggle { text-align: center; margin-top: 14px; font-size: 13px; color: var(--sub); }
@@ -105,14 +106,12 @@ input, textarea, select { font-family: inherit; }
 .rec-check.checked::after { content: '✓'; color: #fff; font-size: 11px; font-weight: 700; }
 .rec-body { flex: 1; min-width: 0; }
 .rec-meta { display: flex; gap: 6px; align-items: center; margin-bottom: 2px; flex-wrap: wrap; }
-.rec-type { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
-.type-todo { background: #fff4e8; color: #e8964c; }
-.type-fun { background: #fff8e8; color: #c48830; }
-.type-meeting { background: #e8f2f8; color: #5b8ea8; }
-.type-memorial { background: #f8e8f2; color: #c47ba0; }
-.type-general { background: #eef2f5; color: #7b8ea0; }
+.rec-type { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; display:inline-block; }
 .rec-owner { font-size: 10px; background: #f0e6ff; color: #7c5cbf; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
 .rec-date-s { font-size: 11px; color: var(--sub); }
+.rec-countdown { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+.rec-countdown.upcoming { background: #e8f5e9; color: #388e3c; }
+.rec-countdown.past { background: #fff3e0; color: #e65100; }
 .rec-title { font-size: 14px; font-weight: 600; }
 .rec-preview { font-size: 12px; color: var(--sub); margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .rec-acts { display: flex; gap: 2px; opacity: 0; }
@@ -136,6 +135,23 @@ input, textarea, select { font-family: inherit; }
 .type-sel { display: flex; gap: 6px; flex-wrap: wrap; }
 .type-opt { padding: 6px 13px; border-radius: 20px; font-size: 12px; cursor: pointer; border: 2px solid var(--border); background: var(--card); }
 .type-opt.selected { border-color: var(--accent); background: #fff8f0; font-weight: 600; }
+
+@media (max-width: 768px) {
+  .app { flex-direction: column; }
+  .sidebar { width: 100%; max-height: 220px; overflow-y: auto; padding-bottom: 8px; }
+  .main-top { flex-wrap: wrap; gap: 8px; padding: 12px; }
+  .main-top h2 { font-size: 14px; width: 100%; }
+  .main-acts { flex-wrap: wrap; gap: 6px; }
+  .main-acts .btn { font-size: 11px; padding: 6px 10px; }
+  .main-acts .search-w { width: 100%; }
+  .rec-scroll { padding: 0 12px 20px; }
+  .type-bar { padding: 8px 12px; }
+  .rec-card { padding: 12px 14px; }
+  .rec-title { font-size: 13px; }
+  .modal { padding: 20px; border-radius: 12px; }
+  .modal h3 { font-size: 16px; }
+  .login-card { width: 92%; padding: 28px 20px; }
+}
 </style>
 </head>
 <body>
@@ -170,18 +186,11 @@ input, textarea, select { font-family: inherit; }
       <div class="field"><label>新密码</label><input type="password" id="resetPass" placeholder="至少4位新密码" autocomplete="new-password"></div>
     </div>
 
-    <!-- Admin login fields (hidden by default) -->
-    <div id="adminFields" style="display:none">
-      <div class="field"><label>用户名</label><input type="text" id="adminUser" placeholder="输入管理员用户名" autocomplete="username"></div>
-      <div class="field"><label>密码</label><input type="password" id="adminPass" placeholder="输入密码" autocomplete="current-password"></div>
-    </div>
-
     <div class="error-msg" id="loginError"></div>
     <div class="success-msg" id="loginSuccess"></div>
     <button class="btn primary" id="loginBtn" onclick="doLogin()">登 录</button>
     <p class="toggle"><span id="toggleText">没有账号？</span> <a id="toggleLink" onclick="toggleMode()">去注册</a></p>
     <p class="toggle" id="forgotLink"><a onclick="toggleMode('reset')">忘记密码？</a></p>
-    <p class="admin-link"><a onclick="toggleMode('admin')">管理员入口</a></p>
   </div>
 </div>
 
@@ -204,6 +213,8 @@ input, textarea, select { font-family: inherit; }
         <button class="btn admin-exp" id="adminImport" style="display:none" onclick="document.getElementById('importFile').click()">📥 导入</button>
         <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
         <div class="search-w"><span class="sicon">🔍</span><input type="text" id="searchInput" placeholder="搜索..." oninput="loadRecords()"></div>
+        <button class="btn ghost" onclick="openCatModal()">🏷 分类</button>
+        <button class="btn ghost" onclick="openStats()">📊 统计</button>
         <button class="btn primary" onclick="openModal()">+ 新增</button>
       </div>
     </div>
@@ -220,8 +231,8 @@ input, textarea, select { font-family: inherit; }
     <div class="type-sel" id="typeSel"></div>
     <label>标题</label>
     <input type="text" id="recTitle" placeholder="起个名字...">
-    <label>日期</label>
-    <input type="date" id="recDate">
+    <label onclick="this.nextElementSibling.showPicker()">日期</label>
+    <input type="date" id="recDate" style="width:100%;cursor:pointer">
     <label>内容</label>
     <textarea id="recContent" placeholder="写点什么..."></textarea>
     <div class="modal-footer">
@@ -232,16 +243,53 @@ input, textarea, select { font-family: inherit; }
   </div>
 </div>
 
+<!-- Category Management Modal -->
+<div class="overlay" id="catModalOverlay" onclick="closeCatModal()">
+  <div class="modal" onclick="event.stopPropagation()" style="width:460px">
+    <h3>🏷 分类管理</h3>
+    <div id="catList" style="margin-bottom:18px"></div>
+    <div style="border-top:1px solid var(--border);padding-top:16px">
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input id="catName" placeholder="分类名称（如：学习）" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px" maxlength="20">
+        <input id="catIcon" placeholder="图标（📚）" style="width:60px;padding:9px 6px;border:1px solid var(--border);border-radius:8px;font-size:15px;text-align:center" maxlength="4">
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <label style="font-size:12px;color:var(--sub);white-space:nowrap">标识：</label>
+        <input id="catKey" placeholder="英文标识（如：study）" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:monospace" maxlength="20" oninput="this.value=this.value.replace(/[^a-z0-9_-]/g,'').toLowerCase()">
+        <button class="btn primary" onclick="addCat()" style="height:38px">添加</button>
+      </div>
+    </div>
+    <div class="modal-footer" style="margin-top:14px">
+      <button class="btn" onclick="closeCatModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- Stats Modal -->
+<div class="overlay" id="statsOverlay" onclick="closeStats()">
+  <div class="modal" onclick="event.stopPropagation()" style="width:660px">
+    <h3>📊 数据统计</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div><canvas id="chartBar"></canvas><div style="text-align:center;font-size:12px;color:var(--sub);margin-top:6px">每月记录数</div></div>
+      <div style="display:flex;align-items:center;justify-content:center"><canvas id="chartPie"></canvas></div>
+    </div>
+    <div style="text-align:center;margin-top:16px;font-size:12px;color:var(--sub)">共 <b id="statsTotal">0</b> 条记录</div>
+    <div class="modal-footer"><button class="btn" onclick="closeStats()">关闭</button></div>
+  </div>
+</div>
+
 <script>
 const API = '';
-const TYPES = [
-  { id:'todo', label:'待办', icon:'📋', color:'#e8964c' },
-  { id:'fun', label:'趣事', icon:'😄', color:'#e8a84c' },
-  { id:'meeting', label:'会议', icon:'📝', color:'#5b8ea8' },
-  { id:'memorial', label:'纪念日', icon:'📅', color:'#c47ba0' },
-  { id:'general', label:'通用', icon:'📌', color:'#7b8ea0' },
-];
+let TYPES = [];
 const WD = ['日','一','二','三','四','五','六'];
+
+async function loadTypes() {
+  try {
+    const r = await fetch('/api/categories');
+    const d = await r.json();
+    TYPES = d.categories || [];
+  } catch(e) { TYPES = []; }
+}
 
 let token = '', me = null, records = [], viewDate = null, adminView = false;
 let calYear, calMonth, mode = 'login', typeFilters = new Set();
@@ -251,12 +299,11 @@ function toggleMode(m) {
   if (m) mode = m; else if (mode === 'login') mode = 'register'; else if (mode === 'register') mode = 'login'; else mode = 'login';
   document.getElementById('loginError').textContent = '';
   document.getElementById('loginSuccess').textContent = '';
-  const isLogin = mode === 'login', isReg = mode === 'register', isReset = mode === 'reset', isAdmin = mode === 'admin';
+  const isLogin = mode === 'login', isReg = mode === 'register', isReset = mode === 'reset';
 
   document.getElementById('loginFields').style.display = isLogin ? '' : 'none';
   document.getElementById('regFields').style.display = isReg ? '' : 'none';
   document.getElementById('resetFields').style.display = isReset ? '' : 'none';
-  document.getElementById('adminFields').style.display = isAdmin ? '' : 'none';
 
   if (isLogin) {
     document.getElementById('loginBtn').textContent = '登 录';
@@ -277,13 +324,6 @@ function toggleMode(m) {
     document.getElementById('loginSub').textContent = '找回密码';
     document.getElementById('toggleText').textContent = '想起密码了？';
     document.getElementById('toggleLink').textContent = '去登录';
-    document.getElementById('toggleLink').onclick = () => toggleMode('login');
-    document.getElementById('forgotLink').style.display = 'none';
-  } else if (isAdmin) {
-    document.getElementById('loginBtn').textContent = '管理员登录';
-    document.getElementById('loginSub').textContent = '管理员入口';
-    document.getElementById('toggleText').textContent = '返回手机号登录？';
-    document.getElementById('toggleLink').textContent = '返回';
     document.getElementById('toggleLink').onclick = () => toggleMode('login');
     document.getElementById('forgotLink').style.display = 'none';
   }
@@ -377,7 +417,8 @@ function logout() {
   if (codeTimer) clearInterval(codeTimer);
 }
 
-function showApp() {
+async function showApp() {
+  await loadTypes();
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('appPage').style.display = 'flex';
   document.getElementById('sideName').textContent = me.username;
@@ -432,7 +473,7 @@ async function saveRec() {
   const title = document.getElementById('recTitle').value.trim();
   const date = document.getElementById('recDate').value;
   const content = document.getElementById('recContent').value.trim();
-  const type = document.querySelector('#typeSel .selected')?.dataset?.type || 'general';
+  const type = document.querySelector('#typeSel .selected')?.dataset?.type || (TYPES[0]?.id || 'todo');
   if (!title || !date) { alert('请填写标题和日期'); return; }
   const body = { type, title, content, date };
   const url = id ? API + '/api/records/' + id : API + '/api/records';
@@ -460,6 +501,7 @@ function openModal(rid) {
   document.getElementById('typeSel').innerHTML = TYPES.map(t =>
     '<span class="type-opt" data-type="'+t.id+'" onclick="selType(\''+t.id+'\')">'+t.icon+' '+t.label+'</span>'
   ).join('');
+  const defaultType = TYPES[0]?.id || 'todo';
   if (rid) {
     const r = records.find(r => r.id == rid);
     if (!r) return;
@@ -469,7 +511,7 @@ function openModal(rid) {
     document.getElementById('recDate').value = r.date;
     document.getElementById('recContent').value = r.content;
     document.getElementById('btnDel').style.display = '';
-    selType(r.type);
+    selType(r.type || defaultType);
   } else {
     document.getElementById('editId').value = '';
     document.getElementById('modalTitle').textContent = '新增记录';
@@ -477,7 +519,7 @@ function openModal(rid) {
     document.getElementById('recDate').value = fmtDate(new Date());
     document.getElementById('recContent').value = '';
     document.getElementById('btnDel').style.display = 'none';
-    selType('general');
+    selType(defaultType);
   }
   document.getElementById('modalOverlay').classList.add('show');
   document.getElementById('recTitle').focus();
@@ -485,13 +527,126 @@ function openModal(rid) {
 
 function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
 
+// ── Category Management ──
+function openCatModal() {
+  renderCatList();
+  document.getElementById('catName').value = '';
+  document.getElementById('catIcon').value = '';
+  document.getElementById('catKey').value = '';
+  document.getElementById('catModalOverlay').classList.add('show');
+}
+function closeCatModal() { document.getElementById('catModalOverlay').classList.remove('show'); }
+
+function renderCatList() {
+  const el = document.getElementById('catList');
+  if (!TYPES.length) { el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--sub)">暂无分类，请在下方添加</div>'; return; }
+  el.innerHTML = TYPES.map(t => {
+    const usage = records.filter(r => r.type === t.id).length;
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">'+
+      '<span style="font-size:20px">'+t.icon+'</span>'+
+      '<span style="flex:1;font-size:14px;font-weight:600">'+esc(t.label)+'</span>'+
+      '<span style="font-size:11px;color:var(--sub);font-family:monospace">'+t.id+'</span>'+
+      '<span style="font-size:11px;color:var(--sub)">'+usage+' 条记录</span>'+
+      (usage === 0 ? '<button class="btn ghost" style="font-size:11px;padding:4px 10px" onclick="deleteCat(\''+t.id+'\')">删除</button>' :
+        '<span style="font-size:11px;color:#e74c3c;font-weight:600">有记录不可删</span>')+
+    '</div>';
+  }).join('');
+}
+
+async function addCat() {
+  const label = document.getElementById('catName').value.trim();
+  const icon = document.getElementById('catIcon').value.trim() || '📌';
+  const type_key = document.getElementById('catKey').value.trim().toLowerCase();
+  if (!label) { alert('请输入分类名称'); return; }
+  if (!type_key) { alert('请输入英文标识'); return; }
+  try {
+    const r = await fetch('/api/categories', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify({ type_key, label, icon }) });
+    if (!r.ok) { const d = await r.json(); alert(d.error||'添加失败'); return; }
+    await loadTypes();
+    renderCatList();
+    renderTypeBar();
+    document.getElementById('catName').value = '';
+    document.getElementById('catIcon').value = '';
+    document.getElementById('catKey').value = '';
+  } catch(e) { alert('网络错误'); }
+}
+
+async function deleteCat(key) {
+  if (!confirm('确定删除此分类吗？')) return;
+  try {
+    const r = await fetch('/api/categories/'+key, { method:'DELETE', headers:{'Authorization':'Bearer '+token} });
+    if (!r.ok) { const d = await r.json(); alert(d.error||'删除失败'); return; }
+    await loadTypes();
+    renderCatList();
+    renderTypeBar();
+    loadRecords();
+  } catch(e) { alert('网络错误'); }
+}
+
+// ── Stats (Chart.js) ──
+let barChart = null, pieChart = null;
+
+function openStats() {
+  document.getElementById('statsOverlay').classList.add('show');
+  renderStats();
+}
+
+function closeStats() { document.getElementById('statsOverlay').classList.remove('show'); }
+
+function renderStats() {
+  const recs = adminView ? records : records.filter(r => !adminView || true);
+  const all = records;
+  document.getElementById('statsTotal').textContent = all.length;
+
+  // Bar: monthly counts
+  const months = {};
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    months[k] = 0;
+  }
+  all.forEach(r => {
+    const k = r.date.slice(0, 7);
+    if (months[k] !== undefined) months[k]++;
+  });
+  const barLabels = Object.keys(months).map(k => k.slice(5) + '月');
+  const barData = Object.values(months);
+
+  // Pie: type distribution
+  const typeCount = {};
+  all.forEach(r => { typeCount[r.type] = (typeCount[r.type] || 0) + 1; });
+  const pieLabels = [], pieData = [], pieColors = [];
+  TYPES.forEach(t => {
+    pieLabels.push(t.icon + ' ' + t.label);
+    pieData.push(typeCount[t.id] || 0);
+    pieColors.push(t.color);
+  });
+
+  const barCtx = document.getElementById('chartBar').getContext('2d');
+  if (barChart) barChart.destroy();
+  barChart = new Chart(barCtx, {
+    type: 'bar',
+    data: { labels: barLabels, datasets: [{ data: barData, backgroundColor: '#e8964c88', borderColor: '#e8964c', borderWidth: 1, borderRadius: 4 }] },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+  });
+
+  const pieCtx = document.getElementById('chartPie').getContext('2d');
+  if (pieChart) pieChart.destroy();
+  pieChart = new Chart(pieCtx, {
+    type: 'doughnut',
+    data: { labels: pieLabels, datasets: [{ data: pieData, backgroundColor: pieColors, borderWidth: 0 }] },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } } }
+  });
+}
+
 function selType(t) {
   document.querySelectorAll('#typeSel .type-opt').forEach(e => e.classList.toggle('selected', e.dataset.type === t));
 }
 
 function renderTypeBar() {
   document.getElementById('typeBar').innerHTML = TYPES.map(t =>
-    '<span class="type-chip" onclick="toggleTF(this,\''+t.id+'\')"><span class="dot" style="background:'+t.color+'"></span>'+t.label+'</span>'
+    '<span class="type-chip" onclick="toggleTF(this,\''+t.id+'\')" style="'+(typeFilters.has(t.id)?'background:'+t.color+'22;border-color:'+t.color:'')+'"><span class="dot" style="background:'+t.color+';box-shadow:0 0 0 1px '+t.color+'44"></span>'+t.icon+' '+t.label+'</span>'
   ).join('');
 }
 
@@ -516,13 +671,14 @@ function renderRecords() {
     list.innerHTML = '<div class="empty">📭 这里还空着，点「+ 新增」开始记录吧</div>'; return;
   }
   list.innerHTML = filtered.map(r => {
-    const t = TYPES.find(x=>x.id===r.type) || TYPES[4];
+    const t = TYPES.find(x=>x.id===r.type) || TYPES[0] || { id:'unknown', label:'未分类', icon:'📌', color:'#7b8ea0' };
     return '<div class="rec-card '+(r.done?'done':'')+'" style="border-left-color:'+t.color+'" onclick="openModal('+r.id+')">'+
       (r.type==='todo' ? '<div class="rec-check '+(r.done?'checked':'')+'" onclick="event.stopPropagation();toggleTodo('+r.id+')"></div>' : '')+
       '<div class="rec-body"><div class="rec-meta">'+
-      '<span class="rec-type type-'+r.type+'">'+t.icon+' '+t.label+'</span>'+
+      '<span class="rec-type" style="background:'+t.color+'22;color:'+t.color+'">'+t.icon+' '+t.label+'</span>'+
       (adminView ? '<span class="rec-owner">@'+esc(r.username)+'</span>' : '')+
       '<span class="rec-date-s">'+r.date+'</span>'+
+      (r.type==='memorial' ? (()=>{const td=fmtDate(new Date());const d=r.date;const ms=Date.parse(d)-Date.parse(td);const days=Math.round(ms/86400000);if(days===0)return'<span class="rec-countdown upcoming">🎉 就是今天</span>';if(days>0)return'<span class="rec-countdown upcoming">还有 '+days+' 天</span>';return'<span class="rec-countdown past">已过 '+Math.abs(days)+' 天</span>'})() : '')+
       (r.done ? '<span style="font-size:11px;color:var(--accent2)">✓</span>' : '')+
       '</div><div class="rec-title">'+esc(r.title)+'</div>'+
       (r.content ? '<div class="rec-preview">'+esc(r.content)+'</div>' : '')+
@@ -623,6 +779,24 @@ async function importData(input) {
 }
 
 // Init
+// Init — 穿透管理员登录
+(async function checkAdminGoto() {
+  const p = new URLSearchParams(location.search);
+  const at = p.get('admin_goto');
+  if (!at) return;
+  try {
+    const r = await fetch('/api/goto-admin', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ token:at }) });
+    if (!r.ok) { history.replaceState(null,'',location.pathname); return; }
+    const d = await r.json();
+    token = d.token; me = d.user;
+    localStorage.setItem('ll_token', token);
+    localStorage.setItem('ll_user', JSON.stringify(me));
+    history.replaceState(null,'',location.pathname);
+    const now = new Date(); calYear = now.getFullYear(); calMonth = now.getMonth();
+    showApp();
+  } catch(e) { history.replaceState(null,'',location.pathname); }
+})();
+
 const savedToken = localStorage.getItem('ll_token');
 const savedUser = localStorage.getItem('ll_user');
 if (savedToken && savedUser) {
@@ -633,8 +807,6 @@ if (savedToken && savedUser) {
 
 document.getElementById('loginPhone').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 document.getElementById('loginPass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
-document.getElementById('adminUser').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
-document.getElementById('adminPass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
 </script>
 </body>
