@@ -65,6 +65,18 @@ if (catCount === 0) {
 // Migration: add phone column if missing (for existing DBs from v1)
 try { db.exec('ALTER TABLE users ADD COLUMN phone TEXT UNIQUE'); } catch(e) {}
 
+// Migration: add checklist column for todo sub-tasks
+try { db.exec('ALTER TABLE records ADD COLUMN checklist TEXT'); } catch(e) {}
+// Migration: add due_date, due_time for reminders
+try { db.exec('ALTER TABLE records ADD COLUMN due_date TEXT'); } catch(e) {}
+try { db.exec('ALTER TABLE records ADD COLUMN due_time TEXT'); } catch(e) {}
+// Migration: soft delete
+try { db.exec('ALTER TABLE records ADD COLUMN deleted_at TEXT'); } catch(e) {}
+// Migration: record templates
+try { db.exec('ALTER TABLE records ADD COLUMN is_template INTEGER NOT NULL DEFAULT 0'); } catch(e) {}
+// Migration: tags column
+try { db.exec('ALTER TABLE records ADD COLUMN tags TEXT'); } catch(e) {}
+
 // Auto-create admin
 const userCount = db.prepare('SELECT COUNT(*) as c FROM users').get().c;
 if (userCount === 0) {
@@ -233,6 +245,7 @@ app.get('/api/records', auth, (req, res) => {
   const { date, type, search, all } = req.query;
   let sql, params;
 
+  const { trash } = req.query;
   if (all === 'true' && req.user.role === 'admin') {
     sql = 'SELECT r.*, u.username FROM records r JOIN users u ON r.user_id = u.id WHERE 1=1';
     params = [];
@@ -241,9 +254,15 @@ app.get('/api/records', auth, (req, res) => {
     params = [req.user.id];
   }
 
+  if (trash === 'true') {
+    sql += ' AND r.deleted_at IS NOT NULL';
+  } else {
+    sql += ' AND r.deleted_at IS NULL';
+  }
   if (date) { sql += ' AND r.date = ?'; params.push(date); }
   if (type) { sql += ' AND r.type = ?'; params.push(type); }
   if (search) { sql += ' AND (r.title LIKE ? OR r.content LIKE ?)'; params.push('%'+search+'%', '%'+search+'%'); }
+  if (req.query.tag) { sql += ' AND r.tags LIKE ?'; params.push('%'+req.query.tag+'%'); }
 
   sql += ' ORDER BY r.date DESC, r.id DESC';
   const records = db.prepare(sql).all(...params);
@@ -251,9 +270,9 @@ app.get('/api/records', auth, (req, res) => {
 });
 
 app.post('/api/records', auth, (req, res) => {
-  const { type, title, content, date } = req.body;
+  const { type, title, content, date, checklist, due_date, due_time, tags } = req.body;
   if (!title || !date) return res.status(400).json({ error: '标题和日期不能为空' });
-  const result = db.prepare('INSERT INTO records (user_id, type, title, content, date) VALUES (?, ?, ?, ?, ?)').run(req.user.id, type || 'general', title, content || '', date);
+  const result = db.prepare('INSERT INTO records (user_id, type, title, content, date, checklist, due_date, due_time, tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)').run(req.user.id, type || 'general', title, content || '', date, checklist ? JSON.stringify(checklist) : null, due_date || null, due_time || null, tags || null);
   const record = db.prepare('SELECT * FROM records WHERE id = ?').get(result.lastInsertRowid);
   res.json({ record });
 });
@@ -263,21 +282,84 @@ app.put('/api/records/:id', auth, (req, res) => {
   const record = db.prepare('SELECT * FROM records WHERE id = ?').get(id);
   if (!record) return res.status(404).json({ error: '记录不存在' });
   if (record.user_id !== req.user.id && req.user.role !== 'admin') return res.status(403).json({ error: '无权修改' });
-  const { type, title, content, date, done } = req.body;
-  db.prepare('UPDATE records SET type=?, title=?, content=?, date=?, done=? WHERE id=?').run(
+  const { type, title, content, date, done, checklist, due_date, due_time, tags } = req.body;
+  db.prepare('UPDATE records SET type=?, title=?, content=?, date=?, done=?, checklist=?, due_date=?, due_time=?, tags=? WHERE id=?').run(
     type ?? record.type, title ?? record.title, content ?? record.content,
-    date ?? record.date, done !== undefined ? (done ? 1 : 0) : record.done, id
+    date ?? record.date, done !== undefined ? (done ? 1 : 0) : record.done,
+    checklist !== undefined ? (checklist ? JSON.stringify(checklist) : null) : record.checklist,
+    due_date !== undefined ? due_date : record.due_date,
+    due_time !== undefined ? due_time : record.due_time,
+    tags !== undefined ? tags : record.tags, id
   );
   res.json({ record: db.prepare('SELECT * FROM records WHERE id = ?').get(id) });
 });
 
 app.delete('/api/records/:id', auth, (req, res) => {
   const { id } = req.params;
-  const record = db.prepare('SELECT * FROM records WHERE id = ?').get(id);
+  const record = db.prepare('SELECT * FROM records WHERE id = ? AND deleted_at IS NULL').get(id);
   if (!record) return res.status(404).json({ error: '记录不存在' });
   if (record.user_id !== req.user.id && req.user.role !== 'admin') return res.status(403).json({ error: '无权删除' });
+  db.prepare("UPDATE records SET deleted_at = datetime('now','localtime') WHERE id = ?").run(id);
+  res.json({ ok: true });
+});
+
+// ── Trash / Restore ──
+app.get('/api/trash', auth, (req, res) => {
+  const records = db.prepare('SELECT r.*, u.username FROM records r JOIN users u ON r.user_id = u.id WHERE r.user_id = ? AND r.deleted_at IS NOT NULL ORDER BY r.deleted_at DESC').all(req.user.id);
+  res.json({ records });
+});
+
+app.put('/api/records/:id/restore', auth, (req, res) => {
+  const { id } = req.params;
+  const record = db.prepare('SELECT * FROM records WHERE id = ? AND user_id = ?').get(id, req.user.id);
+  if (!record) return res.status(404).json({ error: '记录不存在' });
+  db.prepare('UPDATE records SET deleted_at = NULL WHERE id = ?').run(id);
+  res.json({ ok: true });
+});
+
+app.delete('/api/records/:id/permanent', auth, (req, res) => {
+  const { id } = req.params;
+  const record = db.prepare('SELECT * FROM records WHERE id = ? AND user_id = ?').get(id, req.user.id);
+  if (!record) return res.status(404).json({ error: '记录不存在' });
   db.prepare('DELETE FROM records WHERE id = ?').run(id);
   res.json({ ok: true });
+});
+
+// ── User Export ──
+app.get('/api/export', auth, (req, res) => {
+  const records = db.prepare('SELECT * FROM records WHERE user_id = ? AND deleted_at IS NULL ORDER BY date DESC, id DESC').all(req.user.id);
+  const format = req.query.format || 'json';
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  const ds = new Date().toISOString().slice(0,10);
+  if (format === 'csv') {
+    const header = 'id,type,title,content,date,done,due_date,due_time,checklist,created_at';
+    const rows = records.map(r => [
+      r.id, r.type, r.title, r.content, r.date, r.done, r.due_date||'', r.due_time||'', r.checklist||'', r.created_at
+    ].map(v => '"' + String(v||'').replace(/"/g,'""') + '"').join(','));
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="life-log-' + ds + '.csv"');
+    res.send(header + '\n' + rows.join('\n'));
+    return;
+  }
+  if (format === 'md') {
+    let md = '# 星记备份 — ' + me.username + ' (' + ds + ')\n\n';
+    records.forEach(r => {
+      md += '## ' + r.title + '\n';
+      md += '- 日期: ' + r.date + ' | 类型: ' + r.type + (r.done ? ' | 已完成' : '') + '\n';
+      if (r.content) md += '- 内容: ' + r.content + '\n';
+      if (r.checklist) {
+        const cl = (() => { try { return JSON.parse(r.checklist); } catch(e) { return []; } })();
+        cl.forEach(it => md += (it.done ? '- [x] ' : '- [ ] ') + it.text + '\n');
+      }
+      md += '\n';
+    });
+    res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="life-log-' + ds + '.md"');
+    res.send(md);
+    return;
+  }
+  res.setHeader('Content-Disposition', 'attachment; filename="life-log-' + ds + '.json"');
+  res.json({ version: 1, exportedAt: new Date().toISOString(), username: req.user.username, count: records.length, records });
 });
 
 // ── Categories API ──
@@ -327,8 +409,8 @@ app.post('/api/admin/import', auth, adminOnly, (req, res) => {
     db.prepare('DELETE FROM users WHERE role != ?').run('admin');
     const insUser = db.prepare('INSERT OR IGNORE INTO users (id, phone, username, password_hash, role, created_at) VALUES (?, ?, ?, ?, ?, ?)');
     for (const u of users) insUser.run(u.id, u.phone, u.username, u.password_hash || '', u.role, u.created_at);
-    const insRec = db.prepare('INSERT OR IGNORE INTO records (id, user_id, type, title, content, date, done, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-    for (const r of records) insRec.run(r.id, r.user_id, r.type, r.title, r.content || '', r.date, r.done || 0, r.created_at);
+    const insRec = db.prepare('INSERT OR IGNORE INTO records (id, user_id, type, title, content, date, done, checklist, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    for (const r of records) insRec.run(r.id, r.user_id, r.type, r.title, r.content || '', r.date, r.done || 0, r.checklist || null, r.created_at);
     db.exec('COMMIT');
     const n = db.prepare('SELECT COUNT(*) as c FROM records').get().c;
     res.json({ ok: true, msg: '导入成功，共 ' + n + ' 条记录' });
@@ -427,7 +509,7 @@ app.post('/api/goto-admin', (req, res) => {
 app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
 
 app.listen(PORT, () => {
-  console.log(`\n  随手记服务 → http://localhost:${PORT}`);
+  console.log(`\n  星记服务 → http://localhost:${PORT}`);
   console.log(`  管理员账号: admin / admin123`);
   console.log(`  验证码模式: ${process.env.NODE_ENV === 'production' ? '真实短信' : '开发模式（控制台输出）'}\n`);
 });

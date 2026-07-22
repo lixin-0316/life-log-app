@@ -3,13 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>随手记 · 多人版</title>
+<title>星记</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
 :root {
   --bg: #faf8f5; --card: #ffffff; --side: #f5f0eb; --text: #3c362e;
   --sub: #8b8178; --border: #e8e2d9; --accent: #e8964c; --accent2: #6b9e85;
   --danger: #d4786e; --shadow: 0 1px 3px rgba(0,0,0,.06);
+  --modal-bg: #fff; --input-bg: #fafaf8;
+}
+[data-theme="dark"] {
+  --bg: #1a1a1f; --card: #252528; --side: #1e1e22; --text: #e4e4e7;
+  --sub: #90909a; --border: #35353a; --accent: #e8964c; --accent2: #6b9e85;
+  --danger: #d4786e; --shadow: 0 1px 3px rgba(0,0,0,.3);
+  --modal-bg: #2a2a30; --input-bg: #1e1e22;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); }
@@ -104,6 +111,8 @@ input, textarea, select { font-family: inherit; }
 .rec-check:hover { border-color: var(--accent); }
 .rec-check.checked { background: var(--accent2); border-color: var(--accent2); }
 .rec-check.checked::after { content: '✓'; color: #fff; font-size: 11px; font-weight: 700; }
+.rec-check.working { background: #e3f2fd; border-color: #1565c0; }
+.rec-check.working::after { content: '—'; color: #1565c0; font-size: 13px; font-weight: 700; }
 .rec-body { flex: 1; min-width: 0; }
 .rec-meta { display: flex; gap: 6px; align-items: center; margin-bottom: 2px; flex-wrap: wrap; }
 .rec-type { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; display:inline-block; }
@@ -115,6 +124,20 @@ input, textarea, select { font-family: inherit; }
 .rec-title { font-size: 14px; font-weight: 600; }
 .rec-preview { font-size: 12px; color: var(--sub); margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .rec-acts { display: flex; gap: 2px; opacity: 0; }
+.status-bar { padding: 4px 28px 2px; display: flex; gap: 6px; }
+.status-btn { padding: 4px 13px; border-radius: 16px; font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--sub); }
+.status-btn:hover, .status-btn.active { border-color: var(--accent); color: var(--accent); background: #fff8f0; }
+.status-badge { font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 20px; cursor: pointer; user-select: none; }
+.status-badge.todo { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
+.status-badge.done { background: #e8f5e9; color: #388e3c; border: 1px solid #a5d6a7; }
+.status-badge.progress { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+.todo-list { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; border-top: 1px dashed var(--border); padding-top: 8px; }
+.todo-item { display: flex; gap: 8px; align-items: center; font-size: 13px; cursor: pointer; padding: 3px 4px; border-radius: 6px; }
+.todo-item:hover { background: #faf7f2; }
+.todo-item.done .todo-txt { text-decoration: line-through; color: var(--sub); }
+.todo-box { width: 15px; height: 15px; min-width: 15px; border-radius: 4px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; color: #fff; }
+.todo-box.checked { background: var(--accent2); border-color: var(--accent2); }
+.todo-progress { font-size: 11px; color: var(--sub); margin-top: 4px; }
 .rec-card:hover .rec-acts { opacity: 1; }
 .rec-act { background: none; border: none; padding: 3px 7px; border-radius: 4px; font-size: 11px; color: var(--sub); }
 .rec-act:hover { background: var(--border); }
@@ -152,13 +175,90 @@ input, textarea, select { font-family: inherit; }
   .modal h3 { font-size: 16px; }
   .login-card { width: 92%; padding: 28px 20px; }
 }
+
+/* Dark mode overrides */
+[data-theme="dark"] body { background: var(--bg); }
+[data-theme="dark"] .login-page { background: linear-gradient(135deg, #1a1a1f 0%, #252528 100%); }
+[data-theme="dark"] .login-card, [data-theme="dark"] .modal, [data-theme="dark"] .rec-card { background: var(--card); }
+[data-theme="dark"] input, [data-theme="dark"] textarea, [data-theme="dark"] select { background: var(--input-bg); color: var(--text); border-color: var(--border); }
+[data-theme="dark"] .type-opt { background: var(--card); }
+[data-theme="dark"] .overlay { background: rgba(0,0,0,.6); }
+[data-theme="dark"] .todo-item:hover { background: #35353a; }
+[data-theme="dark"] .rec-act:hover { background: var(--border); }
+[data-theme="dark"] .empty { color: var(--sub); }
+
+/* Today view */
+.today-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; padding: 12px 0; }
+.today-card { background: var(--card); border-radius: 12px; padding: 18px 20px; box-shadow: var(--shadow); }
+.today-card h3 { font-size: 13px; color: var(--sub); margin-bottom: 10px; font-weight: 500; }
+.today-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 13px; border-bottom: 1px solid var(--border); }
+.today-item:last-child { border-bottom: none; }
+.today-item .ti-type { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+.today-item .ti-overdue { color: var(--danger); font-weight: 600; }
+.today-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-left: auto; }
+.today-badge.today { background: #e8f5e9; color: #388e3c; }
+.today-badge.overdue { background: #fcebeb; color: #a32d2d; }
+
+/* Trash page */
+.trash-page { padding: 20px 28px; }
+.trash-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.trash-header h3 { font-size: 16px; flex:1; }
+
+/* Template picker */
+.template-pick { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+.tmpl-chip { padding: 5px 12px; border-radius: 16px; font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--sub); white-space: nowrap; }
+.tmpl-chip:hover, .tmpl-chip.selected { border-color: var(--accent); color: var(--accent); background: #fff8f0; }
+
+/* Due date row */
+.due-row { display: flex; gap: 8px; align-items: center; }
+.due-row input { flex: 1; }
+.due-row input[type="time"] { flex: 0.5; }
+
+/* Swipe to delete */
+.rec-card { position: relative; transition: transform .25s ease, opacity .25s ease; }
+.rec-card.new-entry { animation: fadeInCard .4s ease both; }
+@keyframes fadeInCard { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Quick add bar */
+.quick-add-bar { display: flex; gap: 8px; padding: 8px 0; align-items: center; }
+.quick-add-bar input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 13px; background: var(--input-bg); color: var(--text); }
+.quick-add-bar input:focus { outline: none; border-color: var(--accent); }
+.quick-add-bar select { padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; font-size: 13px; background: var(--input-bg); color: var(--text); cursor: pointer; }
+
+/* Tag chips */
+.tag-chip { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 10px; background: var(--tag); color: var(--accent); margin-right: 4px; cursor: pointer; border: 1px solid transparent; }
+.tag-chip:hover, .tag-chip.active { border-color: var(--accent); background: var(--accent); color: #fff; }
+.tag-input { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+.tag-input input { flex: 1; min-width: 120px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; background: var(--input-bg); color: var(--text); }
+
+/* Advanced search panel */
+.adv-search { display: none; flex-wrap: wrap; gap: 8px; padding: 8px 0; align-items: center; }
+.adv-search.show { display: flex; }
+.adv-search input, .adv-search select { padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; background: var(--input-bg); color: var(--text); }
+.adv-search .btn-clear { font-size: 11px; color: var(--danger); cursor: pointer; background: none; border: none; }
+
+/* Kanban board */
+.kanban-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 8px 0; min-height: 200px; }
+.kanban-col { background: var(--side); border-radius: 12px; padding: 10px; }
+.kanban-col h3 { font-size: 13px; font-weight: 500; margin-bottom: 8px; padding: 0 4px; }
+.kanban-col .kanban-card { background: var(--card); border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; border-left: 3px solid var(--accent); cursor: pointer; box-shadow: var(--shadow); }
+.kanban-col .kanban-card:hover { transform: translateY(-1px); }
+.kanban-col .kanban-card .kc-title { font-size: 13px; font-weight: 500; }
+.kanban-col .kanban-card .kc-meta { font-size: 10px; color: var(--sub); margin-top: 2px; }
+@media (max-width: 768px) { .kanban-board { grid-template-columns: 1fr; } }
+
+/* Heatmap */
+.heat-1 { background: #c8e6c9 !important; }
+.heat-2 { background: #81c784 !important; }
+.heat-3 { background: #4caf50 !important; }
+.heat-4 { background: #388e3c !important; }
 </style>
 </head>
 <body>
 
 <div id="loginPage" class="login-page">
   <div class="login-card">
-    <h1>📦 随手记</h1>
+    <h1>星记</h1>
     <p class="sub" id="loginSub">手机号登录</p>
 
     <!-- Login fields -->
@@ -196,7 +296,7 @@ input, textarea, select { font-family: inherit; }
 
 <div id="appPage" class="app" style="display:none">
   <aside class="sidebar">
-    <div class="side-head">📦 随手记 <span class="badge" id="roleBadge"></span></div>
+    <div class="side-head">星记 <span class="badge" id="roleBadge"></span></div>
     <div class="cal-box" id="calWidget"></div>
     <div class="side-bag"><h3>📁 记录袋</h3><div id="bagList"></div></div>
     <div class="side-user">
@@ -213,13 +313,34 @@ input, textarea, select { font-family: inherit; }
         <button class="btn admin-exp" id="adminImport" style="display:none" onclick="document.getElementById('importFile').click()">📥 导入</button>
         <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
         <div class="search-w"><span class="sicon">🔍</span><input type="text" id="searchInput" placeholder="搜索..." oninput="loadRecords()"></div>
+        <button class="btn ghost" id="todayBtn" onclick="toggleTodayView()">📅 今日</button>
         <button class="btn ghost" onclick="openCatModal()">🏷 分类</button>
         <button class="btn ghost" onclick="openStats()">📊 统计</button>
+        <button class="btn ghost" onclick="viewTrash()">🗑 回收站</button>
+        <button class="btn ghost" id="exportBtn" onclick="userExport()">📤 导出</button>
+        <button class="btn ghost" onclick="toggleKanban()">📋 看板</button>
+        <button class="btn ghost" id="advSearchBtn" onclick="toggleAdvSearch()">🔎 筛选</button>
+        <button class="btn ghost" id="themeBtn" onclick="toggleThemePanel()" style="position:relative">🎨<span class="theme-panel" id="themePanel" style="display:none;position:absolute;top:100%;right:0;margin-top:6px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px 10px;box-shadow:0 4px 20px rgba(0,0,0,.12);z-index:100;display:none;flex-wrap:wrap;gap:6px;min-width:110px"></span></button>
         <button class="btn primary" onclick="openModal()">+ 新增</button>
       </div>
     </div>
     <div class="type-bar" id="typeBar"></div>
-    <div class="rec-scroll"><div class="records" id="recordsList"></div></div>
+    <div class="status-bar" id="statusBar"></div>
+    <div class="adv-search" id="advSearch">
+      <input type="text" id="advTag" placeholder="#标签筛选" style="flex:1;min-width:100px" oninput="applyAdvFilters()">
+      <input type="date" id="advDateFrom" placeholder="开始日期" onchange="applyAdvFilters()">
+      <input type="date" id="advDateTo" placeholder="结束日期" onchange="applyAdvFilters()">
+      <button class="btn-clear" onclick="clearAdvFilters()">✕ 清除</button>
+    </div>
+    <div class="quick-add-bar" id="quickAddBar" style="display:flex;padding:0 28px">
+      <select id="qaType" style="min-width:70px"></select>
+      <input id="qaInput" placeholder="快速记录，回车保存..." onkeydown="if(event.key==='Enter'){event.preventDefault();quickAdd()}">
+      <button class="btn primary" onclick="quickAdd()" style="white-space:nowrap">+</button>
+    </div>
+    <div class="rec-scroll" id="todayPanel" style="display:none"><div class="today-grid" id="todayGrid"></div></div>
+    <div class="rec-scroll" id="trashPanel" style="display:none"><div class="trash-page"><div class="trash-header"><h3>🗑 回收站</h3><button class="btn ghost" onclick="emptyTrash()">🗑 清空回收站</button><button class="btn ghost" onclick="viewRecords()">← 返回记录</button></div><div id="trashList"></div></div></div>
+    <div class="rec-scroll" id="recordsPanel"><div class="records" id="recordsList"></div></div>
+    <div class="rec-scroll" id="kanbanPanel" style="display:none"><div class="kanban-board" id="kanbanBoard"></div></div>
   </main>
 </div>
 
@@ -229,12 +350,42 @@ input, textarea, select { font-family: inherit; }
     <input type="hidden" id="editId">
     <label>记录类型</label>
     <div class="type-sel" id="typeSel"></div>
+    <label>模板 <span style="font-weight:400;color:var(--sub);font-size:11px">（选填）</span></label>
+    <div class="template-pick" id="templatePick"></div>
     <label>标题</label>
     <input type="text" id="recTitle" placeholder="起个名字...">
-    <label onclick="this.nextElementSibling.showPicker()">日期</label>
-    <input type="date" id="recDate" style="width:100%;cursor:pointer">
+    <label style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="toggleDateRow()">
+      <span>日期</span>
+      <span style="font-size:12px;color:var(--accent);cursor:pointer" id="dateToggleLabel">修改</span>
+    </label>
+    <div id="dateRowCollapse" style="display:none">
+      <input type="date" id="recDate" style="width:100%;cursor:pointer">
+    </div>
+    <label style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="toggleDueRow()">
+      <span>截止时间</span>
+      <span style="font-size:12px;color:var(--accent);cursor:pointer" id="dueToggleLabel">添加</span>
+    </label>
+    <div id="dueRowCollapse" style="display:none">
+      <input type="date" id="dueDate" style="cursor:pointer;width:100%">
+      <input type="time" id="dueTime" style="margin-top:6px;cursor:pointer;width:100%">
+    </div>
     <label>内容</label>
     <textarea id="recContent" placeholder="写点什么..."></textarea>
+    <label>标签 <span style="font-weight:400;color:var(--sub);font-size:11px">（选填，用逗号隔开）</span></label>
+    <div class="tag-input" id="tagInputArea">
+      <input id="tagInput" placeholder="工作, 重要, 待跟进..." onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();addTag()}">
+      <button class="btn ghost" type="button" onclick="addTag()" style="font-size:11px;padding:4px 10px">+ 添加</button>
+    </div>
+    <div id="tagChips" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
+    <div id="todoSection" style="display:none;margin-top:14px;border-top:1px dashed var(--border);padding-top:14px">
+      <label>子任务清单</label>
+      <div id="todoItems" style="display:flex;flex-direction:column;gap:6px;margin:8px 0"></div>
+      <div style="display:flex;gap:6px">
+        <input id="todoInput" placeholder="添加一项子任务，回车确认" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px" onkeydown="if(event.key==='Enter'){event.preventDefault();addTodoItem()}">
+        <button class="btn ghost" type="button" onclick="addTodoItem()">+ 添加</button>
+      </div>
+      <div id="todoProgress" style="font-size:12px;color:var(--sub);margin-top:8px"></div>
+    </div>
     <div class="modal-footer">
       <button class="btn ghost" onclick="closeModal()">取消</button>
       <button class="btn ghost" id="btnDel" style="color:var(--danger);border-color:var(--danger);display:none" onclick="deleteRec()">删除</button>
@@ -282,6 +433,13 @@ input, textarea, select { font-family: inherit; }
 const API = '';
 let TYPES = [];
 const WD = ['日','一','二','三','四','五','六'];
+const TEMPLATES = {
+  meeting: { label: '📋 会议纪要', type: 'memo', title: '会议纪要', content: '参会人：\n议题：\n结论：\n下一步：' },
+  shop: { label: '🛒 购物清单', type: 'todo', title: '购物清单', checklist: ['买…','买…','买…'] },
+  daily: { label: '📅 每日日志', type: 'memo', title: '', content: '今天做了什么：\n学到什么：\n明天计划：' },
+  book: { label: '📖 读书笔记', type: 'memo', title: '《》读书笔记', content: '核心观点：\n摘录：\n反思：' },
+};
+let selectedTemplate = null;
 
 async function loadTypes() {
   try {
@@ -293,6 +451,8 @@ async function loadTypes() {
 
 let token = '', me = null, records = [], viewDate = null, adminView = false;
 let calYear, calMonth, mode = 'login', typeFilters = new Set();
+let statusFilter = null;
+let todoDraft = [];
 let codeTimer = null;
 
 function toggleMode(m) {
@@ -431,6 +591,7 @@ async function showApp() {
   const now = new Date();
   calYear = now.getFullYear(); calMonth = now.getMonth();
   loadRecords();
+  initQuickAddBar();
 }
 
 async function loadRecords() {
@@ -460,11 +621,67 @@ async function toggleAdminView() {
 async function toggleTodo(id) {
   const r = records.find(r => r.id == id);
   if (!r) return;
+  const next = (r.done + 1) % 3;
   await fetch(API + '/api/records/' + id, {
     method: 'PUT', headers: { 'Content-Type':'application/json', Authorization:'Bearer '+token },
-    body: JSON.stringify({ done: r.done ? 0 : 1 })
+    body: JSON.stringify({ done: next })
   });
-  r.done = !r.done;
+  r.done = next;
+  renderRecords();
+}
+
+function parseChecklist(c) {
+  if (!c) return [];
+  if (Array.isArray(c)) return c;
+  try { const a = JSON.parse(c); return Array.isArray(a) ? a : []; } catch(e) { return []; }
+}
+function recDone(r) {
+  const cl = parseChecklist(r.checklist);
+  return cl.length ? cl.every(x => x.done) : r.done >= 2;
+}
+function syncTodoSection() {
+  const sel = document.querySelector('#typeSel .selected');
+  const isTodo = sel && sel.dataset.type === 'todo';
+  document.getElementById('todoSection').style.display = isTodo ? 'block' : 'none';
+  if (isTodo) renderTodoItems();
+}
+function renderTodoItems() {
+  const box = document.getElementById('todoItems');
+  box.innerHTML = todoDraft.map((it, i) =>
+    '<div style="display:flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:4px 8px">'+
+    '<span onclick="toggleTodoItem('+i+')" style="width:18px;height:18px;flex:none;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;cursor:pointer;'+(it.done?'background:var(--accent2);border-color:var(--accent2)':'')+'">'+(it.done?'✓':'')+'</span>'+
+    '<input value="'+esc(it.text)+'" oninput="editTodoText('+i+',this.value)" style="flex:1;font-size:13px;border:none;background:transparent;color:var(--text);outline:none;padding:3px 0'+(it.done?';text-decoration:line-through;color:var(--sub)':'')+'">'+
+    '<span onclick="removeTodoItem('+i+')" style="color:var(--danger);cursor:pointer;font-size:15px;line-height:1">✕</span>'+
+    '</div>'
+  ).join('');
+  updateTodoProgress();
+}
+function addTodoItem() {
+  const inp = document.getElementById('todoInput');
+  const v = inp.value.trim();
+  if (!v) return;
+  todoDraft.push({ text: v, done: false });
+  inp.value = '';
+  renderTodoItems();
+}
+function toggleTodoItem(i) { if (todoDraft[i]) { todoDraft[i].done = !todoDraft[i].done; renderTodoItems(); } }
+function editTodoText(i, val) { if (todoDraft[i]) todoDraft[i].text = val; }
+function removeTodoItem(i) { todoDraft.splice(i, 1); renderTodoItems(); }
+function updateTodoProgress() {
+  const done = todoDraft.filter(x => x.done).length;
+  document.getElementById('todoProgress').textContent = todoDraft.length ? ('已完成 '+done+' / '+todoDraft.length) : '暂无子任务，添加后可在卡片内逐项勾选';
+}
+async function toggleSub(id, idx) {
+  const r = records.find(x => x.id == id);
+  if (!r) return;
+  const cl = parseChecklist(r.checklist);
+  if (!cl[idx]) return;
+  cl[idx].done = !cl[idx].done;
+  await fetch(API + '/api/records/' + id, {
+    method: 'PUT', headers: { 'Content-Type':'application/json', Authorization:'Bearer '+token },
+    body: JSON.stringify({ checklist: cl })
+  });
+  r.checklist = JSON.stringify(cl);
   renderRecords();
 }
 
@@ -474,8 +691,15 @@ async function saveRec() {
   const date = document.getElementById('recDate').value;
   const content = document.getElementById('recContent').value.trim();
   const type = document.querySelector('#typeSel .selected')?.dataset?.type || (TYPES[0]?.id || 'todo');
+  const due_date = document.getElementById('dueDate').value || null;
+  const due_time = document.getElementById('dueTime').value || null;
   if (!title || !date) { alert('请填写标题和日期'); return; }
-  const body = { type, title, content, date };
+  const body = { type, title, content, date, due_date, due_time, tags: tagDraft.join(',') || null };
+  if (type === 'todo') {
+    body.checklist = todoDraft.filter(x => x.text && x.text.trim()).map(x => ({ text: x.text.trim(), done: !!x.done }));
+  } else {
+    body.checklist = null;
+  }
   const url = id ? API + '/api/records/' + id : API + '/api/records';
   const method = id ? 'PUT' : 'POST';
   await fetch(url, { method, headers:{'Content-Type':'application/json', Authorization:'Bearer '+token}, body: JSON.stringify(body) });
@@ -501,6 +725,9 @@ function openModal(rid) {
   document.getElementById('typeSel').innerHTML = TYPES.map(t =>
     '<span class="type-opt" data-type="'+t.id+'" onclick="selType(\''+t.id+'\')">'+t.icon+' '+t.label+'</span>'
   ).join('');
+  document.getElementById('templatePick').innerHTML = '<span class="tmpl-chip" onclick="pickTemplate(null)">✕ 无模板</span>'+
+    Object.entries(TEMPLATES).map(([k,v]) => '<span class="tmpl-chip" id="tmpl_'+k+'" onclick="pickTemplate(\''+k+'\')">'+v.label+'</span>').join('');
+  selectedTemplate = null;
   const defaultType = TYPES[0]?.id || 'todo';
   if (rid) {
     const r = records.find(r => r.id == rid);
@@ -510,7 +737,21 @@ function openModal(rid) {
     document.getElementById('recTitle').value = r.title;
     document.getElementById('recDate').value = r.date;
     document.getElementById('recContent').value = r.content;
+    document.getElementById('dueDate').value = r.due_date || '';
+    document.getElementById('dueTime').value = r.due_time || '';
     document.getElementById('btnDel').style.display = '';
+    document.getElementById('dateRowCollapse').style.display = '';
+    document.getElementById('dateToggleLabel').textContent = r.date;
+    tagDraft = (r.tags || '').split(',').filter(Boolean).map(t => t.trim());
+    renderTagChips();
+    if (r.due_date) {
+      document.getElementById('dueRowCollapse').style.display = '';
+      document.getElementById('dueToggleLabel').textContent = r.due_date;
+    } else {
+      document.getElementById('dueRowCollapse').style.display = 'none';
+      document.getElementById('dueToggleLabel').textContent = '添加';
+    }
+    todoDraft = parseChecklist(r.checklist);
     selType(r.type || defaultType);
   } else {
     document.getElementById('editId').value = '';
@@ -518,9 +759,19 @@ function openModal(rid) {
     document.getElementById('recTitle').value = '';
     document.getElementById('recDate').value = fmtDate(new Date());
     document.getElementById('recContent').value = '';
+    document.getElementById('dueDate').value = '';
+    document.getElementById('dueTime').value = '';
     document.getElementById('btnDel').style.display = 'none';
+    document.getElementById('dateRowCollapse').style.display = 'none';
+    document.getElementById('dateToggleLabel').textContent = '今天';
+    document.getElementById('dueRowCollapse').style.display = 'none';
+    document.getElementById('dueToggleLabel').textContent = '添加';
+    todoDraft = [];
+    tagDraft = [];
+    renderTagChips();
     selType(defaultType);
   }
+  syncTodoSection();
   document.getElementById('modalOverlay').classList.add('show');
   document.getElementById('recTitle').focus();
 }
@@ -642,6 +893,7 @@ function renderStats() {
 
 function selType(t) {
   document.querySelectorAll('#typeSel .type-opt').forEach(e => e.classList.toggle('selected', e.dataset.type === t));
+  syncTodoSection();
 }
 
 function renderTypeBar() {
@@ -656,14 +908,51 @@ function toggleTF(el, t) {
   loadRecords();
 }
 
-function renderAll() { renderCalendar(); renderBagList(); renderRecords(); }
+function renderStatusBar() {
+  const opts = [
+    { v: null, label: '全部' },
+    { v: 'todo', label: '待办' },
+    { v: 'progress', label: '进行中' },
+    { v: 'done', label: '已完成' },
+  ];
+  document.getElementById('statusBar').innerHTML = opts.map(o =>
+    '<span class="status-btn '+(statusFilter===o.v?'active':'')+'" onclick="setStatusFilter('+(o.v===null?'null':"'"+o.v+"'")+')">'+o.label+'</span>'
+  ).join('');
+}
+
+function setStatusFilter(v) {
+  statusFilter = v;
+  renderStatusBar();
+  renderRecords();
+}
+
+function renderAll() { renderCalendar(); renderBagList(); renderRecords(); renderStatusBar(); }
 
 function renderRecords() {
   let filtered = records;
   if (typeFilters.size > 0) filtered = filtered.filter(r => typeFilters.has(r.type));
+  if (statusFilter) filtered = filtered.filter(r => {
+    if (r.type !== 'todo') return false;
+    if (statusFilter === 'done') return recDone(r);
+    if (statusFilter === 'progress') {
+      const cl = parseChecklist(r.checklist);
+      if (cl.length) return cl.some(it => it.done) && !cl.every(it => it.done);
+      return r.done === 1;
+    }
+    // 'todo': 待办 (无子项时 done===0, 有子项时全未完成)
+    const cl = parseChecklist(r.checklist);
+    return cl.length ? !cl.some(it => it.done) : r.done === 0;
+  });
+  const advTag = (document.getElementById('advTag')?.value || '').trim();
+  if (advTag) filtered = filtered.filter(r => (r.tags || '').toLowerCase().includes(advTag.toLowerCase()));
+  const df = document.getElementById('advDateFrom')?.value;
+  const dt = document.getElementById('advDateTo')?.value;
+  if (df) filtered = filtered.filter(r => r.date >= df);
+  if (dt) filtered = filtered.filter(r => r.date <= dt);
   filtered.sort((a,b) => {
-    if (a.type==='todo'&&!a.done && (b.type!=='todo'||b.done)) return -1;
-    if (b.type==='todo'&&!b.done && (a.type!=='todo'||a.done)) return 1;
+    const ad = recDone(a), bd = recDone(b);
+    if (a.type==='todo'&&!ad && (b.type!=='todo'||bd)) return -1;
+    if (b.type==='todo'&&!bd && (a.type!=='todo'||ad)) return 1;
     return b.date.localeCompare(a.date) || b.id - a.id;
   });
   const list = document.getElementById('recordsList');
@@ -672,16 +961,30 @@ function renderRecords() {
   }
   list.innerHTML = filtered.map(r => {
     const t = TYPES.find(x=>x.id===r.type) || TYPES[0] || { id:'unknown', label:'未分类', icon:'📌', color:'#7b8ea0' };
-    return '<div class="rec-card '+(r.done?'done':'')+'" style="border-left-color:'+t.color+'" onclick="openModal('+r.id+')">'+
-      (r.type==='todo' ? '<div class="rec-check '+(r.done?'checked':'')+'" onclick="event.stopPropagation();toggleTodo('+r.id+')"></div>' : '')+
+    const cl = parseChecklist(r.checklist);
+    const hasCl = cl.length > 0;
+    const isDone = recDone(r);
+    let inner = '';
+    if (hasCl) {
+      inner = '<div class="todo-list">' +
+        cl.map((it,i)=>'<div class="todo-item'+(it.done?' done':'')+'" onclick="event.stopPropagation();toggleSub('+r.id+','+i+')"><span class="todo-box'+(it.done?' checked':'')+'">'+(it.done?'✓':'')+'</span><span class="todo-txt">'+esc(it.text)+'</span></div>').join('') +
+        '<div class="todo-progress">已完成 '+cl.filter(x=>x.done).length+' / '+cl.length+'</div>' +
+        '</div>';
+    }
+    return '<div class="rec-card '+(isDone?'done':'')+'" style="border-left-color:'+t.color+'" onclick="openModal('+r.id+')">'+
+      (r.type==='todo' && !hasCl ? '<div class="rec-check '+(r.done>=2?'checked':r.done===1?'working':'')+'" onclick="event.stopPropagation();toggleTodo('+r.id+')"></div>' : '')+
       '<div class="rec-body"><div class="rec-meta">'+
       '<span class="rec-type" style="background:'+t.color+'22;color:'+t.color+'">'+t.icon+' '+t.label+'</span>'+
+      (r.type==='todo' ? '<span class="status-badge '+(isDone?'done':r.done===1?'progress':'todo')+'" '+(hasCl?'':'onclick="event.stopPropagation();toggleTodo('+r.id+')"')+'> '+(isDone?'已完成 ✓':r.done===1?'进行中':'未开始')+'</span>' : '')+
       (adminView ? '<span class="rec-owner">@'+esc(r.username)+'</span>' : '')+
       '<span class="rec-date-s">'+r.date+'</span>'+
       (r.type==='memorial' ? (()=>{const td=fmtDate(new Date());const d=r.date;const ms=Date.parse(d)-Date.parse(td);const days=Math.round(ms/86400000);if(days===0)return'<span class="rec-countdown upcoming">🎉 就是今天</span>';if(days>0)return'<span class="rec-countdown upcoming">还有 '+days+' 天</span>';return'<span class="rec-countdown past">已过 '+Math.abs(days)+' 天</span>'})() : '')+
-      (r.done ? '<span style="font-size:11px;color:var(--accent2)">✓</span>' : '')+
+      (r.due_date && !recDone(r) ? (()=>{const td=fmtDate(new Date());const isOverdue=r.due_date<td;return'<span class="rec-countdown '+(isOverdue?'past':'upcoming')+'" style="font-size:11px">'+(isOverdue?'⏰ 已过期':'⏰ '+r.due_date)+(r.due_time?' '+r.due_time:'')+'</span>'})() : '')+
+      (r.due_date && recDone(r) ? '<span style="font-size:11px;color:var(--accent2)">✓ 已完成</span>' : '')+
+      (r.tags ? r.tags.split(',').filter(Boolean).map(t=>'<span class="tag-chip" onclick="event.stopPropagation();filterByTag(\''+esc(t.trim())+'\')">#'+esc(t.trim())+'</span>').join('') : '')+
       '</div><div class="rec-title">'+esc(r.title)+'</div>'+
       (r.content ? '<div class="rec-preview">'+esc(r.content)+'</div>' : '')+
+      inner+
       '</div><div class="rec-acts">'+
       '<button class="rec-act" onclick="event.stopPropagation();openModal('+r.id+')">编辑</button>'+
       '<button class="rec-act danger" onclick="event.stopPropagation();deleteRecById('+r.id+')">删除</button></div></div>';
@@ -695,7 +998,8 @@ function getDateSet() {
 function renderCalendar() {
   const now = new Date();
   const today = fmtDate(now);
-  const dots = getDateSet();
+  const dc = {};
+  records.forEach(r => { dc[r.date] = (dc[r.date]||0) + 1; });
   const fd = new Date(calYear, calMonth, 1).getDay();
   const dim = new Date(calYear, calMonth+1, 0).getDate();
   const pdim = new Date(calYear, calMonth, 0).getDate();
@@ -705,11 +1009,15 @@ function renderCalendar() {
   for (let i=fd-1;i>=0;i--) h+='<span class="other">'+(pdim-i)+'</span>';
   for (let d=1;d<=dim;d++) {
     const ds = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const cnt = dc[ds] || 0;
     let cls = '';
     if (ds===today) cls+=' today';
     if (ds===viewDate) cls+=' active';
-    if (dots.has(ds)) cls+=' dot';
-    h+='<span class="'+cls+'" onclick="selectDate(\''+ds+'\')">'+d+'</span>';
+    if (cnt===1) cls+=' dot heat-1';
+    else if (cnt===2) cls+=' dot heat-2';
+    else if (cnt===3) cls+=' dot heat-3';
+    else if (cnt>=4) cls+=' dot heat-4';
+    h+='<span class="'+cls+'" onclick="selectDate(\''+ds+'\')"'+ (cnt?' title="'+cnt+'条记录"':'') +'>'+d+'</span>';
   }
   const rem = 7 - ((fd+dim)%7);
   if (rem<7) for (let d=1;d<=rem;d++) h+='<span class="other">'+d+'</span>';
@@ -778,8 +1086,365 @@ async function importData(input) {
   input.value = '';
 }
 
-// Init
-// Init — 穿透管理员登录
+// ── Template picker ──
+function pickTemplate(k) {
+  document.querySelectorAll('.tmpl-chip').forEach(c => c.classList.remove('selected'));
+  if (!k) { selectedTemplate = null; return; }
+  selectedTemplate = k;
+  document.getElementById('tmpl_' + k).classList.add('selected');
+  const t = TEMPLATES[k];
+  document.getElementById('recTitle').value = t.title;
+  document.getElementById('recContent').value = t.content || '';
+  if (t.type) selType(t.type);
+  if (t.checklist) {
+    todoDraft = t.checklist.map(txt => ({ text: txt, done: false }));
+    syncTodoSection(); renderTodoItems();
+  }
+}
+
+// ── Multi-theme system ──
+const THEMES = [
+  { id: 'warm', label: '暖白', bg: '#faf8f5', card: '#ffffff', side: '#f5f0eb', text: '#3c362e', sub: '#8b8178', border: '#e8e2d9', accent: '#e8964c', accent2: '#6b9e85', danger: '#d4786e', shadow: 'rgba(0,0,0,.06)', tag: '#fff8f0' },
+  { id: 'dark', label: '暗夜', bg: '#1a1a1f', card: '#252528', side: '#1e1e22', text: '#e4e4e7', sub: '#90909a', border: '#35353a', accent: '#e8964c', accent2: '#6b9e85', danger: '#d4786e', shadow: 'rgba(0,0,0,.3)', tag: '#35353a' },
+  { id: 'forest', label: '森林', bg: '#f2f6f0', card: '#ffffff', side: '#e8efe4', text: '#2d3a28', sub: '#6b7f64', border: '#cfdfc5', accent: '#5b8e4c', accent2: '#3d7a5c', danger: '#c4665a', shadow: 'rgba(0,0,0,.06)', tag: '#f0f6eb' },
+  { id: 'ocean', label: '海蓝', bg: '#f2f5f8', card: '#ffffff', side: '#e6edf4', text: '#2a3644', sub: '#66809c', border: '#cddce8', accent: '#4a8bc5', accent2: '#5b8ea8', danger: '#c46a6a', shadow: 'rgba(0,0,0,.06)', tag: '#eef4fa' },
+  { id: 'sunset', label: '日落', bg: '#faf6f2', card: '#ffffff', side: '#f5ede4', text: '#3d3129', sub: '#8c7a6c', border: '#e5d5c3', accent: '#d4844c', accent2: '#a07a5a', danger: '#c46a5a', shadow: 'rgba(0,0,0,.06)', tag: '#fef6ee' },
+  { id: 'lavender', label: '薰衣草', bg: '#f6f4f8', card: '#ffffff', side: '#edeaf2', text: '#312e3a', sub: '#7a7590', border: '#d8d2e4', accent: '#7b6eaa', accent2: '#8c7ea0', danger: '#c46a6e', shadow: 'rgba(0,0,0,.06)', tag: '#f4f2fa' },
+];
+function applyTheme(t) {
+  const root = document.documentElement;
+  const v = ['--bg', '--card', '--side', '--text', '--sub', '--border', '--accent', '--accent2', '--danger'];
+  const k = ['bg', 'card', 'side', 'text', 'sub', 'border', 'accent', 'accent2', 'danger'];
+  const oldAttr = root.getAttribute('data-theme');
+  root.setAttribute('data-theme', t.id);
+  k.forEach((kk, i) => root.style.setProperty(v[i], t[kk]));
+  root.style.setProperty('--shadow', '0 1px 3px ' + t.shadow);
+  root.style.setProperty('--modal-bg', t.card);
+  root.style.setProperty('--input-bg', t.side);
+  // update tag colors in theme panel
+  document.querySelectorAll('.theme-dot').forEach(el => el.classList.toggle('active', el.dataset.t === t.id));
+  localStorage.setItem('ll_theme_id', t.id);
+  loadRecords();
+}
+function renderThemePanel() {
+  const panel = document.getElementById('themePanel');
+  panel.innerHTML = THEMES.map(t => '<span class="theme-dot" data-t="'+t.id+'" title="'+t.label+'" onclick="event.stopPropagation();applyTheme(THEMES.find(x=>x.id===\''+t.id+'\'))" style="display:inline-block;width:24px;height:24px;border-radius:50%;background:'+t.bg+';border:2px solid '+(localStorage.getItem('ll_theme_id')===t.id?t.accent:t.border)+';cursor:pointer;box-sizing:border-box"></span>').join('');
+  panel.style.display = 'flex';
+}
+function toggleThemePanel() {
+  const p = document.getElementById('themePanel');
+  if (p.style.display === 'flex') { p.style.display = 'none'; return; }
+  renderThemePanel();
+  setTimeout(() => document.addEventListener('click', function h(e) {
+    if (!document.getElementById('themeBtn').contains(e.target)) { p.style.display = 'none'; document.removeEventListener('click', h); }
+  }), 10);
+}
+
+// ── Date row toggle ──
+function toggleDateRow() {
+  const row = document.getElementById('dateRowCollapse');
+  const label = document.getElementById('dateToggleLabel');
+  const inp = document.getElementById('recDate');
+  const isHidden = row.style.display === 'none';
+  row.style.display = isHidden ? '' : 'none';
+  label.textContent = isHidden ? '收起' : (inp.value === fmtDate(new Date()) ? '今天' : inp.value);
+  if (isHidden) inp.focus();
+}
+function toggleDueRow() {
+  const row = document.getElementById('dueRowCollapse');
+  const label = document.getElementById('dueToggleLabel');
+  const inp = document.getElementById('dueDate');
+  const hasDue = inp.value;
+  const isHidden = row.style.display === 'none';
+  row.style.display = isHidden ? '' : 'none';
+  if (isHidden) { label.textContent = '收起'; inp.focus(); }
+  else label.textContent = hasDue ? inp.value : '添加';
+}
+
+// ── Today view ──
+let todayMode = false, trashMode = false;
+function toggleTodayView() {
+  todayMode = !todayMode;
+  trashMode = false;
+  document.getElementById('todayBtn').classList.toggle('active', todayMode);
+  if (todayMode) {
+    document.getElementById('todayPanel').style.display = '';
+    document.getElementById('trashPanel').style.display = 'none';
+    document.getElementById('recordsPanel').style.display = 'none';
+    renderToday();
+  } else { viewRecords(); }
+}
+function renderToday() {
+  const now = new Date();
+  const today = fmtDate(now);
+  const dueRecs = records.filter(r => r.due_date && (r.due_date === today || r.due_date < today));
+  const todayRecs = records.filter(r => r.date === today);
+  const memorials = records.filter(r => r.type === 'memorial');
+  memorials.sort((a,b) => a.date.localeCompare(b.date));
+
+  let h = '';
+  // 到期待办
+  h += '<div class="today-card"><h3>⏰ 到期提醒</h3>';
+  if (dueRecs.length) {
+    dueRecs.forEach(r => {
+      const overdue = r.due_date < today && !recDone(r);
+      h += '<div class="today-item"><span class="ti-type" style="background:'+(TYPES.find(t=>t.id===r.type)||{}).color+'22;color:'+(TYPES.find(t=>t.id===r.type)||{}).color+'">'+(TYPES.find(t=>t.id===r.type)||{}).icon+' '+(TYPES.find(t=>t.id===r.type)||{}).label+'</span>'+
+        esc(r.title)+(r.due_time?' '+r.due_time:'')+
+        (overdue?'<span class="today-badge overdue">已过期</span>':recDone(r)?'<span class="today-badge today">已完成</span>':'<span class="today-badge today">今天</span>')+
+        '</div>';
+    });
+  } else h += '<div style="color:var(--sub);font-size:12px;padding:8px 0">暂无到期任务</div>';
+  h += '</div>';
+
+  // 今日新增
+  h += '<div class="today-card"><h3>📝 今日记录（'+todayRecs.length+'条）</h3>';
+  if (todayRecs.length) {
+    todayRecs.forEach(r => {
+      const t = TYPES.find(x=>x.id===r.type) || {};
+      h += '<div class="today-item" onclick="openModal('+r.id+')" style="cursor:pointer"><span class="ti-type" style="background:'+(t.color||'#999')+'22;color:'+(t.color||'#999')+'">'+(t.icon||'📌')+' '+(t.label||'其他')+'</span>'+esc(r.title)+'</div>';
+    });
+  } else h += '<div style="color:var(--sub);font-size:12px;padding:8px 0">今天还没有记录</div>';
+  h += '</div>';
+
+  // 最近纪念日
+  h += '<div class="today-card"><h3>🎂 最近纪念日</h3>';
+  const near = memorials.slice(0, 5);
+  if (near.length) {
+    near.forEach(r => {
+      const ms = Date.parse(r.date) - Date.parse(today);
+      const days = Math.round(ms/86400000);
+      let label = '';
+      if (days===0) label = '<span class="today-badge today">就是今天!</span>';
+      else if (days>0) label = '<span class="today-badge '+(days<=7?'today':'')+'">还有'+days+'天</span>';
+      else label = '<span class="today-badge overdue">已过'+Math.abs(days)+'天</span>';
+      h += '<div class="today-item"><span class="ti-type" style="background:#c47ba022;color:#c47ba0">📅 纪念日</span>'+esc(r.title)+label+'<span style="font-size:11px;color:var(--sub)">'+r.date+'</span></div>';
+    });
+  } else h += '<div style="color:var(--sub);font-size:12px;padding:8px 0">暂无纪念日</div>';
+  h += '</div>';
+
+  // 所有待办概览
+  const todos = records.filter(r => r.type==='todo');
+  const todoDone = todos.filter(r => recDone(r)).length;
+  h += '<div class="today-card"><h3>✅ 待办进度</h3><div style="font-size:28px;font-weight:700;color:var(--accent);text-align:center;padding:10px 0">'+todoDone+'<span style="font-size:14px;color:var(--sub)"> / '+todos.length+'</span></div><div style="text-align:center;font-size:12px;color:var(--sub)">已完成 / 全部</div></div>';
+  document.getElementById('todayGrid').innerHTML = h;
+}
+
+// ── Trash ──
+async function viewTrash() {
+  todayMode = false; trashMode = true;
+  document.getElementById('todayBtn').classList.remove('active');
+  document.getElementById('todayPanel').style.display = 'none';
+  document.getElementById('recordsPanel').style.display = 'none';
+  document.getElementById('trashPanel').style.display = '';
+  document.getElementById('typeBar').style.display = 'none';
+  document.getElementById('statusBar').style.display = 'none';
+  try {
+    const r = await fetch('/api/records?trash=true', { headers: { Authorization: 'Bearer ' + token } });
+    const data = await r.json();
+    const list = document.getElementById('trashList');
+    if (!data.records.length) {
+      list.innerHTML = '<div class="empty">🗑 回收站是空的</div>'; return;
+    }
+    list.innerHTML = data.records.map(r => {
+      const t = TYPES.find(x=>x.id===r.type) || { label:'其他', icon:'📌', color:'#999' };
+      return '<div class="rec-card" style="border-left-color:'+t.color+'"><div class="rec-body"><div class="rec-meta">'+
+        '<span class="rec-type" style="background:'+t.color+'22;color:'+t.color+'">'+t.icon+' '+t.label+'</span>'+
+        '<span style="font-size:11px;color:var(--sub)">删除于 '+r.deleted_at+'</span></div>'+
+        '<div class="rec-title">'+esc(r.title)+'</div></div>'+
+        '<div class="rec-acts" style="opacity:1"><button class="rec-act" onclick="restoreRec('+r.id+')">恢复</button><button class="rec-act danger" onclick="permDelete('+r.id+')">彻底删除</button></div></div>';
+    }).join('');
+  } catch(e) { document.getElementById('trashList').innerHTML = '<div class="empty">加载失败</div>'; }
+}
+function viewRecords() {
+  todayMode = false; trashMode = false; kanbanMode = false;
+  document.getElementById('todayBtn').classList.remove('active');
+  document.getElementById('todayPanel').style.display = 'none';
+  document.getElementById('trashPanel').style.display = 'none';
+  document.getElementById('kanbanPanel').style.display = 'none';
+  document.getElementById('recordsPanel').style.display = '';
+  document.getElementById('typeBar').style.display = '';
+  document.getElementById('statusBar').style.display = '';
+  document.getElementById('quickAddBar').style.display = 'flex';
+  loadRecords();
+}
+async function restoreRec(id) {
+  await fetch('/api/records/'+id+'/restore', { method:'PUT', headers:{Authorization:'Bearer '+token} });
+  viewTrash(); loadRecords();
+}
+async function permDelete(id) {
+  if (!confirm('彻底删除后将无法恢复，确定吗？')) return;
+  await fetch('/api/records/'+id+'/permanent', { method:'DELETE', headers:{Authorization:'Bearer '+token} });
+  viewTrash();
+}
+async function emptyTrash() {
+  if (!confirm('将彻底删除回收站中所有记录？')) return;
+  const r = await fetch('/api/records?trash=true', { headers:{Authorization:'Bearer '+token} });
+  const data = await r.json();
+  for (const rec of data.records) await fetch('/api/records/'+rec.id+'/permanent', { method:'DELETE', headers:{Authorization:'Bearer '+token} });
+  viewTrash();
+}
+
+// ── User export ──
+async function userExport() {
+  const fmt = prompt('选择导出格式：json / csv / md', 'json');
+  if (!fmt || !['json','csv','md'].includes(fmt)) return;
+  try {
+    const res = await fetch('/api/export?format=' + fmt, { headers: { Authorization: 'Bearer ' + token } });
+    if (!res.ok) { alert('导出失败'); return; }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url;
+    a.download = 'life-log-export-' + new Date().toISOString().slice(0,10) + '.' + (fmt==='md'?'md':fmt==='csv'?'csv':'json');
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  } catch(e) { alert('导出失败'); }
+}
+
+// ── Notification reminder (browser) ──
+function checkDueNotifications() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') Notification.requestPermission();
+  if (Notification.permission !== 'granted') return;
+  const now = new Date();
+  const today = fmtDate(now);
+  const nowTime = String(now.getHours()).padStart(2,'0') + ':00';
+  records.forEach(r => {
+    if (r.due_date === today && r.due_time && r.due_time.startsWith(nowTime) && !recDone(r)) {
+      new Notification('⏰ 到期待办', { body: r.title, icon: '/favicon.ico', tag: 'due-'+r.id });
+    }
+  });
+}
+let tagDraft = [];
+
+// ── Quick add ──
+function initQuickAddBar() {
+  const sel = document.getElementById('qaType');
+  sel.innerHTML = TYPES.map(t => '<option value="'+t.id+'">'+t.icon+' '+t.label+'</option>').join('');
+}
+async function quickAdd() {
+  const inp = document.getElementById('qaInput');
+  const title = inp.value.trim();
+  if (!title) return;
+  const type = document.getElementById('qaType').value || (TYPES[0]?.id || 'todo');
+  const today = fmtDate(new Date());
+  await fetch(API + '/api/records', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+    body: JSON.stringify({ type, title, date: today })
+  });
+  inp.value = '';
+  await loadRecords();
+}
+
+// ── Tags ──
+function renderTagChips() {
+  const box = document.getElementById('tagChips');
+  box.innerHTML = tagDraft.map((t, i) =>
+    '<span class="tag-chip" style="cursor:pointer" onclick="removeTag('+i+')">#'+esc(t)+' ✕</span>'
+  ).join('');
+}
+function addTag() {
+  const inp = document.getElementById('tagInput');
+  const v = inp.value.trim().replace(/^#/, '');
+  if (!v || tagDraft.includes(v)) { inp.value = ''; return; }
+  tagDraft.push(v);
+  inp.value = '';
+  renderTagChips();
+}
+function removeTag(i) { tagDraft.splice(i, 1); renderTagChips(); }
+function filterByTag(tag) {
+  document.getElementById('advTag').value = tag;
+  document.getElementById('advSearch').classList.add('show');
+  loadRecords();
+}
+
+// ── Advanced search ──
+function toggleAdvSearch() {
+  const panel = document.getElementById('advSearch');
+  const btn = document.getElementById('advSearchBtn');
+  panel.classList.toggle('show');
+  btn.classList.toggle('active');
+  if (!panel.classList.contains('show')) clearAdvFilters();
+}
+function applyAdvFilters() {
+  loadRecords();
+  const tag = document.getElementById('advTag').value.trim();
+  const activeTags = document.querySelectorAll('.tag-chip.active');
+  if (tag) renderRecords(); // re-render with tag filter from loadRecords
+}
+function clearAdvFilters() {
+  document.getElementById('advTag').value = '';
+  document.getElementById('advDateFrom').value = '';
+  document.getElementById('advDateTo').value = '';
+  document.querySelectorAll('.tag-chip').forEach(c => c.classList.remove('active'));
+  loadRecords();
+}
+
+// ── Kanban ──
+let kanbanMode = false;
+function toggleKanban() {
+  kanbanMode = !kanbanMode;
+  todayMode = false; trashMode = false;
+  document.getElementById('todayPanel').style.display = 'none';
+  document.getElementById('trashPanel').style.display = 'none';
+  document.getElementById('recordsPanel').style.display = kanbanMode ? 'none' : '';
+  document.getElementById('kanbanPanel').style.display = kanbanMode ? '' : 'none';
+  document.getElementById('typeBar').style.display = kanbanMode ? 'none' : '';
+  document.getElementById('statusBar').style.display = kanbanMode ? 'none' : '';
+  document.getElementById('quickAddBar').style.display = kanbanMode ? 'none' : '';
+  if (kanbanMode) renderKanban();
+  else loadRecords();
+}
+function renderKanban() {
+  const todos = records.filter(r => r.type === 'todo' && !r.deleted_at);
+  const cols = {
+    pending: { title: '📌 待办', items: todos.filter(r => !parseChecklist(r.checklist).some(it=>it.done) && r.done === 0) },
+    progress: { title: '🔄 进行中', items: todos.filter(r => {
+      const cl = parseChecklist(r.checklist);
+      if (cl.length) return cl.some(it => it.done) && !cl.every(it => it.done);
+      return r.done === 1;
+    })},
+    done: { title: '✅ 已完成', items: todos.filter(r => recDone(r)) }
+  };
+  document.getElementById('kanbanBoard').innerHTML = Object.entries(cols).map(([key, col]) =>
+    '<div class="kanban-col"><h3>'+col.title+' ('+col.items.length+')</h3>'+
+    col.items.map(r => '<div class="kanban-card" onclick="openModal('+r.id+')" ondblclick="cycleKanbanStatus('+r.id+')"><div class="kc-title">'+esc(r.title)+'</div>'+(r.content?'<div class="kc-meta">'+esc(r.content).slice(0,40)+'</div>':'')+'</div>').join('')+
+    '</div>'
+  ).join('');
+}
+async function cycleKanbanStatus(id) {
+  const r = records.find(x => x.id === id);
+  if (!r) return;
+  const hasSub = parseChecklist(r.checklist).length > 0;
+  if (hasSub) {
+    // cycle: pending(no done sub) -> progress(some done) -> done(all done)
+    const cl = parseChecklist(r.checklist);
+    if (cl.every(it => it.done)) { cl.forEach(it => it.done = false); } // back to pending
+    else if (cl.some(it => it.done)) { cl.forEach(it => it.done = true); } // all done
+    else { cl[0].done = true; } // one done -> progress
+    await fetch(API + '/api/records/' + id, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ checklist: cl })
+    });
+  } else {
+    const next = (r.done + 1) % 3;
+    await fetch(API + '/api/records/' + id, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ done: next })
+    });
+  }
+  await loadRecords();
+  renderKanban();
+}
+setInterval(checkDueNotifications, 60000);
+
+// Init — Theme restore + Notification request
+(function restoreTheme() {
+  const saved = localStorage.getItem('ll_theme_id') || 'warm';
+  const t = THEMES.find(x => x.id === saved);
+  if (t) applyTheme(t);
+})();
+if ('Notification' in window && Notification.permission === 'default') setTimeout(() => Notification.requestPermission(), 2000);
+
 (async function checkAdminGoto() {
   const p = new URLSearchParams(location.search);
   const at = p.get('admin_goto');
