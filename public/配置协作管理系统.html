@@ -320,7 +320,9 @@
 </div>
 
 <div class="toast" id="toast"></div>
-
+<input id="impXlsx" type="file" accept=".xlsx,.xls" style="display:none">
+<script src="xlsx.full.min.js"></script>
+<script>if(typeof XLSX==='undefined'){document.write('<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"><\/script>');}</script>
 <script>
 /* ===================== 常量 ===================== */
 const LS_KEY='cfgCollab_v2', TH_KEY='cfgCollab_theme';
@@ -563,6 +565,7 @@ function viewList(){
       <button class="btn primary" data-act="openTask">+ 新建</button>
       <button class="btn" data-act="exportCSV">导出CSV</button>
       <button class="btn" data-act="exportJSON">导出JSON</button>
+      <button class="btn" data-act="impXlsxClick">导入Excel</button>
     </div>
     <div id="batchBar" class="b-bar hidden">
       <span>已选 <b id="selCount" style="color:var(--primary)">0</b> 项</span>
@@ -725,6 +728,7 @@ function viewSettings(){
       <button class="btn" data-act="exportJSON">导出全部数据(JSON)</button>
       <button class="btn" data-act="exportCSV">导出CSV(Excel可开)</button>
       <button class="btn" data-act="importClick">导入数据(JSON)</button>
+      <button class="btn" data-act="impXlsxClick">导入Excel(xlsx)</button>
       <input id="imp" type="file" accept=".json,.csv" style="display:none">
       <button class="btn" data-act="resetSeed">恢复示例数据</button>
     </div>
@@ -823,6 +827,7 @@ document.addEventListener('click',e=>{
   else if(a==='exportJSON')exportJSON();
   else if(a==='exportCSV')exportCSV();
   else if(a==='importClick')$('imp').click();
+  else if(a==='impXlsxClick')$('impXlsx').click();
   else if(a==='resetSeed')resetSeed();
   else if(a==='clearAll')clearAll();
   else if(a==='clearLogs'){state.logs=[];save();render();toast('日志已清空');}
@@ -839,6 +844,7 @@ document.addEventListener('change',e=>{
   else if(id==='lf_p'){_f.priority=$('lf_p').value;renderListBody();}
   else if(id==='lf_m'){_f.module=$('lf_m').value;renderListBody();}
   else if(id==='imp')importFile(e);
+  else if(id==='impXlsx')importExcel(e);
   else if(id==='chkAll'){const rows=filtered();if(e.target.checked)rows.forEach(r=>_sel.add(r.id));else rows.forEach(r=>_sel.delete(r.id));renderListBody();}
   else if(e.target.classList&&e.target.classList.contains('rowck')){const id2=e.target.dataset.id;e.target.checked?_sel.add(id2):_sel.delete(id2);renderListBody();}
 });
@@ -906,6 +912,94 @@ function importCSV(txt){
       status:STATUS.includes(r[3])?r[3]:'待开始',priority:['高','中','低'].includes(r[4])?r[4]:'中',
       owner:r[5]||'',rc:r[6]||'—',rb:r[7]||'—',ru:r[8]||'—',start:r[9]||todayStr(),due:r[10]||'',doneAt:r[11]||'',updatedAt:todayStr(),remark:r[12]||''});});
   addLog('CSV导入 '+ (lines.length-1) +' 条');save();render();toast('CSV导入完成');}
+
+/* ===================== Excel 导入 ===================== */
+function norm(v){return String(v==null?'':v).trim();}
+const HEADER_MAP=[
+  {f:'name',names:['任务名称','任务内容','任务','事项','工作内容','名称']},
+  {f:'module',names:['模块','所属模块','分类','子系统']},
+  {f:'status',names:['状态','当前状态']},
+  {f:'priority',names:['优先级','紧急程度','重要程度']},
+  {f:'owner',names:['负责人','责任人','经办人']},
+  {f:'rc',names:['配置顾问','配置顾问(我们)','配置顾问(我方)','我方角色','我方']},
+  {f:'rb',names:['业务顾问','业务顾问(客户)','客户顾问','客户方顾问','业务顾问(客户方)']},
+  {f:'ru',names:['业务用户','业务用户(客户)','客户用户','客户方用户','业务用户(客户方)']},
+  {f:'start',names:['创建日期','创建时间','开始日期','开始时间','开始']},
+  {f:'due',names:['截止日期','截止时间','结束日期','截止','期限']},
+  {f:'doneAt',names:['完成日期','完成时间']},
+  {f:'remark',names:['备注','说明','备注说明']},
+];
+function normH(h){return norm(h).replace(/\s+/g,'').replace(/[（]/g,'(').replace(/[）]/g,')').toLowerCase();}
+function normRole(v){v=norm(v);
+  if(ROLE_OPTS.includes(v))return v;
+  if(v.includes('负责')||v.includes('责任人'))return '负责';
+  if(v.includes('配合')||v.includes('协助'))return '配合';
+  if(v.includes('知会')||v.includes('知晓'))return '知会';
+  return '—';}
+function normStatus(v){v=norm(v);
+  if(STATUS.includes(v))return v;
+  if(v.includes('完成')||v.includes('结项')||v.includes('上线'))return '已完成';
+  if(v.includes('进行')||v.includes('处理')||v.includes('执行'))return '进行中';
+  if(v.includes('阻塞')||v.includes('卡')||v.includes('暂停')||v.includes('待定'))return '阻塞';
+  return '待开始';}
+function normPriority(v){v=norm(v);
+  if(v.includes('高'))return '高';if(v.includes('低'))return '低';if(v.includes('中'))return '中';
+  return '中';}
+function dateToISO(v){
+  if(v==null||v==='')return '';
+  if(v instanceof Date&&!isNaN(v))return v.getFullYear()+'-'+pad(v.getMonth()+1)+'-'+pad(v.getDate());
+  if(typeof v==='number'&&v>20000&&v<60000){const d=new Date(Math.round((v-25569)*86400000));return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  const s=norm(v);
+  let m=s.match(/^(\d{4})[年\/\-.](\d{1,2})[月\/\-.](\d{1,2})/);
+  if(m)return m[1]+'-'+pad(+m[2])+'-'+pad(+m[3]);
+  let m2=s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
+  if(m2){let y=+m2[3];if(y<100)y+=2000;return y+'-'+pad(+m2[1])+'-'+pad(+m2[2]);}
+  return s.slice(0,10);}
+function parseRowsToTasks(rows){
+  if(!rows||rows.length<2)return {tasks:[],skipped:0,mapped:0,unmapped:0};
+  const heads=rows[0].map(h=>normH(h));
+  const colMap={};let mapped=0;
+  HEADER_MAP.forEach(rule=>{
+    const ci=heads.findIndex(h=>rule.names.some(n=>{const nn=normH(n);return nn.length>1&&(h===nn||h.includes(nn));}));
+    if(ci>=0){colMap[rule.f]=ci;mapped++;}
+  });
+  const tasks=[];let skipped=0;
+  for(let i=1;i<rows.length;i++){
+    const r=rows[i]||[];
+    const get=f=>colMap[f]!==undefined?r[colMap[f]]:'';
+    const name=norm(get('name'));
+    if(!name){skipped++;continue;}
+    const status=normStatus(get('status'));
+    tasks.push({id:'T'+Date.now()+Math.random().toString(36).slice(2,6),
+      name,module:norm(get('module'))||'未分类',status,
+      priority:normPriority(get('priority')),
+      owner:norm(get('owner')),
+      rc:normRole(get('rc')),rb:normRole(get('rb')),ru:normRole(get('ru')),
+      start:dateToISO(get('start')),due:dateToISO(get('due')),
+      doneAt:status==='已完成'?(dateToISO(get('doneAt'))||todayStr()):'',
+      updatedAt:todayStr(),remark:norm(get('remark'))});
+  }
+  return {tasks,skipped,mapped,unmapped:HEADER_MAP.length-mapped};
+}
+function importExcel(e){
+  const f=e.target.files[0];if(!f)return;
+  if(typeof XLSX==='undefined'){toast('Excel解析库未加载，请确认 xlsx.full.min.js 在同目录');e.target.value='';return;}
+  const rd=new FileReader();
+  rd.onload=ev=>{try{
+    const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+    const res=parseRowsToTasks(rows);
+    if(!res.tasks.length){toast('未解析到有效任务（请确认第一行是表头）');return;}
+    const msg='解析到 '+res.tasks.length+' 条任务，跳过 '+res.skipped+' 空行；已识别 '+res.mapped+'/'+HEADER_MAP.length+' 个字段'+(res.unmapped?'（未识别 '+res.unmapped+' 列，如 创建日期/备注 等）':'')+'。确定导入追加？';
+    if(!confirm(msg))return;
+    state.tasks.push(...res.tasks);
+    addLog('Excel导入 '+res.tasks.length+' 条任务');
+    save();render();toast('Excel导入完成 '+res.tasks.length+' 条');
+  }catch(err){toast('解析失败：文件可能损坏或格式不支持');}
+    e.target.value='';};
+  rd.readAsArrayBuffer(f);
+}
 
 /* ===================== 绑定 & 启动 ===================== */
 function bindView(){
