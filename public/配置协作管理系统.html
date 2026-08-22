@@ -3,161 +3,210 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>系统配置协作管理平台</title>
+<title>系统配置协作管理平台 v2</title>
 <style>
   :root{
-    --bg:#f0f2f5; --panel:#ffffff; --line:#e8e8e8; --line2:#f0f0f0;
-    --text:#1f2329; --text2:#646a73; --text3:#8f959e;
-    --primary:#1677ff; --primary-h:#4096ff; --primary-bg:#e6f0ff;
-    --green:#52c41a; --green-bg:#f0fbe9; --green-bd:#b7eb8f;
-    --red:#ff4d4f; --red-bg:#fff1f0; --red-bd:#ffccc7;
-    --gold:#faad14; --gold-bg:#fffbe6; --gold-bd:#ffe58f;
-    --gray:#8c8c8c; --gray-bg:#fafafa; --gray-bd:#d9d9d9;
-    --blue-tag:#1677ff; --blue-bg:#e6f0ff; --blue-bd:#91caff;
-    --shadow:0 1px 4px rgba(0,0,0,.06),0 2px 12px rgba(0,0,0,.04);
-    --radius:8px;
+    --bg:#eef1f6; --panel:#ffffff; --panel2:#fafbfc; --line:#e6e9f0; --line2:#f0f2f7;
+    --text:#1f2329; --text2:#5f6b7a; --text3:#8f97a3;
+    --primary:#1668dc; --primary-h:#3d89f5; --primary-bg:#e8f1fe;
+    --green:#2faa54; --green-bg:#eaf8ef; --green-bd:#b7e3c6;
+    --red:#e5484d; --red-bg:#fdeeee; --red-bd:#f6c6c8;
+    --gold:#d89614; --gold-bg:#fdf6e3; --gold-bd:#f0dfa8;
+    --gray:#7d8590; --gray-bg:#f4f5f7; --gray-bd:#d9dde3;
+    --blue-tag:#1668dc; --blue-bg:#e8f1fe; --blue-bd:#a8c8f7;
+    --kcolbg:#f4f6fa; --trackbg:#eef1f6; --ringbg:#eef1f6;
+    --shadow:0 1px 3px rgba(16,24,40,.05),0 6px 20px rgba(16,24,40,.05);
+    --shadow-h:0 4px 12px rgba(16,24,40,.09),0 10px 28px rgba(16,24,40,.08);
+    --radius:10px; --radius-s:8px;
+  }
+  :root[data-theme="dark"]{
+    --bg:#0e1116; --panel:#171b23; --panel2:#1c212b; --line:#252b37; --line2:#202633;
+    --text:#e8ebf0; --text2:#9aa4b2; --text3:#67707d;
+    --primary:#3d89f5; --primary-h:#5d9df7; --primary-bg:#16263d;
+    --green:#46c26b; --green-bg:#12291c; --green-bd:#1f5133;
+    --red:#f2605f; --red-bg:#2f1618; --red-bd:#5c272a;
+    --gold:#e6a23c; --gold-bg:#2c2412; --gold-bd:#58491f;
+    --gray:#8a93a1; --gray-bg:#232834; --gray-bd:#333b49;
+    --blue-tag:#5d9df7; --blue-bg:#16263d; --blue-bd:#26436b;
+    --kcolbg:#12161e; --trackbg:#232834; --ringbg:#232834;
+    --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.3);
+    --shadow-h:0 4px 12px rgba(0,0,0,.5),0 10px 28px rgba(0,0,0,.4);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;
-    background:var(--bg);color:var(--text);font-size:13px;height:100vh;overflow:hidden}
+    background:var(--bg);color:var(--text);font-size:13px;height:100vh;overflow:hidden;transition:background .25s}
 
   .app{display:flex;height:100vh}
-  .sidebar{width:220px;background:#001529;color:#fff;display:flex;flex-direction:column;flex-shrink:0}
+  .sidebar{width:224px;background:#0d1524;color:#fff;display:flex;flex-direction:column;flex-shrink:0}
+  :root[data-theme="dark"] .sidebar{background:#0a0d13}
   .logo{padding:18px 20px;font-size:16px;font-weight:700;letter-spacing:1px;
-    border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
-  .logo .mark{width:26px;height:26px;border-radius:6px;background:linear-gradient(135deg,#1677ff,#69b1ff);
-    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+    border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px}
+  .logo .mark{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#1668dc,#5d9df7);
+    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;box-shadow:0 2px 8px rgba(22,104,220,.4)}
   .nav{flex:1;padding:10px 0;overflow-y:auto}
-  .nav-group{font-size:11px;color:rgba(255,255,255,.45);padding:14px 20px 6px}
+  .nav-group{font-size:11px;color:rgba(255,255,255,.4);padding:14px 20px 6px;letter-spacing:1px}
   .nav-item{padding:11px 20px;cursor:pointer;display:flex;align-items:center;gap:10px;
-    color:rgba(255,255,255,.75);border-left:3px solid transparent;transition:.15s;font-size:13px}
-  .nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
-  .nav-item.active{background:#1677ff;color:#fff;border-left-color:#69b1ff}
+    color:rgba(255,255,255,.72);border-left:3px solid transparent;transition:.15s;font-size:13px;border-radius:0 6px 6px 0}
+  .nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+  .nav-item.active{background:linear-gradient(90deg,rgba(22,104,220,.95),rgba(22,104,220,.55));color:#fff;border-left-color:#8ab8ff}
   .nav-ico{width:16px;height:16px;display:inline-block;flex-shrink:0}
-  .side-foot{padding:14px 20px;border-top:1px solid rgba(255,255,255,.08);font-size:12px;color:rgba(255,255,255,.5)}
+  .side-foot{padding:14px 20px;border-top:1px solid rgba(255,255,255,.07);font-size:11px;color:rgba(255,255,255,.45);line-height:1.7}
 
   .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
   .topbar{height:56px;background:var(--panel);border-bottom:1px solid var(--line);
-    display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
-  .crumb{font-size:15px;font-weight:600;color:var(--text)}
+    display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0;transition:background .25s}
+  .crumb{font-size:15px;font-weight:600}
   .crumb .sub{font-size:12px;color:var(--text3);font-weight:400;margin-left:10px}
   .user{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2)}
-  .avatar{width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;
-    display:flex;align-items:center;justify-content:center;font-weight:600}
+  .avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1668dc,#5d9df7);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:600;box-shadow:0 2px 6px rgba(22,104,220,.35)}
   .content{flex:1;overflow-y:auto;padding:20px 24px}
 
-  .card{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+  .card{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;transition:background .25s}
   .card-title{font-size:14px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
   .card-title .r{font-size:12px;color:var(--text3);font-weight:400}
-  .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:6px;
-    border:1px solid var(--gray-bd);background:#fff;color:var(--text);cursor:pointer;font-size:13px;transition:.15s;font-family:inherit}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 15px;border-radius:7px;
+    border:1px solid var(--gray-bd);background:var(--panel);color:var(--text);cursor:pointer;font-size:13px;transition:.15s;font-family:inherit}
   .btn:hover{border-color:var(--primary);color:var(--primary)}
   .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
   .btn.primary:hover{background:var(--primary-h);border-color:var(--primary-h);color:#fff}
-  .btn.danger{color:var(--red);border-color:var(--red-bd)}
+  .btn.danger{color:var(--red);border-color:var(--red-bd);background:var(--red-bg)}
   .btn.danger:hover{background:var(--red);border-color:var(--red);color:#fff}
-  .btn.sm{padding:4px 10px;font-size:12px}
+  .btn.sm{padding:3px 9px;font-size:12px;border-radius:6px}
   .btn.ghost{background:transparent;border-color:transparent;color:var(--primary)}
   .btn.ghost:hover{background:var(--primary-bg)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
 
-  .tag{display:inline-flex;align-items:center;padding:2px 9px;border-radius:4px;font-size:12px;line-height:18px;font-weight:500;white-space:nowrap}
-  .tag.green{background:var(--green-bg);color:#389e0d;border:1px solid var(--green-bd)}
-  .tag.blue{background:var(--blue-bg);color:#0958d9;border:1px solid var(--blue-bd)}
-  .tag.red{background:var(--red-bg);color:#cf1322;border:1px solid var(--red-bd)}
-  .tag.gold{background:var(--gold-bg);color:#d48806;border:1px solid var(--gold-bd)}
+  .tag{display:inline-flex;align-items:center;padding:2px 9px;border-radius:5px;font-size:12px;line-height:18px;font-weight:500;white-space:nowrap}
+  .tag.green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+  .tag.blue{background:var(--blue-bg);color:var(--blue-tag);border:1px solid var(--blue-bd)}
+  .tag.red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+  .tag.gold{background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-bd)}
   .tag.gray{background:var(--gray-bg);color:var(--gray);border:1px solid var(--gray-bd)}
-  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;flex-shrink:0}
 
   input,select,textarea{font-family:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--gray-bd);
-    border-radius:6px;outline:none;color:var(--text);background:#fff;width:100%;transition:.15s}
-  input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-bg)}
+    border-radius:7px;outline:none;color:var(--text);background:var(--panel);width:100%;transition:.15s}
+  input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-bg)}
   textarea{resize:vertical;min-height:60px}
   label.fld{display:block;font-size:12px;color:var(--text2);margin-bottom:5px}
   label.fld .req{color:var(--red);margin-left:2px}
 
   .stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:18px}
-  .stat{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px;position:relative;overflow:hidden}
-  .stat .num{font-size:30px;font-weight:700;line-height:1;margin-top:6px}
+  .stat{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px;position:relative;overflow:hidden;transition:.18s}
+  .stat.clickable{cursor:pointer}
+  .stat.clickable:hover{transform:translateY(-2px);box-shadow:var(--shadow-h)}
+  .stat .num{font-size:30px;font-weight:700;line-height:1;margin-top:6px;font-variant-numeric:tabular-nums}
   .stat .lab{font-size:12px;color:var(--text3)}
   .stat .bar{position:absolute;left:0;bottom:0;height:3px;width:100%}
+  .stat .hint{position:absolute;top:14px;right:14px;font-size:11px;color:var(--text3);opacity:0;transition:.15s}
+  .stat:hover .hint{opacity:1}
   .grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
   .prog-wrap{display:flex;align-items:center;gap:14px}
-  .prog-ring{flex-shrink:0}
-  .prog-meta{font-size:12px;color:var(--text2);line-height:1.9}
+  .prog-meta{font-size:12px;color:var(--text2);line-height:2}
   .prog-meta b{color:var(--primary);font-size:15px}
 
   table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;padding:10px 12px;background:#fafafa;color:var(--text2);font-weight:600;border-bottom:1px solid var(--line);font-size:12px}
-  td{padding:10px 12px;border-bottom:1px solid var(--line2);color:var(--text)}
-  tr:hover td{background:#fafcff}
+  th{text-align:left;padding:10px 12px;background:var(--panel2);color:var(--text2);font-weight:600;border-bottom:1px solid var(--line);font-size:12px;white-space:nowrap}
+  th.sortable{cursor:pointer;user-select:none}
+  th.sortable:hover{color:var(--primary)}
+  th .arr{font-size:10px;color:var(--primary);margin-left:3px}
+  td{padding:10px 12px;border-bottom:1px solid var(--line2);color:var(--text);vertical-align:middle}
+  tr:hover td{background:var(--primary-bg)}
+  tr.over td{background:var(--red-bg)}
+  tr.over:hover td{background:var(--red-bg)}
+  tr.sel td{background:var(--blue-bg)}
   .mini-row{display:flex;align-items:center;gap:8px}
+  .tbl-count{font-size:12px;color:var(--text3);margin-bottom:10px}
+  .b-bar{display:flex;align-items:center;gap:10px;background:var(--blue-bg);border:1px solid var(--blue-bd);
+    border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:var(--text)}
+  .b-bar select{width:auto;min-width:110px;padding:5px 8px}
 
   .kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:start}
-  .kcol{background:#f7f8fa;border-radius:var(--radius);padding:12px;min-height:200px}
-  .kcol.hl{outline:2px dashed var(--primary);outline-offset:-2px;background:#f0f6ff}
+  .kcol{background:var(--kcolbg);border-radius:var(--radius);padding:12px;min-height:200px;transition:.15s}
+  .kcol.hl{outline:2px dashed var(--primary);outline-offset:-2px;background:var(--primary-bg)}
   .kcol-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-weight:600;font-size:13px;padding:2px 4px}
-  .kcol-head .cnt{background:#fff;border:1px solid var(--line);border-radius:10px;padding:0 8px;font-size:12px;color:var(--text2)}
-  .kcard{background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);padding:11px;margin-bottom:10px;cursor:pointer;
-    border-left:3px solid var(--primary);transition:.12s}
-  .kcard:hover{box-shadow:0 3px 10px rgba(0,0,0,.12);transform:translateY(-1px)}
+  .kcol-head .l{display:flex;align-items:center}
+  .kcol-head .cnt{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:0 8px;font-size:12px;color:var(--text2)}
+  .kcol-head .add{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:var(--text3);font-size:15px;line-height:1}
+  .kcol-head .add:hover{background:var(--primary);color:#fff}
+  .kcard{background:var(--panel);border-radius:8px;box-shadow:0 1px 3px rgba(16,24,40,.06);padding:11px;margin-bottom:10px;cursor:pointer;
+    border-left:3px solid var(--primary);transition:.14s}
+  .kcard:hover{box-shadow:var(--shadow-h);transform:translateY(-1px)}
   .kcard .t{font-weight:600;font-size:13px;margin-bottom:8px;line-height:1.4}
   .kcard .meta{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
   .kcard .roles{display:flex;flex-wrap:wrap;gap:4px}
-  .rtag{font-size:11px;padding:1px 6px;border-radius:3px}
-  .rtag.r{background:var(--blue-bg);color:#0958d9}
-  .rtag.p{background:var(--gold-bg);color:#d48806}
+  .rtag{font-size:11px;padding:1px 6px;border-radius:4px}
+  .rtag.r{background:var(--blue-bg);color:var(--blue-tag)}
+  .rtag.p{background:var(--gold-bg);color:var(--gold)}
   .rtag.k{background:var(--gray-bg);color:var(--gray)}
-  .kcard .due{font-size:11px;color:var(--text3);margin-top:6px}
+  .kcard .foot{display:flex;align-items:center;justify-content:space-between;margin-top:7px;font-size:11px;color:var(--text3)}
+  .kcard .foot .adv{cursor:pointer;color:var(--primary);font-weight:600;padding:2px 6px;border-radius:5px;border:1px solid var(--blue-bd);background:var(--primary-bg);font-size:11px}
+  .kcard .foot .adv:hover{background:var(--primary);color:#fff}
   .kcard.over .due{color:var(--red);font-weight:600}
 
-  .filter-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+  .filter-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
   .filter-bar .fitem{display:flex;align-items:center;gap:6px}
   .filter-bar input,.filter-bar select{width:auto;min-width:120px}
+  .filter-bar .grow{flex:1}
+  .filter-bar input{min-width:200px}
+  .switch{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2);padding:6px 10px;border:1px solid var(--gray-bd);border-radius:7px;background:var(--panel)}
+  .switch.on{color:var(--red);border-color:var(--red-bd);background:var(--red-bg)}
 
-  .matrix td .mb{display:inline-block;min-width:54px;text-align:center}
   .role-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
   .role-card{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
   .role-card h4{font-size:13px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
   .role-card .lg{font-size:12px;color:var(--text2);display:flex;gap:14px;flex-wrap:wrap}
   .role-card .lg b{font-size:16px;color:var(--text)}
+  .matrix td .mb{display:inline-block;min-width:54px;text-align:center}
 
   .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .legend{display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--text2)}
   .legend .li{display:flex;align-items:center;gap:8px}
   .barrow{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:12px}
   .barrow .name{width:110px;text-align:right;color:var(--text2)}
-  .barrow .track{flex:1;background:#f0f2f5;border-radius:4px;height:18px;overflow:hidden}
-  .barrow .fill{height:100%;background:var(--primary);border-radius:4px;transition:.4s}
-  .barrow .val{width:34px;color:var(--text)}
+  .barrow .track{flex:1;background:var(--trackbg);border-radius:5px;height:18px;overflow:hidden}
+  .barrow .fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-h));border-radius:5px;transition:.4s}
+  .barrow .val{width:40px;color:var(--text);font-variant-numeric:tabular-nums}
 
   .set-sec{margin-bottom:22px}
-  .mod-chip{display:inline-flex;align-items:center;gap:6px;background:var(--primary-bg);color:#0958d9;
+  .mod-chip{display:inline-flex;align-items:center;gap:6px;background:var(--primary-bg);color:var(--blue-tag);
     border:1px solid var(--blue-bd);border-radius:16px;padding:5px 12px;margin:0 8px 8px 0;font-size:13px}
-  .mod-chip .x{cursor:pointer;color:#0958d9;font-weight:700;padding:0 2px}
+  .mod-chip .x{cursor:pointer;font-weight:700;padding:0 2px}
   .mod-chip .x:hover{color:var(--red)}
   .danger-zone{border:1px solid var(--red-bd);border-radius:var(--radius);padding:16px;background:var(--red-bg)}
+  .log-list{max-height:260px;overflow-y:auto;font-size:12px}
+  .log-row{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--line2);color:var(--text2)}
+  .log-row .lt{color:var(--text3);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .theme-pick{display:flex;gap:10px}
+  .theme-pick .tp{width:72px;border:1px solid var(--gray-bd);border-radius:8px;padding:10px;cursor:pointer;text-align:center;font-size:12px;transition:.15s}
+  .theme-pick .tp .sw{width:34px;height:20px;border-radius:5px;margin:0 auto 6px;border:1px solid rgba(0,0,0,.08)}
+  .theme-pick .tp.on{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-bg);color:var(--primary)}
 
-  .mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:99}
+  .mask{position:fixed;inset:0;background:rgba(9,13,20,.55);display:none;align-items:center;justify-content:center;z-index:99;backdrop-filter:blur(2px)}
   .mask.show{display:flex}
-  .modal{background:#fff;border-radius:10px;width:620px;max-width:92vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+  .modal{background:var(--panel);border-radius:12px;width:640px;max-width:92vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.28);animation:pop .18s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
   .modal-head{padding:18px 22px;border-bottom:1px solid var(--line);font-size:15px;font-weight:600}
   .modal-body{padding:20px 22px;overflow-y:auto}
-  .modal-foot{padding:14px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;background:#fafafa;border-radius:0 0 10px 10px}
+  .modal-foot{padding:14px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;background:var(--panel2);border-radius:0 0 12px 12px}
   .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
   .form-grid .full{grid-column:1/3}
   .role3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .role3 .box{border:1px solid var(--line);border-radius:6px;padding:10px}
+  .role3 .box{border:1px solid var(--line);border-radius:8px;padding:10px}
   .role3 .box .rh{font-weight:600;font-size:12px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
   .empty{text-align:center;color:var(--text3);padding:40px 0;font-size:13px}
-  .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:6px;z-index:200;font-size:13px;opacity:0;transition:.25s;pointer-events:none}
-  .toast.show{opacity:1}
+  .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-12px);background:#1f2937;color:#fff;padding:10px 20px;border-radius:8px;z-index:200;font-size:13px;opacity:0;transition:.22s;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .hidden{display:none!important}
+  @media (max-width:1100px){.kanban{grid-template-columns:repeat(2,1fr)}.stat-row{grid-template-columns:repeat(3,1fr)}.grid2,.chart-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="app">
   <aside class="sidebar">
-    <div class="logo"><span class="mark">配</span> 配置协作平台</div>
+    <div class="logo"><span class="mark">配</span> 配置协作平台<span style="font-size:11px;color:rgba(255,255,255,.5);font-weight:400">v2</span></div>
     <nav class="nav" id="nav">
       <div class="nav-group">协作管理</div>
       <div class="nav-item active" data-view="dashboard">
@@ -186,7 +235,7 @@
         系统设置
       </div>
     </nav>
-    <div class="side-foot">中国电子 · 招聘系统改造<br>配置协作模块 v1.0</div>
+    <div class="side-foot">中国电子 · 招聘系统改造<br>配置协作模块 v2.0</div>
   </aside>
 
   <section class="main">
@@ -263,6 +312,7 @@
       </div>
     </div>
     <div class="modal-foot">
+      <span style="font-size:11px;color:var(--text3);align-self:center;margin-right:auto">Ctrl+Enter 保存</span>
       <button class="btn" id="btnCancel">取消</button>
       <button class="btn primary" id="btnSave">保存</button>
     </div>
@@ -272,130 +322,147 @@
 <div class="toast" id="toast"></div>
 
 <script>
-/* ===================== 数据层 ===================== */
-const LS_KEY = 'cfgCollab_v1';
-const ROLES = [
-  {key:'rc', name:'配置顾问（我们）', short:'配置顾问', color:'var(--blue-tag)', cls:'r'},
-  {key:'rb', name:'业务顾问（客户）', short:'业务顾问', color:'var(--green)',  cls:'p'},
-  {key:'ru', name:'业务用户（客户）', short:'业务用户', color:'var(--gold)',   cls:'k'},
+/* ===================== 常量 ===================== */
+const LS_KEY='cfgCollab_v2', TH_KEY='cfgCollab_theme';
+const ROLES=[
+  {key:'rc',name:'配置顾问（我们）',short:'配置顾问',color:'var(--blue-tag)',cls:'r'},
+  {key:'rb',name:'业务顾问（客户）',short:'业务顾问',color:'var(--green)',cls:'p'},
+  {key:'ru',name:'业务用户（客户）',short:'业务用户',color:'var(--gold)',cls:'k'},
 ];
-const STATUS = ['待开始','进行中','已完成','阻塞'];
-const STATUS_COLOR = {'待开始':'var(--gray)','进行中':'var(--primary)','已完成':'var(--green)','阻塞':'var(--red)'};
-const STATUS_BG = {'待开始':'var(--gray-bg)','进行中':'var(--blue-bg)','已完成':'var(--green-bg)','阻塞':'var(--red-bg)'};
-const STATUS_BD = {'待开始':'var(--gray-bd)','进行中':'var(--blue-bd)','已完成':'var(--green-bd)','阻塞':'var(--red-bd)'};
-const PRI_COLOR = {'高':'var(--red)','中':'var(--gold)','低':'var(--gray)'};
-const PRI_BG = {'高':'var(--red-bg)','中':'var(--gold-bg)','低':'var(--gray-bg)'};
-const PRI_BD = {'高':'var(--red-bd)','中':'var(--gold-bd)','低':'var(--gray-bd)'};
-const ROLE_OPTS = ['负责','配合','知会','—'];
-
-function todayStr(){const d=new Date();return d.toISOString().slice(0,10);}
-
-function seedData(){
-  const m = ['需求确认','编码表配置','流程配置','权限配置','数据清洗','UAT测试','培训上线','系统设置'];
-  const T=[
-    ['需求调研与确认','需求确认','负责','负责','配合','高','已完成','李鑫','2026-08-01','2026-08-10','客户业务现状与系统目标已对齐'],
-    ['编码表标准梳理（院校/专业/学科/层次）','编码表配置','负责','配合','知会','高','进行中','李鑫','2026-08-05','2026-08-25','统一标准名称，避免清华/清华大学被判不同'],
-    ['业务流程配置（职位发布内置内控）','流程配置','负责','配合','知会','高','进行中','张工','2026-08-08','2026-08-28','集团岗位标准内控点需业务顾问确认'],
-    ['角色权限映射配置','权限配置','负责','负责','知会','中','待开始','李鑫','2026-08-10','2026-09-05','三方人员账号与数据权限划分'],
-    ['历史数据清洗与导入','数据清洗','配合','负责','负责','中','待开始','王顾问','2026-08-12','2026-09-10','客户侧提供源数据，顾问配合校验'],
-    ['简历解析规则校验','数据清洗','负责','知会','配合','高','阻塞','李鑫','2026-08-09','2026-08-20','解析引擎版本待定，阻塞中'],
-    ['UAT测试用例编写','UAT测试','配合','负责','负责','中','待开始','赵测试','2026-08-15','2026-09-12',''],
-    ['UAT执行与缺陷跟踪','UAT测试','配合','负责','负责','高','待开始','赵测试','2026-08-20','2026-09-20',''],
-    ['关键用户培训','培训上线','配合','配合','负责','中','待开始','钱培训','2026-09-01','2026-09-15',''],
-    ['上线切换与回滚预案','培训上线','负责','配合','知会','高','待开始','李鑫','2026-09-10','2026-09-22',''],
-    ['运维交接文档','系统设置','负责','知会','知会','低','待开始','李鑫','2026-09-15','2026-09-24',''],
-  ];
-  let id=1;
-  const tasks=T.map(r=>({id:'T'+(id++),name:r[0],module:r[1],rc:r[2],rb:r[3],ru:r[4],
-    priority:r[5],status:r[6],owner:r[7],start:r[8],due:r[9],remark:r[10]}));
-  return {modules:m, tasks};
-}
-
-let state = null;
-function load(){
-  try{const s=JSON.parse(localStorage.getItem(LS_KEY));if(s&&s.tasks)return s;}catch(e){}
-  return seedData();
-}
-state = load();
-function save(s){ if(s!==undefined) state=s; localStorage.setItem(LS_KEY,JSON.stringify(state)); }
-save();
+const STATUS=['待开始','进行中','已完成','阻塞'];
+const NEXT={'待开始':'进行中','进行中':'已完成','阻塞':'进行中','已完成':null};
+const SC={'待开始':'var(--gray)','进行中':'var(--primary)','已完成':'var(--green)','阻塞':'var(--red)'};
+const SB={'待开始':'var(--gray-bg)','进行中':'var(--blue-bg)','已完成':'var(--green-bg)','阻塞':'var(--red-bg)'};
+const SD={'待开始':'var(--gray-bd)','进行中':'var(--blue-bd)','已完成':'var(--green-bd)','阻塞':'var(--red-bd)'};
+const PC={'高':'var(--red)','中':'var(--gold)','低':'var(--gray)'};
+const PB={'高':'var(--red-bg)','中':'var(--gold-bg)','低':'var(--gray-bg)'};
+const PD={'高':'var(--red-bd)','中':'var(--gold-bd)','低':'var(--gray-bd)'};
+const ROLE_OPTS=['负责','配合','知会','—'];
 
 /* ===================== 工具 ===================== */
 function $(id){return document.getElementById(id);}
 function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800);}
-function isOver(task){if(task.status==='已完成'||!task.due)return false;return task.due<todayStr();}
+function todayStr(){const d=new Date();return d.toISOString().slice(0,10);}
+function pad(n){return String(n).padStart(2,'0');}
+function nowStr(){const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());}
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1900);}
+function isOver(task){return !(task.status==='已完成'||!task.due)&&task.due<todayStr();}
+function addLog(msg){state.logs.unshift({t:nowStr(),msg});if(state.logs.length>300)state.logs.length=300;save();}
+
+/* ===================== 数据层 ===================== */
+function seedData(){
+  const m=['需求确认','编码表配置','流程配置','权限配置','数据清洗','UAT测试','培训上线','系统设置'];
+  const T=[
+    ['需求调研与确认','需求确认','负责','负责','配合','高','已完成','李鑫','2026-08-01','2026-08-10','2026-08-10','客户业务现状与系统目标已对齐'],
+    ['编码表标准梳理（院校/专业/学科/层次）','编码表配置','负责','配合','知会','高','进行中','李鑫','2026-08-05','2026-08-25','','统一标准名称，避免清华/清华大学被判不同'],
+    ['业务流程配置（职位发布内置内控）','流程配置','负责','配合','知会','高','进行中','张工','2026-08-08','2026-08-28','','集团岗位标准内控点需业务顾问确认'],
+    ['角色权限映射配置','权限配置','负责','负责','知会','中','待开始','李鑫','2026-08-10','2026-09-05','','三方人员账号与数据权限划分'],
+    ['历史数据清洗与导入','数据清洗','配合','负责','负责','中','待开始','王顾问','2026-08-12','2026-09-10','','客户侧提供源数据，顾问配合校验'],
+    ['简历解析规则校验','数据清洗','负责','知会','配合','高','阻塞','李鑫','2026-08-09','2026-08-20','','解析引擎版本待定，阻塞中'],
+    ['UAT测试用例编写','UAT测试','配合','负责','负责','中','待开始','赵测试','2026-08-15','2026-09-12','',''],
+    ['UAT执行与缺陷跟踪','UAT测试','配合','负责','负责','高','待开始','赵测试','2026-08-20','2026-09-20','',''],
+    ['关键用户培训','培训上线','配合','配合','负责','中','待开始','钱培训','2026-09-01','2026-09-15','',''],
+    ['上线切换与回滚预案','培训上线','负责','配合','知会','高','待开始','李鑫','2026-09-10','2026-09-22','',''],
+    ['运维交接文档','系统设置','负责','知会','知会','低','待开始','李鑫','2026-09-15','2026-09-24','',''],
+  ];
+  let id=1;
+  const tasks=T.map(r=>({id:'T'+(id++),name:r[0],module:r[1],rc:r[2],rb:r[3],ru:r[4],priority:r[5],
+    status:r[6],owner:r[7],start:r[8],due:r[9],doneAt:r[10],updatedAt:r[10]||r[8],remark:r[11]}));
+  return {modules:m,tasks,logs:[]};
+}
+let state=null;
+function load(){
+  try{const s=JSON.parse(localStorage.getItem(LS_KEY));
+    if(s&&s.tasks){ if(!Array.isArray(s.logs))s.logs=[];
+      s.tasks.forEach(t=>{if(t.doneAt===undefined)t.doneAt='';if(t.updatedAt===undefined)t.updatedAt=todayStr();});
+      return s;}}catch(e){}
+  return seedData();
+}
+state=load();
+function save(s){if(s!==undefined)state=s;localStorage.setItem(LS_KEY,JSON.stringify(state));}
+save();
+
+/* 主题 */
+function applyTheme(){const t=localStorage.getItem(TH_KEY)||'light';
+  document.documentElement.setAttribute('data-theme',t);}
+applyTheme();
+
+/* ===================== 标签组件 ===================== */
+function statTag(s){return `<span class="tag" style="background:${SB[s]};color:${SC[s]};border-color:${SD[s]}">${s}</span>`;}
+function priTag(p){return `<span class="tag" style="background:${PB[p]};color:${PC[p]};border-color:${PD[p]}">${p}</span>`;}
 function roleTag(key,val){
   if(val==='—'||!val)return '<span class="rtag k">—</span>';
   const r=ROLES.find(x=>x.key===key);
   return `<span class="rtag ${r.cls}">${r.short.replace('（我们）','')}·${val}</span>`;
 }
-function statTag(s){return `<span class="tag" style="background:${STATUS_BG[s]};color:${STATUS_COLOR[s]};border-color:${STATUS_BD[s]}">${s}</span>`;}
-function priTag(p){return `<span class="tag" style="background:${PRI_BG[p]};color:${PRI_COLOR[p]};border-color:${PRI_BD[p]}">${p}</span>`;}
+function roleBadge(v){if(v==='—'||!v)return '<span class="tag gray">—</span>';
+  const c=v==='负责'?'var(--green)':v==='配合'?'var(--gold)':'var(--gray)';
+  const bg=v==='负责'?'var(--green-bg)':v==='配合'?'var(--gold-bg)':'var(--gray-bg)';
+  const bd=v==='负责'?'var(--green-bd)':v==='配合'?'var(--gold-bd)':'var(--gray-bd)';
+  return `<span class="tag" style="background:${bg};color:${c};border-color:${bd}">${v}</span>`;}
+function roleCell(v){if(v==='—'||!v)return '<span style="color:var(--text3)">—</span>';
+  const c=v==='负责'?'var(--green)':v==='配合'?'var(--gold)':'var(--gray)';
+  return `<span style="color:${c};font-weight:600">${v}</span>`;}
 
 /* ===================== 导航 ===================== */
 const VIEWS={
-  dashboard:{t:'工作台',s:'协作总览与我的待办'},
-  kanban:{t:'配置任务看板',s:'按状态流转 · 拖拽卡片变更状态'},
-  list:{t:'任务列表',s:'全量任务 · 筛选与导出'},
+  dashboard:{t:'工作台',s:'协作总览 · 我的待办 · 到期预警'},
+  kanban:{t:'配置任务看板',s:'拖拽/按钮流转状态 · 列头快捷新建'},
+  list:{t:'任务列表',s:'排序 · 批量操作 · 只看逾期 · CSV导出'},
   matrix:{t:'角色分工矩阵',s:'三方谁负责 / 配合 / 知会'},
-  stats:{t:'统计报表',s:'状态 / 模块 / 角色工作量分析'},
-  settings:{t:'系统设置',s:'模块管理 · 数据导入导出'},
+  stats:{t:'统计报表',s:'状态 / 模块 / 角色 / 近8周趋势'},
+  settings:{t:'系统设置',s:'主题 · 模块 · 日志 · 数据'},
 };
 let curView='dashboard';
-$('nav').addEventListener('click',e=>{
-  const it=e.target.closest('.nav-item');if(!it)return;
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  it.classList.add('active');curView=it.dataset.view;
-  $('crumbMain').textContent=VIEWS[curView].t;
-  $('crumbSub').textContent=VIEWS[curView].s;
-  render();
-});
+function goView(v){
+  curView=v;document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===v));
+  $('crumbMain').textContent=VIEWS[v].t;$('crumbSub').textContent=VIEWS[v].s;render();
+}
+$('nav').addEventListener('click',e=>{const it=e.target.closest('.nav-item');if(it)goView(it.dataset.view);});
 
 /* ===================== 渲染分发 ===================== */
-function render(){
-  const c=$('content');
+function render(){const c=$('content');
   if(curView==='dashboard')c.innerHTML=viewDashboard();
   else if(curView==='kanban')c.innerHTML=viewKanban();
   else if(curView==='list')c.innerHTML=viewList();
   else if(curView==='matrix')c.innerHTML=viewMatrix();
   else if(curView==='stats')c.innerHTML=viewStats();
   else if(curView==='settings')c.innerHTML=viewSettings();
-  bindView();
-}
+  bindView();}
 
 /* ---------- 工作台 ---------- */
 function viewDashboard(){
   const t=state.tasks;
   const cnt=s=>t.filter(x=>x.status===s).length;
-  const total=t.length, done=cnt('已完成');
+  const total=t.length,done=cnt('已完成');
   const pct=total?Math.round(done/total*100):0;
   const myTodo=t.filter(x=>x.rc==='负责'&&x.status!=='已完成');
-  const recent=[...t].sort((a,b)=>(b.due||'').localeCompare(a.start||'')).slice(0,6);
-  const ring=ringSVG(pct);
+  const overList=t.filter(isOver).sort((a,b)=>(a.due||'').localeCompare(b.due||''));
+  const soon=t.filter(x=>x.status!=='已完成'&&x.due&&x.due>=todayStr()&&x.due<=daysFrom(7)).sort((a,b)=>a.due.localeCompare(b.due));
+  const recent=[...t].sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||'')).slice(0,6);
+  const warnCount=overList.length;
   return `
   <div class="stat-row">
-    ${statCard('总任务',total,'var(--primary)','var(--primary)')}
-    ${statCard('待开始',cnt('待开始'),'var(--gray)','var(--gray)')}
-    ${statCard('进行中',cnt('进行中'),'var(--primary)','var(--blue-tag)')}
-    ${statCard('已完成',cnt('已完成'),'var(--green)','var(--green)')}
-    ${statCard('阻塞',cnt('阻塞'),'var(--red)','var(--red)')}
+    ${statCard('总任务',total,'var(--primary)','var(--primary)','查看全部','')}
+    ${statCard('待开始',cnt('待开始'),'var(--gray)','var(--gray)','查看','待开始')}
+    ${statCard('进行中',cnt('进行中'),'var(--blue-tag)','var(--primary)','查看','进行中')}
+    ${statCard('已完成',cnt('已完成'),'var(--green)','var(--green)','查看','已完成')}
+    ${statCard('阻塞',cnt('阻塞'),'var(--red)','var(--red)',warnCount?'含逾期':'查看','阻塞')}
   </div>
   <div class="grid2">
     <div class="card">
       <div class="card-title">完成进度 <span class="r">整体交付健康度</span></div>
       <div class="prog-wrap">
-        ${ring}
+        ${ringSVG(pct)}
         <div class="prog-meta">
-          整体完成率 <b>${pct}%</b><br>
-          已完成 ${done} / 共 ${total} 项<br>
-          进行中 ${cnt('进行中')} 项 · 阻塞 ${cnt('阻塞')} 项需关注
+          整体完成率 <b>${pct}%</b>　已完成 <b>${done}</b>/<b>${total}</b> 项<br>
+          进行中 ${cnt('进行中')} · 阻塞 ${cnt('阻塞')} · <span style="color:var(--red)">逾期 ${overList.length} 项</span>
         </div>
       </div>
       <div style="margin-top:16px">
         <div class="card-title" style="margin-bottom:8px">我的待办（配置顾问负责）</div>
         ${myTodo.length?`<table><tbody>${myTodo.map(x=>`
-          <tr><td style="width:8px"><span class="dot" style="background:${STATUS_COLOR[x.status]}"></span></td>
+          <tr class="${isOver(x)?'over':''}"><td style="width:8px"><span class="dot" style="background:${SC[x.status]}"></span></td>
           <td>${esc(x.name)}</td>
           <td>${priTag(x.priority)}</td>
           <td><span style="color:var(--text3);font-size:12px">${x.due||'—'}</span></td>
@@ -403,27 +470,45 @@ function viewDashboard(){
           :'<div class="empty">暂无待办，棒！</div>'}
       </div>
     </div>
-    <div class="card">
-      <div class="card-title">近期任务 <span class="r">按截止日期</span></div>
-      ${recent.map(x=>`<div class="mini-row" style="padding:8px 0;border-bottom:1px solid var(--line2)">
-        <span class="dot" style="background:${STATUS_COLOR[x.status]}"></span>
-        <span style="flex:1">${esc(x.name)}</span>
-        ${statTag(x.status)}</div>`).join('')}
-      <div style="margin-top:14px;text-align:center"><button class="btn primary" data-act="goKanban">进入看板 →</button></div>
+    <div>
+      <div class="card" style="margin-bottom:16px;${overList.length?'border:1px solid var(--red-bd);background:var(--red-bg);':''}">
+        <div class="card-title" style="color:${overList.length?'var(--red)':'inherit'}">到期预警 <span class="r">${overList.length?'':'一切正常'}</span></div>
+        ${overList.length?overList.slice(0,5).map(x=>`<div class="mini-row" style="padding:7px 0;border-bottom:1px solid var(--line2)">
+          <span class="tag red" style="padding:1px 6px;font-size:11px">逾期</span>
+          <span style="flex:1">${esc(x.name)}</span><span style="font-size:12px">${x.due}</span></div>`).join('')
+          :'<div class="empty" style="padding:14px 0;font-size:12px">暂无逾期任务</div>'}
+        ${soon.length?`<div style="margin-top:10px"><div style="font-size:12px;color:var(--text2);margin-bottom:6px">未来 7 天到期</div>
+          ${soon.slice(0,4).map(x=>`<div class="mini-row" style="padding:6px 0;border-bottom:1px solid var(--line2)">
+            <span class="dot" style="background:var(--gold)"></span>
+            <span style="flex:1">${esc(x.name)}</span><span style="font-size:12px;color:var(--text3)">${x.due}</span></div>`).join('')}</div>`:''}
+      </div>
+      <div class="card">
+        <div class="card-title">最近更新 <span class="r">按更新时间</span></div>
+        ${recent.map(x=>`<div class="mini-row" style="padding:8px 0;border-bottom:1px solid var(--line2)">
+          <span class="dot" style="background:${SC[x.status]}"></span>
+          <span style="flex:1">${esc(x.name)}</span>${statTag(x.status)}</div>`).join('')}
+        <div style="margin-top:14px;display:flex;gap:10px">
+          <button class="btn primary" style="flex:1" data-act="goKanban">进入看板</button>
+          <button class="btn" style="flex:1" data-act="goList" data-filter="all">任务列表</button>
+        </div>
+      </div>
     </div>
   </div>`;
 }
-function statCard(lab,num,color,barcolor){
-  return `<div class="stat"><div class="lab">${lab}</div><div class="num" style="color:${color}">${num}</div><div class="bar" style="background:${barcolor}"></div></div>`;
+function daysFrom(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+function statCard(lab,num,color,barcolor,hint,filter){
+  return `<div class="stat ${filter!==undefined?'clickable':''}" ${filter!==undefined?`data-act="goList" data-filter="${filter}"`:''}>
+    <div class="lab">${lab}</div><div class="num" style="color:${color}">${num}</div>
+    ${hint?`<span class="hint">${hint} →</span>`:''}
+    <div class="bar" style="background:${barcolor}"></div></div>`;
 }
 function ringSVG(pct){
   const r=34,c=2*Math.PI*r,off=c*(1-pct/100);
   return `<svg class="prog-ring" width="92" height="92" viewBox="0 0 92 92">
-    <circle cx="46" cy="46" r="${r}" fill="none" stroke="#f0f2f5" stroke-width="9"/>
+    <circle cx="46" cy="46" r="${r}" fill="none" stroke="var(--ringbg)" stroke-width="9"/>
     <circle cx="46" cy="46" r="${r}" fill="none" stroke="var(--primary)" stroke-width="9"
       stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}" transform="rotate(-90 46 46)"/>
-    <text x="46" y="52" text-anchor="middle" font-size="20" font-weight="700" fill="var(--primary)">${pct}%</text>
-  </svg>`;
+    <text x="46" y="52" text-anchor="middle" font-size="20" font-weight="700" fill="var(--primary)">${pct}%</text></svg>`;
 }
 
 /* ---------- 看板 ---------- */
@@ -432,70 +517,100 @@ function viewKanban(){
   const cols=STATUS.map(s=>{
     const items=t.filter(x=>x.status===s);
     return `<div class="kcol" data-status="${s}">
-      <div class="kcol-head"><span><span class="dot" style="background:${STATUS_COLOR[s]}"></span>${s}</span><span class="cnt">${items.length}</span></div>
+      <div class="kcol-head">
+        <span class="l"><span class="dot" style="background:${SC[s]}"></span>${s}</span>
+        <span style="display:flex;align-items:center;gap:6px">
+          <span class="cnt">${items.length}</span>
+          <span class="add" data-act="openTask" data-status="${s}" title="新建${s}任务">+</span>
+        </span>
+      </div>
       ${items.map(cardHTML).join('')||'<div class="empty" style="padding:20px 0;font-size:12px">拖拽任务到此</div>'}
     </div>`;
   }).join('');
   return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-    <div style="color:var(--text2);font-size:12px">提示：拖拽卡片到其它列即可变更状态</div>
+    <div style="color:var(--text2);font-size:12px">拖拽卡片可变更状态 · 卡片右下按钮可一键推进</div>
     <button class="btn primary" data-act="openTask">+ 新建任务</button></div>
     <div class="kanban">${cols}</div>`;
 }
 function cardHTML(x){
-  const over=isOver(x);
-  return `<div class="kcard ${over?'over':''}" data-act="openTask" data-id="${x.id}" data-card="${x.id}" draggable="true" style="border-left-color:${STATUS_COLOR[x.status]}">
+  const over=isOver(x);const nxt=NEXT[x.status];
+  return `<div class="kcard ${over?'over':''}" data-act="openTask" data-id="${x.id}" data-card="${x.id}" draggable="true" style="border-left-color:${SC[x.status]}">
     <div class="t">${esc(x.name)}</div>
     <div class="meta"><span class="tag gray">${esc(x.module)}</span>${priTag(x.priority)}</div>
     <div class="roles">${roleTag('rc',x.rc)}${roleTag('rb',x.rb)}${roleTag('ru',x.ru)}</div>
-    <div class="due">${over?'逾期 ':'截止 '}${x.due||'—'}</div>
+    <div class="foot">
+      <span class="due">${over?'逾期 ':'截止 '}${x.due||'—'}</span>
+      ${nxt?`<span class="adv" data-act="advance" data-id="${x.id}">推进 → ${nxt}</span>`:''}
+    </div>
   </div>`;
 }
 
 /* ---------- 列表 ---------- */
+let _f={status:'',priority:'',module:'',q:'',over:false};
+let _sort={key:'due',dir:1};
+let _sel=new Set();
+let _qTimer=null;
 function viewList(){
-  const f={status:'',priority:'',module:'',q:''};
-  window._f=f;
-  const modOpts=state.modules.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('');
+  const sel=s=>`<option value="">全部</option>`+s;
+  const modOpts=state.modules.map(m=>`<option value="${esc(m)}" ${_f.module===m?'selected':''}>${esc(m)}</option>`).join('');
   return `<div class="card">
     <div class="filter-bar">
-      <div class="fitem">状态 <select id="lf_s"><option value="">全部</option>${STATUS.map(s=>`<option>${s}</option>`).join('')}</select></div>
-      <div class="fitem">优先级 <select id="lf_p"><option value="">全部</option>${['高','中','低'].map(s=>`<option>${s}</option>`).join('')}</select></div>
-      <div class="fitem">模块 <select id="lf_m"><option value="">全部</option>${modOpts}</select></div>
-      <div class="fitem" style="flex:1"><input id="lf_q" placeholder="搜索任务名称 / 负责人 / 备注"></div>
+      <div class="fitem">状态<select id="lf_s">${sel(STATUS.map(s=>`<option ${_f.status===s?'selected':''}>${s}</option>`).join(''))}</select></div>
+      <div class="fitem">优先级<select id="lf_p">${sel(['高','中','低'].map(s=>`<option ${_f.priority===s?'selected':''}>${s}</option>`).join(''))}</select></div>
+      <div class="fitem">模块<select id="lf_m">${modOpts}</select></div>
+      <div class="fitem grow"><input id="lf_q" placeholder="搜索名称 / 负责人 / 备注" value="${esc(_f.q)}"></div>
+      <span class="switch ${_f.over?'on':''}" id="swOver" data-act="toggleOver">${_f.over?'✓ 仅看逾期':'只看逾期'}</span>
       <button class="btn primary" data-act="openTask">+ 新建</button>
+      <button class="btn" data-act="exportCSV">导出CSV</button>
       <button class="btn" data-act="exportJSON">导出JSON</button>
+    </div>
+    <div id="batchBar" class="b-bar hidden">
+      <span>已选 <b id="selCount" style="color:var(--primary)">0</b> 项</span>
+      <span style="color:var(--text3)">批量设为状态</span>
+      <select id="batchStatus"><option value="待开始">待开始</option><option value="进行中">进行中</option><option value="已完成">已完成</option><option value="阻塞">阻塞</option></select>
+      <button class="btn sm primary" data-act="batchApply">应用</button>
+      <button class="btn sm danger" data-act="batchDelete">批量删除</button>
+      <button class="btn sm ghost" data-act="batchClear">取消选择</button>
     </div>
     <div id="listBody"></div>
   </div>`;
 }
-function listFilter(){
-  const f=window._f;
-  f.status=$('lf_s').value;f.priority=$('lf_p').value;f.module=$('lf_m').value;f.q=$('lf_q').value.trim().toLowerCase();
-  renderListBody();
+function filtered(){
+  return state.tasks.filter(x=>
+    (!_f.status||x.status===_f.status)&&(!_f.priority||x.priority===_f.priority)&&
+    (!_f.module||x.module===_f.module)&&(!_f.over||isOver(x))&&
+    (!_f.q||(x.name+x.owner+x.remark).toLowerCase().includes(_f.q)));
 }
 function renderListBody(){
-  const f=window._f;if(!f)return;
-  let rows=state.tasks.filter(x=>
-    (!f.status||x.status===f.status)&&(!f.priority||x.priority===f.priority)&&
-    (!f.module||x.module===f.module)&&
-    (!f.q||(x.name+x.owner+x.remark).toLowerCase().includes(f.q)));
   const body=$('listBody');if(!body)return;
+  let rows=filtered();
+  const k=_sort.key;
+  if(k==='due')rows.sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999')*_sort.dir);
+  else if(k==='priority'){const p={高:0,中:1,低:2};rows.sort((a,b)=>(p[a.priority]-p[b.priority])*_sort.dir);}
+  else rows.sort((a,b)=>String(a[k]||'').localeCompare(String(b[k]||''),'zh')*_sort.dir);
+  _sel=new Set([..._sel].filter(id=>state.tasks.some(t=>t.id===id)));
+  const bar=$('batchBar');if(bar){bar.classList.toggle('hidden',_sel.size===0);$('selCount').textContent=_sel.size;}
   if(!rows.length){body.innerHTML='<div class="empty">没有符合条件的任务</div>';return;}
-  body.innerHTML=`<table><thead><tr>
-    <th>任务名称</th><th>模块</th><th>优先级</th><th>状态</th>
-    <th>配置顾问</th><th>业务顾问</th><th>业务用户</th><th>负责人</th><th>截止</th><th>操作</th>
-  </tr></thead><tbody>${rows.map(x=>`<tr>
-    <td>${esc(x.name)}</td><td><span class="tag gray">${esc(x.module)}</span></td>
+  const arrow=k=>k===_sort.key?'<span class="arr">'+( _sort.dir>0?'▲':'▼')+'</span>':'';
+  body.innerHTML=`<div class="tbl-count">共 <b>${rows.length}</b> / ${state.tasks.length} 条${_f.over?' · 仅显示逾期':''}${_f.q?' · 搜索"'+esc(_f.q)+'"':''}</div>
+  <table><thead><tr>
+    <th style="width:32px"><input type="checkbox" id="chkAll" ${rows.length&&rows.every(r=>_sel.has(r.id))?'checked':''}></th>
+    <th class="sortable" data-sort="name">任务名称${arrow('name')}</th>
+    <th>模块</th><th class="sortable" data-sort="priority">优先级${arrow('priority')}</th><th class="sortable" data-sort="status">状态${arrow('status')}</th>
+    <th>配置顾问</th><th>业务顾问</th><th>业务用户</th><th class="sortable" data-sort="owner">负责人${arrow('owner')}</th><th class="sortable" data-sort="due">截止${arrow('due')}</th><th>操作</th>
+  </tr></thead><tbody>${rows.map(x=>{
+    const selc=_sel.has(x.id);
+    return `<tr class="${isOver(x)?'over':''} ${selc?'sel':''}">
+    <td><input type="checkbox" class="rowck" data-id="${x.id}" ${selc?'checked':''}></td>
+    <td>${esc(x.name)}${x.doneAt?`<span style="color:var(--green);font-size:11px"> · 完成 ${x.doneAt}</span>`:''}</td>
+    <td><span class="tag gray">${esc(x.module)}</span></td>
     <td>${priTag(x.priority)}</td><td>${statTag(x.status)}</td>
     <td>${roleCell(x.rc)}</td><td>${roleCell(x.rb)}</td><td>${roleCell(x.ru)}</td>
     <td>${esc(x.owner||'—')}</td><td>${x.due||'—'}</td>
     <td><button class="btn sm ghost" data-act="openTask" data-id="${x.id}">编辑</button>
-        <button class="btn sm danger" data-act="delTask" data-id="${x.id}">删除</button></td>
-  </tr>`).join('')}</tbody></table>`;
+        <button class="btn sm danger" data-act="delTask" data-id="${x.id}">删除</button></td></tr>`;}).join('')}</tbody></table>`;
 }
-function roleCell(v){if(v==='—'||!v)return '<span style="color:var(--text3)">—</span>';
-  const c=v==='负责'?'var(--green)':v==='配合'?'var(--gold)':'var(--gray)';
-  return `<span style="color:${c};font-weight:600">${v}</span>`;}
+function listFilter(){renderListBody();}
 
 /* ---------- 角色矩阵 ---------- */
 function viewMatrix(){
@@ -506,44 +621,40 @@ function viewMatrix(){
     <h4><span class="dot" style="background:${r.color}"></span>${r.name}</h4>
     <div class="lg">负责 <b style="color:var(--green)">${r.o['负责']}</b> · 配合 <b style="color:var(--gold)">${r.o['配合']}</b> · 知会 <b style="color:var(--gray)">${r.o['知会']}</b> · 未参与 <b>${r.o['—']}</b></div>
   </div>`).join('');
-  const head=`<tr><th>任务名称</th><th>模块</th>${ROLES.map(r=>`<th>${r.short}</th>`).join('')}<th>状态</th></tr>`;
-  const rows=t.map(x=>`<tr><td>${esc(x.name)}</td><td><span class="tag gray">${esc(x.module)}</span></td>
+  const head=`<tr><th>任务名称</th><th>模块</th>${ROLES.map(r=>`<th>${r.short}</th>`).join('')}<th>状态</th><th>截止</th></tr>`;
+  const rows=t.map(x=>`<tr class="${isOver(x)?'over':''}"><td>${esc(x.name)}</td><td><span class="tag gray">${esc(x.module)}</span></td>
     ${ROLES.map(r=>`<td class="mb">${roleBadge(x[r.key])}</td>`).join('')}
-    <td>${statTag(x.status)}</td></tr>`).join('');
+    <td>${statTag(x.status)}</td><td>${x.due||'—'}</td></tr>`).join('');
   return `<div class="role-sum">${cards}</div>
-    <div class="card"><div class="card-title">分工明细矩阵 <span class="r">绿=负责 · 金=配合 · 灰=知会/未参与</span></div>
+    <div class="card"><div class="card-title">分工明细矩阵 <span class="r">绿=负责 · 金=配合 · 灰=知会/未参与 · 红底=逾期</span></div>
     <table><thead>${head}</thead><tbody>${rows}</tbody></table></div>`;
 }
-function roleBadge(v){if(v==='—'||!v)return '<span class="tag gray">—</span>';
-  const c=v==='负责'?'var(--green)':v==='配合'?'var(--gold)':'var(--gray)';
-  const bg=v==='负责'?'var(--green-bg)':v==='配合'?'var(--gold-bg)':'var(--gray-bg)';
-  const bd=v==='负责'?'var(--green-bd)':v==='配合'?'var(--gold-bd)':'var(--gray-bd)';
-  return `<span class="tag" style="background:${bg};color:${c};border-color:${bd}">${v}</span>`;}
 
 /* ---------- 统计 ---------- */
 function viewStats(){
   const t=state.tasks;
-  const total=t.length;
   const sc={};STATUS.forEach(s=>sc[s]=t.filter(x=>x.status===s).length);
   const mc={};state.modules.forEach(m=>mc[m]=t.filter(x=>x.module===m).length);
   const rc={};ROLES.forEach(r=>{rc[r.short]={};['负责','配合','知会'].forEach(v=>rc[r.short][v]=t.filter(x=>x[r.key]===v).length);});
-  const donut=donutSVG(STATUS.map(s=>({label:s,val:sc[s],color:STATUS_COLOR[s]})));
+  const donut=donutSVG(STATUS.map(s=>({label:s,val:sc[s],color:SC[s]})));
   const maxMod=Math.max(1,...Object.values(mc));
-  const modBars=Object.entries(mc).filter(([k,v])=>v>0).sort((a,b)=>b[1]-a[1])
-    .map(([k,v])=>barRow(k,v,maxMod)).join('');
+  const modBars=Object.entries(mc).filter(([k,v])=>v>0).sort((a,b)=>b[1]-a[1]).map(([k,v])=>barRow(k,v,maxMod)).join('');
   const roleBars=ROLES.map(r=>{
     const o=rc[r.short];const mx=Math.max(o['负责'],o['配合'],o['知会']);
     return `<div style="margin-bottom:14px"><div style="font-weight:600;font-size:12px;margin-bottom:6px"><span class="dot" style="background:${r.color}"></span>${r.name}</div>
-      ${['负责','配合','知会'].map(vv=>barRow(vv+' '+o[vv],o[vv],mx)).join('')}</div>`;
+      ${['负责','配合','知会'].map(vv=>{
+        const p=o[vv]?Math.round(o[vv]/(o['负责']+o['配合']+o['知会']||1)*100):0;
+        return `<div class="barrow"><span class="name">${vv}</span><span class="track"><span class="fill" style="width:${Math.round(o[vv]/mx*100)}%"></span></span><span class="val">${o[vv]}<span style="color:var(--text3);font-size:11px"> ${p}%</span></span></div>`;}).join('')}</div>`;
   }).join('');
   return `<div class="chart-grid">
     <div class="card"><div class="card-title">任务状态分布</div>
       <div style="display:flex;gap:20px;align-items:center">
         ${donut}
-        <div class="legend">${STATUS.map(s=>`<div class="li"><span class="dot" style="background:${STATUS_COLOR[s]};margin:0"></span>${s} <b style="margin-left:auto;color:var(--text)">${sc[s]}</b></div>`).join('')}</div>
+        <div class="legend">${STATUS.map(s=>`<div class="li"><span class="dot" style="background:${SC[s]};margin:0"></span>${s} <b style="margin-left:auto;color:var(--text)">${sc[s]}</b></div>`).join('')}</div>
       </div></div>
     <div class="card"><div class="card-title">模块任务量</div>${modBars||'<div class="empty">暂无数据</div>'}</div>
-    <div class="card" style="grid-column:1/3"><div class="card-title">角色工作量（负责/配合/知会）</div>${roleBars}</div>
+    <div class="card"><div class="card-title">近 8 周趋势 <span class="r"><span class="dot" style="background:var(--primary)"></span>新增 <span class="dot" style="background:var(--green);margin-left:8px"></span>完成</span></div>${trendSVG(t)}</div>
+    <div class="card"><div class="card-title">角色工作量（负责/配合/知会）</div>${roleBars}</div>
   </div>`;
 }
 function barRow(name,val,max){
@@ -559,11 +670,42 @@ function donutSVG(data){
     <text x="70" y="66" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)">${total}</text>
     <text x="70" y="86" text-anchor="middle" font-size="11" fill="var(--text3)">总任务</text></svg>`;
 }
+function trendSVG(tasks){
+  const weeks=[];const now=new Date();
+  for(let i=7;i>=0;i--){
+    const m=new Date(now);m.setDate(m.getDate()-((m.getDay()+6)%7)-7*i);
+    const e=new Date(m);e.setDate(m.getDate()+6);
+    const mi=m.toISOString().slice(5,10);
+    weeks.push({label:mi,start:m.toISOString().slice(0,10),end:e.toISOString().slice(0,10),add:0,done:0});
+  }
+  tasks.forEach(t=>{if(t.start){const w=weeks.find(x=>t.start>=x.start&&t.start<=x.end);if(w)w.add++;}if(t.doneAt){const w=weeks.find(x=>t.doneAt>=x.start&&t.doneAt<=x.end);if(w)w.done++;}});
+  const maxV=Math.max(1,...weeks.map(w=>Math.max(w.add,w.done)));
+  const W=560,H=190,lm=46,top=14,bh=118,gw=(W-lm-16)/8,bw=Math.min(20,gw*0.3),gap=6;
+  let bars='';let labels='';
+  weeks.forEach((w,i)=>{
+    const cx=lm+gw*i+gw/2;
+    const h1=Math.round(w.add/maxV*bh),h2=Math.round(w.done/maxV*bh);
+    const y1=top+bh-h1,y2=top+bh-h2;
+    bars+=`<rect x="${cx-bw-gap/2}" y="${y1}" width="${bw}" height="${h1}" rx="2" fill="var(--primary)" opacity="${h1?1:.35}"/>`;
+    bars+=`<rect x="${cx+gap/2}" y="${y2}" width="${bw}" height="${h2}" rx="2" fill="var(--green)" opacity="${h2?1:.35}"/>`;
+    if(i%2===0)labels+=`<text x="${cx}" y="${top+bh+18}" text-anchor="middle" font-size="10" fill="var(--text3)">${w.label}</text>`;
+  });
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}" style="max-width:560px">${bars}${labels}</svg>`;
+}
 
 /* ---------- 设置 ---------- */
 function viewSettings(){
   const chips=state.modules.map(m=>`<span class="mod-chip">${esc(m)}<span class="x" data-act="delMod" data-mod="${esc(m)}">×</span></span>`).join('');
+  const cur=localStorage.getItem(TH_KEY)||'light';
+  const logs=state.logs.slice(0,60);
   return `<div class="card set-sec">
+    <div class="card-title">外观主题 <span class="r">切换立即生效</span></div>
+    <div class="theme-pick">
+      <div class="tp ${cur==='light'?'on':''}" data-act="themeLight"><div class="sw" style="background:#eef1f6;border-color:#d9dde3"></div>浅色</div>
+      <div class="tp ${cur==='dark'?'on':''}" data-act="themeDark"><div class="sw" style="background:#0e1116;border-color:#333b49"></div>深色</div>
+    </div>
+  </div>
+  <div class="card set-sec">
     <div class="card-title">模块管理 <span class="r">用于任务分类，新建任务时可选</span></div>
     <div style="margin-bottom:12px">${chips||'<span style="color:var(--text3)">暂无模块</span>'}</div>
     <div style="display:flex;gap:10px;max-width:420px">
@@ -572,36 +714,35 @@ function viewSettings(){
     </div>
   </div>
   <div class="card set-sec">
+    <div class="card-title">操作日志 <span class="r">最近 60 条 · 本地记录</span></div>
+    ${logs.length?`<div class="log-list">${logs.map(l=>`<div class="log-row"><span class="lt">${l.t}</span><span>${esc(l.msg)}</span></div>`).join('')}</div>
+      <div style="margin-top:10px"><button class="btn sm danger" data-act="clearLogs">清空日志</button></div>`
+      :'<div class="empty" style="padding:16px 0">暂无操作记录</div>'}
+  </div>
+  <div class="card set-sec">
     <div class="card-title">数据管理</div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <button class="btn" data-act="exportJSON">导出全部数据(JSON)</button>
+      <button class="btn" data-act="exportCSV">导出CSV(Excel可开)</button>
       <button class="btn" data-act="importClick">导入数据(JSON)</button>
-      <input id="imp" type="file" accept=".json" style="display:none">
+      <input id="imp" type="file" accept=".json,.csv" style="display:none">
       <button class="btn" data-act="resetSeed">恢复示例数据</button>
     </div>
-    <p style="color:var(--text3);font-size:12px;margin-top:10px">数据保存在本机浏览器(localStorage)，不会上传服务器。换电脑需先导出再导入。</p>
+    <p style="color:var(--text3);font-size:12px;margin-top:10px">数据保存在本机浏览器(localStorage)。<b>建议每周导出一次备份</b>，换电脑时导入即可。</p>
   </div>
   <div class="card danger-zone set-sec">
     <div class="card-title" style="color:var(--red)">危险操作</div>
-    <p style="font-size:12px;color:#a8071a;margin-bottom:10px">清空后所有任务与模块将永久删除，且无法恢复。</p>
+    <p style="font-size:12px;color:var(--red);margin-bottom:10px">清空后所有任务、模块与日志将永久删除，无法恢复。</p>
     <button class="btn danger" data-act="clearAll">清空全部数据</button>
   </div>`;
 }
-function addMod(){const v=$('newMod').value.trim();if(!v){toast('请输入模块名');return;}
-  if(state.modules.includes(v)){toast('模块已存在');return;}
-  state.modules.push(v);save();render();toast('已添加：'+v);}
-function delMod(m){state.modules=state.modules.filter(x=>x!==m);
-  state.tasks.forEach(t=>{if(t.module===m)t.module='';});save();render();toast('已删除模块');}
-function resetSeed(){if(!confirm('将用示例数据覆盖当前数据，确定？'))return;state=seedData();save();render();toast('已恢复示例数据');}
-function clearAll(){if(!confirm('确定清空全部任务与模块？此操作不可恢复！'))return;
-  state={modules:[],tasks:[]};save();render();toast('已清空');}
 
 /* ===================== 任务弹窗 ===================== */
-let editId=null, curMod='';
+let editId=null,curMod='';
 function fillModuleSelect(){const sel=$('f_module');if(!sel)return;
   sel.innerHTML='<option value="">请选择</option>'+state.modules.map(m=>`<option ${m===curMod?'selected':''}>${esc(m)}</option>`).join('');}
-function fillRoleSelect(id,val){const sel=$(id);sel.innerHTML=ROLE_OPTS.map(o=>`<option ${o===val?'selected':''}>${o}</option>`).join('');}
-function openTask(id){
+function fillRoleSelect(id,val){$(id).innerHTML=ROLE_OPTS.map(o=>`<option ${o===val?'selected':''}>${o}</option>`).join('');}
+function openTask(id,presetStatus){
   editId=id||null;
   if(id){const t=state.tasks.find(x=>x.id===id);if(!t)return;
     $('modalTitle').textContent='编辑任务';
@@ -615,32 +756,45 @@ function openTask(id){
     $('f_name').value='';$('f_priority').value='中';curMod='';
     fillModuleSelect();$('f_module').value='';
     fillRoleSelect('f_rc','负责');fillRoleSelect('f_rb','配合');fillRoleSelect('f_ru','知会');
-    $('f_status').value='待开始';$('f_owner').value='';$('f_start').value=todayStr();$('f_due').value='';$('f_remark').value='';
+    $('f_status').value=presetStatus||'待开始';$('f_owner').value='';
+    $('f_start').value=todayStr();$('f_due').value='';$('f_remark').value='';
   }
-  $('mask').classList.add('show');
+  $('mask').classList.add('show');setTimeout(()=>$('f_name').focus(),60);
 }
 function closeModal(){$('mask').classList.remove('show');}
+function setStatus(task,s){
+  if(task.status===s)return false;
+  const old=task.status;task.status=s;task.updatedAt=todayStr();
+  if(s==='已完成'&&!task.doneAt)task.doneAt=todayStr();
+  if(old==='已完成')task.doneAt='';
+  addLog('状态流转「'+task.name+'」：'+old+' → '+s);
+  return true;
+}
 function saveTask(){
   const name=$('f_name').value.trim();if(!name){toast('请填写任务名称');return;}
   const mod=$('f_module').value;if(!mod){toast('请选择所属模块');return;}
   const data={name,module:mod,priority:$('f_priority').value,
     rc:$('f_rc').value,rb:$('f_rb').value,ru:$('f_ru').value,
     status:$('f_status').value,owner:$('f_owner').value.trim(),
-    start:$('f_start').value,due:$('f_due').value,remark:$('f_remark').value.trim()};
-  if(editId){const t=state.tasks.find(x=>x.id===editId);Object.assign(t,data);toast('已保存修改');}
-  else{data.id='T'+Date.now();state.tasks.push(data);toast('已新建任务');}
+    start:$('f_start').value,due:$('f_due').value,remark:$('f_remark').value.trim(),updatedAt:todayStr()};
+  if(editId){const t=state.tasks.find(x=>x.id===editId);
+    if(t.status!==data.status){const old=t.status;t.status=data.status;if(data.status==='已完成'&&!t.doneAt)t.doneAt=todayStr();if(old==='已完成')t.doneAt='';addLog('状态流转「'+data.name+'」：'+old+' → '+data.status);}
+    else if(t.doneAt&&data.status==='已完成')data.doneAt=t.doneAt;
+    Object.assign(t,data);addLog('编辑任务「'+data.name+'」');toast('已保存修改');
+  }else{
+    data.id='T'+Date.now();if(data.status==='已完成')data.doneAt=todayStr();else data.doneAt='';
+    state.tasks.push(data);addLog('新建任务「'+data.name+'」');toast('已新建任务');
+  }
   save();closeModal();render();
 }
 function delTask(id){if(!confirm('确定删除该任务？'))return;
+  const t=state.tasks.find(x=>x.id===id);if(t)addLog('删除任务「'+t.name+'」');
   state.tasks=state.tasks.filter(x=>x.id!==id);save();render();toast('已删除');}
 $('btnCancel').onclick=closeModal;
 $('btnSave').onclick=saveTask;
 $('mask').addEventListener('click',e=>{if(e.target===$('mask'))closeModal();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
-function goKanban(){curView='kanban';document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view==='kanban'));
-  $('crumbMain').textContent=VIEWS.kanban.t;$('crumbSub').textContent=VIEWS.kanban.s;render();}
 
-/* ===================== 拖拽（看板） ===================== */
+/* ===================== 看板拖拽 ===================== */
 let dragId=null;
 function bindKanban(){
   document.querySelectorAll('.kcard').forEach(c=>{
@@ -650,40 +804,108 @@ function bindKanban(){
     col.addEventListener('dragover',e=>{e.preventDefault();col.classList.add('hl');});
     col.addEventListener('dragleave',e=>col.classList.remove('hl'));
     col.addEventListener('drop',e=>{e.preventDefault();col.classList.remove('hl');
-      const s=col.dataset.status;const t=state.tasks.find(x=>x.id===dragId);
-      if(t&&t.status!==s){t.status=s;if(s==='已完成'&&!t.due)t.due=todayStr();save();render();toast('状态已更新为：'+s);}});
+      const t=state.tasks.find(x=>x.id===dragId);
+      if(t&&setStatus(t,col.dataset.status)){save();render();toast('状态已更新');}});
   });
 }
 
-/* ===================== 事件委托（替代内联 onclick / onchange） ===================== */
+/* ===================== 事件委托 ===================== */
 document.addEventListener('click',e=>{
   const el=e.target.closest('[data-act]');if(!el)return;
-  const a=el.dataset.act, id=el.dataset.id, mod=el.dataset.mod;
-  if(a==='openTask')openTask(id||null);
-  else if(a==='goKanban')goKanban();
+  const a=el.dataset.act,id=el.dataset.id,mod=el.dataset.mod;
+  if(a==='openTask')openTask(id||null,el.dataset.status);
+  else if(a==='goKanban')goView('kanban');
+  else if(a==='goList'){if(el.dataset.filter==='all')_f={status:'',priority:'',module:'',q:'',over:false};else _f={status:el.dataset.filter,priority:'',module:'',q:'',over:false};_sort={key:'due',dir:1};goView('list');}
+  else if(a==='advance'){const t=state.tasks.find(x=>x.id===id);if(t&&NEXT[t.status]&&setStatus(t,NEXT[t.status])){save();render();toast('已推进 → '+t.status);}}
   else if(a==='delTask')delTask(id);
   else if(a==='delMod')delMod(mod);
   else if(a==='addMod')addMod();
   else if(a==='exportJSON')exportJSON();
+  else if(a==='exportCSV')exportCSV();
   else if(a==='importClick')$('imp').click();
   else if(a==='resetSeed')resetSeed();
   else if(a==='clearAll')clearAll();
+  else if(a==='clearLogs'){state.logs=[];save();render();toast('日志已清空');}
+  else if(a==='toggleOver'){_f.over=!_f.over;render();}
+  else if(a==='batchApply')batchApply();
+  else if(a==='batchDelete')batchDelete();
+  else if(a==='batchClear'){_sel.clear();render();}
+  else if(a==='themeLight'){localStorage.setItem(TH_KEY,'light');applyTheme();render();}
+  else if(a==='themeDark'){localStorage.setItem(TH_KEY,'dark');applyTheme();render();}
 });
 document.addEventListener('change',e=>{
   const id=e.target.id;
-  if(id==='lf_s'||id==='lf_p'||id==='lf_m')listFilter();
-  else if(id==='imp')importJSON(e);
+  if(id==='lf_s'){_f.status=$('lf_s').value;renderListBody();}
+  else if(id==='lf_p'){_f.priority=$('lf_p').value;renderListBody();}
+  else if(id==='lf_m'){_f.module=$('lf_m').value;renderListBody();}
+  else if(id==='imp')importFile(e);
+  else if(id==='chkAll'){const rows=filtered();if(e.target.checked)rows.forEach(r=>_sel.add(r.id));else rows.forEach(r=>_sel.delete(r.id));renderListBody();}
+  else if(e.target.classList&&e.target.classList.contains('rowck')){const id2=e.target.dataset.id;e.target.checked?_sel.add(id2):_sel.delete(id2);renderListBody();}
 });
-document.addEventListener('input',e=>{ if(e.target.id==='lf_q')listFilter(); });
+document.addEventListener('input',e=>{
+  if(e.target.id==='lf_q'){clearTimeout(_qTimer);_qTimer=setTimeout(()=>{_f.q=$('lf_q').value.trim().toLowerCase();renderListBody();},250);}
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeModal();return;}
+  if(e.key==='Enter'&&e.target&&e.target.id==='newMod'){addMod();return;}
+  if((e.ctrlKey||e.metaKey)&&e.key==='n'){e.preventDefault();openTask();return;}
+  if((e.ctrlKey||e.metaKey)&&e.key==='Enter'&&$('mask').classList.contains('show')){e.preventDefault();saveTask();return;}
+  if(e.target&&e.target.tagName==='TH'&&e.target.classList.contains('sortable')&&e.key==='Enter'){e.target.click();}
+});
+/* 表头排序 */
+document.addEventListener('click',e=>{
+  const th=e.target.closest('th.sortable');if(!th)return;
+  const k=th.dataset.sort;
+  _sort.key=k;_sort.dir=_sort.key===k?_sort.dir*-1:1;renderListBody();
+},true);
+
+/* ===================== 批量操作 ===================== */
+function batchApply(){if(!_sel.size){toast('请先选择任务');return;}
+  const s=$('batchStatus').value;let n=0;
+  _sel.forEach(id=>{const t=state.tasks.find(x=>x.id===id);if(t&&setStatus(t,s))n++;});
+  if(n)addLog('批量修改 '+n+' 项状态为 '+s);save();render();toast('已更新 '+n+' 项');}
+function batchDelete(){if(!_sel.size){toast('请先选择任务');return;}
+  if(!confirm('确定删除选中的 '+_sel.size+' 项任务？'))return;
+  addLog('批量删除 '+_sel.size+' 项任务');
+  state.tasks=state.tasks.filter(x=>!_sel.has(x.id));_sel.clear();save();render();toast('已批量删除');}
+
+/* ===================== 模块/数据 ===================== */
+function addMod(){const v=$('newMod').value.trim();if(!v){toast('请输入模块名');return;}
+  if(state.modules.includes(v)){toast('模块已存在');return;}
+  state.modules.push(v);addLog('新增模块「'+v+'」');render();toast('已添加：'+v);}
+function delMod(m){state.modules=state.modules.filter(x=>x!==m);
+  state.tasks.forEach(t=>{if(t.module===m)t.module='';});addLog('删除模块「'+m+'」');save();render();toast('已删除模块');}
+function resetSeed(){if(!confirm('将用示例数据覆盖当前数据，确定？'))return;state=seedData();addLog('恢复示例数据');save();render();toast('已恢复示例数据');}
+function clearAll(){if(!confirm('确定清空全部任务与模块？此操作不可恢复！'))return;
+  state={modules:[],tasks:[],logs:[]};save();render();toast('已清空');}
 
 /* ===================== 导入导出 ===================== */
-function exportJSON(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download='配置协作数据_'+todayStr()+'.json';a.click();toast('已导出');}
-function importJSON(e){const f=e.target.files[0];if(!f)return;const rd=new FileReader();
-  rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!d.tasks)throw 0;
-    if(!confirm('导入将覆盖当前数据，确定？'))return;state=d;if(!state.modules)state.modules=[...new Set(d.tasks.map(x=>x.module).filter(Boolean))];save();render();toast('导入成功');}
+function dl(name,content,mime){const blob=new Blob([content],{type:mime||'application/octet-stream'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();}
+function exportJSON(){dl('配置协作数据_'+todayStr()+'.json',JSON.stringify(state,null,2),'application/json');toast('JSON已导出');}
+function exportCSV(){
+  const head=['任务名称','模块','状态','优先级','负责人','配置顾问','业务顾问','业务用户','创建日期','截止日期','完成日期','备注'];
+  const rows=state.tasks.map(t=>[t.name,t.module,t.status,t.priority,t.owner||'',t.rc,t.rb,t.ru,t.start||'',t.due||'',t.doneAt||'',(t.remark||'').replace(/\n/g,' ')]);
+  const csv='\ufeff'+[head,...rows].map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  dl('配置协作任务_'+todayStr()+'.csv',csv,'text/csv;charset=utf-8');toast('CSV已导出，可用Excel打开');}
+function importFile(e){const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{const txt=rd.result;
+    if(f.name.toLowerCase().endsWith('.csv')){importCSV(txt);}
+    else{const d=JSON.parse(txt);if(!d.tasks)throw 0;
+      if(!confirm('导入将覆盖当前数据，确定？'))return;state=d;if(!state.modules)state.modules=[...new Set(d.tasks.map(x=>x.module).filter(Boolean))];if(!state.logs)state.logs=[];addLog('导入数据 '+d.tasks.length+' 条');save();render();toast('导入成功');}}
     catch(err){toast('文件格式错误');}};rd.readAsText(f);e.target.value='';}
+function importCSV(txt){
+  const lines=txt.replace(/^\ufeff/,'').split(/\r?\n/).filter(l=>l.trim());
+  if(lines.length<2){toast('CSV内容为空');return;}
+  if(!confirm('导入CSV将追加 '+lines.length-1+' 条任务到现有数据，确定？'))return;
+  const parse=l=>{const out=[];let cur='',q=false;for(let i=0;i<l.length;i++){const c=l[i];
+    if(c==='"'){if(q&&l[i+1]==='"'){cur+='"';i++;}else q=!q;}
+    else if(c===','&&!q){out.push(cur);cur='';}else cur+=c;}out.push(cur);return out.map(s=>s.trim());};
+  lines.slice(1).forEach(l=>{const r=parse(l);if(!r[0])return;
+    state.tasks.push({id:'T'+Date.now()+Math.random().toString(36).slice(2,5),name:r[0],module:r[1]||'未分类',
+      status:STATUS.includes(r[3])?r[3]:'待开始',priority:['高','中','低'].includes(r[4])?r[4]:'中',
+      owner:r[5]||'',rc:r[6]||'—',rb:r[7]||'—',ru:r[8]||'—',start:r[9]||todayStr(),due:r[10]||'',doneAt:r[11]||'',updatedAt:todayStr(),remark:r[12]||''});});
+  addLog('CSV导入 '+ (lines.length-1) +' 条');save();render();toast('CSV导入完成');}
 
 /* ===================== 绑定 & 启动 ===================== */
 function bindView(){
