@@ -378,6 +378,10 @@ function load(){
     if(s&&s.tasks){ if(!Array.isArray(s.logs))s.logs=[];
       s.tasks.forEach(t=>{if(t.doneAt===undefined)t.doneAt='';if(t.updatedAt===undefined)t.updatedAt=todayStr();});
       return s;}}catch(e){}
+  try{const v1=JSON.parse(localStorage.getItem('cfgCollab_v1'));
+    if(v1&&v1.tasks){ if(!Array.isArray(v1.logs))v1.logs=[];
+      v1.tasks.forEach(t=>{if(t.doneAt===undefined)t.doneAt='';if(t.updatedAt===undefined)t.updatedAt=todayStr();});
+      v1.logs.unshift({t:nowStr(),msg:'自动迁移：检测到 v1 数据，已带入当前版本'});return v1;}}catch(e){}
   return seedData();
 }
 state=load();
