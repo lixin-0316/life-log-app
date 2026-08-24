@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>烬羽阁 · 百叶本周本排表</title>
+<style>
+  :root{
+    --bg:#eef1f6; --panel:#ffffff; --panel2:#fafbfc; --line:#e6e9f0; --line2:#f0f2f7;
+    --text:#1f2329; --text2:#5f6b7a; --text3:#8f97a3;
+    --primary:#1668dc; --primary-h:#3d89f5; --primary-bg:#e8f1fe;
+    --green:#2faa54; --green-bg:#eaf8ef; --green-bd:#b7e3c6;
+    --red:#e5484d; --red-bg:#fdeeee; --red-bd:#f6c6c8;
+    --gold:#d89614; --gold-bg:#fdf6e3; --gold-bd:#f0dfa8;
+    --purple:#7c5cd6; --purple-bg:#f0ecfc; --purple-bd:#cfc0f0;
+    --gray:#7d8590; --gray-bg:#f4f5f7; --gray-bd:#d9dde3;
+    --blue-tag:#1668dc; --blue-bg:#e8f1fe; --blue-bd:#a8c8f7;
+    --trackbg:#eef1f6;
+    --shadow:0 1px 3px rgba(16,24,40,.05),0 6px 20px rgba(16,24,40,.05);
+    --shadow-h:0 4px 12px rgba(16,24,40,.09),0 10px 28px rgba(16,24,40,.08);
+    --radius:10px;
+    --sb:#0d1524; --sb-hover:rgba(255,255,255,.07);
+    --nav-active-bg:linear-gradient(90deg,rgba(124,92,214,.95),rgba(124,92,214,.5));
+    --nav-active-bd:#b7a4ef; --grad1:#7c5cd6; --grad2:#5d9df7;
+  }
+  :root[data-theme="ink"]{
+    --bg:#f0ede6; --panel:#fbfaf6; --panel2:#f3f0e9; --line:#e2dcd0; --line2:#efeae0;
+    --text:#2b2722; --text2:#6a6255; --text3:#9c927f;
+    --primary:#3f3a33; --primary-h:#5a534a; --primary-bg:#ece7dc;
+    --green:#5f7f52; --green-bg:#eef2e7; --green-bd:#c6d3b4;
+    --red:#b0543f; --red-bg:#f7ebe6; --red-bd:#e2bcae;
+    --gold:#a37a2c; --gold-bg:#f6efe0; --gold-bd:#ddc696;
+    --purple:#6d5c8c; --purple-bg:#efebf5; --purple-bd:#cbbce0;
+    --gray:#8b8375; --gray-bg:#f0ede5; --gray-bd:#d6cfc0;
+    --blue-tag:#3f3a33; --blue-bg:#ece7dc; --blue-bd:#c9c0ac;
+    --trackbg:#e9e4d8;
+    --sb:#201d18; --sb-hover:rgba(255,255,255,.08);
+    --nav-active-bg:linear-gradient(90deg,rgba(63,58,51,.95),rgba(63,58,51,.55));
+    --nav-active-bd:#8a8272; --grad1:#4a443b; --grad2:#7a7162;
+    --shadow:0 1px 3px rgba(40,32,20,.06),0 6px 20px rgba(40,32,20,.05);
+    --shadow-h:0 4px 12px rgba(40,32,20,.1),0 10px 28px rgba(40,32,20,.08);
+  }
+  :root[data-theme="teal"]{
+    --bg:#edf4f4; --panel:#ffffff; --panel2:#f4faf9; --line:#dce8e7; --line2:#ecf4f3;
+    --text:#17282b; --text2:#4f6a70; --text3:#7f969b;
+    --primary:#0d8a83; --primary-h:#26a49d; --primary-bg:#e0f3f1;
+    --green:#2f9e5b; --green-bg:#e7f6ed; --green-bd:#b5e3c8;
+    --red:#d8564f; --red-bg:#fceae9; --red-bd:#f2c2bd;
+    --gold:#c2922a; --gold-bg:#faf3dd; --gold-bd:#e7d394;
+    --purple:#5d6fa3; --purple-bg:#eceff8; --purple-bd:#c2cbe6;
+    --gray:#7c8a8e; --gray-bg:#f0f5f4; --gray-bd:#cfdcda;
+    --blue-tag:#0d8a83; --blue-bg:#e0f3f1; --blue-bd:#a8d8d2;
+    --trackbg:#e6f0ef;
+    --sb:#0c2f2d; --sb-hover:rgba(255,255,255,.07);
+    --nav-active-bg:linear-gradient(90deg,rgba(13,138,131,.95),rgba(13,138,131,.55));
+    --nav-active-bd:#6fd0c9; --grad1:#0d8a83; --grad2:#4fc3bb;
+    --shadow:0 1px 3px rgba(10,40,38,.05),0 6px 20px rgba(10,40,38,.05);
+    --shadow-h:0 4px 12px rgba(10,40,38,.1),0 10px 28px rgba(10,40,38,.08);
+  }
+  :root[data-theme="fire"]{
+    --bg:#f6f0ed; --panel:#fffdfc; --panel2:#faf3f0; --line:#ecdcd5; --line2:#f5ece8;
+    --text:#33241f; --text2:#7a5f55; --text3:#a0887c;
+    --primary:#c94f3b; --primary-h:#dd6a54; --primary-bg:#fbe9e4;
+    --green:#4c8a4c; --green-bg:#e9f4e9; --green-bd:#bcdcbc;
+    --red:#d6453c; --red-bg:#fbe8e6; --red-bd:#f0bfba;
+    --gold:#d18b2c; --gold-bg:#faf1dd; --gold-bd:#e8d194;
+    --purple:#9c5d8f; --purple-bg:#f7eef5; --purple-bd:#e0c2d9;
+    --gray:#97897f; --gray-bg:#f5efeb; --gray-bd:#e0d5cc;
+    --blue-tag:#c94f3b; --blue-bg:#fbe9e4; --blue-bd:#ecb9aa;
+    --trackbg:#f3ebe6;
+    --sb:#35130f; --sb-hover:rgba(255,255,255,.08);
+    --nav-active-bg:linear-gradient(90deg,rgba(201,79,59,.95),rgba(201,79,59,.55));
+    --nav-active-bd:#f0a492; --grad1:#c94f3b; --grad2:#e58a6f;
+    --shadow:0 1px 3px rgba(60,25,15,.06),0 6px 20px rgba(60,25,15,.05);
+    --shadow-h:0 4px 12px rgba(60,25,15,.1),0 10px 28px rgba(60,25,15,.08);
+  }
+  :root[data-theme="dark"]{
+    --bg:#0e1116; --panel:#171b23; --panel2:#1c212b; --line:#252b37; --line2:#202633;
+    --text:#e8ebf0; --text2:#9aa4b2; --text3:#67707d;
+    --primary:#4d8df0; --primary-h:#6ba3f3; --primary-bg:#15263d;
+    --green:#46c26b; --green-bg:#12291c; --green-bd:#1f5133;
+    --red:#f2605f; --red-bg:#2f1618; --red-bd:#5c272a;
+    --gold:#e6a23c; --gold-bg:#2c2412; --gold-bd:#58491f;
+    --purple:#9d7cf0; --purple-bg:#241b3d; --purple-bd:#4a3a7a;
+    --gray:#8a93a1; --gray-bg:#232834; --gray-bd:#333b49;
+    --blue-tag:#6ba3f3; --blue-bg:#15263d; --blue-bd:#26436b;
+    --trackbg:#232834;
+    --sb:#0a0d13; --sb-hover:rgba(255,255,255,.07);
+    --nav-active-bg:linear-gradient(90deg,rgba(77,141,240,.95),rgba(77,141,240,.5));
+    --nav-active-bd:#8ab8ff; --grad1:#4d8df0; --grad2:#7db3f5;
+    --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.3);
+    --shadow-h:0 4px 12px rgba(0,0,0,.5),0 10px 28px rgba(0,0,0,.4);
+  }
+  .theme-pick{display:flex;gap:10px;flex-wrap:wrap}
+  .theme-pick .tp{width:88px;border:1px solid var(--gray-bd);border-radius:8px;padding:10px 6px;cursor:pointer;text-align:center;font-size:12px;color:var(--text2);transition:.15s;background:var(--panel)}
+  .theme-pick .tp:hover{border-color:var(--primary)}
+  .theme-pick .tp .sw{width:42px;height:24px;border-radius:6px;margin:0 auto 6px;border:1px solid rgba(0,0,0,.12)}
+  .theme-pick .tp.on{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-bg);color:var(--primary);font-weight:600}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;
+    background:var(--bg);color:var(--text);font-size:13px;height:100vh;overflow:hidden}
+
+  .app{display:flex;height:100vh}
+  .sidebar{width:224px;background:var(--sb);color:#fff;display:flex;flex-direction:column;flex-shrink:0;transition:background .25s}
+  .logo{padding:18px 20px;font-size:15px;font-weight:700;letter-spacing:1px;
+    border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px;line-height:1.3}
+  .logo .mark{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--grad1),var(--grad2));
+    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;box-shadow:0 2px 8px rgba(124,92,214,.4);flex-shrink:0}
+  .logo small{display:block;font-size:10px;color:rgba(255,255,255,.5);font-weight:400;letter-spacing:0}
+  .nav{flex:1;padding:10px 0;overflow-y:auto}
+  .nav-group{font-size:11px;color:rgba(255,255,255,.4);padding:14px 20px 6px;letter-spacing:1px}
+  .nav-item{padding:11px 20px;cursor:pointer;display:flex;align-items:center;gap:10px;
+    color:rgba(255,255,255,.72);border-left:3px solid transparent;transition:.15s;font-size:13px;border-radius:0 6px 6px 0}
+  .nav-item:hover{background:var(--sb-hover);color:#fff}
+  .nav-item.active{background:var(--nav-active-bg);color:#fff;border-left-color:var(--nav-active-bd)}
+  .nav-ico{width:16px;height:16px;display:inline-block;flex-shrink:0}
+  .side-foot{padding:14px 20px;border-top:1px solid rgba(255,255,255,.07);font-size:11px;color:rgba(255,255,255,.45);line-height:1.7}
+
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .topbar{height:56px;background:var(--panel);border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
+  .crumb{font-size:15px;font-weight:600}
+  .crumb .sub{font-size:12px;color:var(--text3);font-weight:400;margin-left:10px}
+  .user{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2)}
+  .avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--grad1),var(--grad2));color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:600;box-shadow:0 2px 6px rgba(124,92,214,.35)}
+  .content{flex:1;overflow-y:auto;padding:20px 24px}
+
+  .card{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;transition:box-shadow .2s}
+  .card-title{font-size:14px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+  .card-title .r{font-size:12px;color:var(--text3);font-weight:400}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 15px;border-radius:7px;
+    border:1px solid var(--gray-bd);background:var(--panel);color:var(--text);cursor:pointer;font-size:13px;transition:.15s;font-family:inherit}
+  .btn:hover{border-color:var(--primary);color:var(--primary);box-shadow:0 2px 8px rgba(22,104,220,.12)}
+  .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+  .btn.primary:hover{background:var(--primary-h);border-color:var(--primary-h);color:#fff}
+  .btn.danger{color:var(--red);border-color:var(--red-bd);background:var(--red-bg)}
+  .btn.danger:hover{background:var(--red);border-color:var(--red);color:#fff}
+  .btn.sm{padding:3px 9px;font-size:12px;border-radius:6px}
+  .btn.ghost{background:transparent;border-color:transparent;color:var(--primary)}
+  .btn.ghost:hover{background:var(--primary-bg);box-shadow:none}
+
+  .tag{display:inline-flex;align-items:center;padding:2px 9px;border-radius:5px;font-size:12px;line-height:18px;font-weight:500;white-space:nowrap}
+  .tag.green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+  .tag.blue{background:var(--blue-bg);color:var(--blue-tag);border:1px solid var(--blue-bd)}
+  .tag.red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+  .tag.gold{background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-bd)}
+  .tag.purple{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-bd)}
+  .tag.gray{background:var(--gray-bg);color:var(--gray);border:1px solid var(--gray-bd)}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;flex-shrink:0}
+
+  input,select,textarea{font-family:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--gray-bd);
+    border-radius:7px;outline:none;color:var(--text);background:var(--panel);width:100%;transition:.15s}
+  input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-bg)}
+  textarea{resize:vertical;min-height:80px}
+  label.fld{display:block;font-size:12px;color:var(--text2);margin-bottom:5px}
+  label.fld .req{color:var(--red);margin-left:2px}
+
+  .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:18px}
+  .stat{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px;position:relative;overflow:hidden;transition:.18s}
+  .stat:hover{transform:translateY(-2px);box-shadow:var(--shadow-h)}
+  .stat .num{font-size:30px;font-weight:700;line-height:1;margin-top:6px;font-variant-numeric:tabular-nums}
+  .stat .lab{font-size:12px;color:var(--text3)}
+  .stat .bar{position:absolute;left:0;bottom:0;height:3px;width:100%}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 12px;background:var(--panel2);color:var(--text2);font-weight:600;border-bottom:1px solid var(--line);font-size:12px;white-space:nowrap}
+  td{padding:10px 12px;border-bottom:1px solid var(--line2);color:var(--text);vertical-align:middle}
+  tr:hover td{background:var(--primary-bg)}
+  .mini-row{display:flex;align-items:center;gap:8px}
+  .tbl-count{font-size:12px;color:var(--text3);margin-bottom:10px}
+
+  .date-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+  .date-bar input{width:auto;min-width:160px}
+  .date-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .dchip{padding:6px 14px;border-radius:16px;border:1px solid var(--gray-bd);background:var(--panel);
+    cursor:pointer;font-size:12px;color:var(--text2);transition:.15s}
+  .dchip:hover{border-color:var(--primary);color:var(--primary);transform:translateY(-1px)}
+  .dchip.on{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
+  .dchip .n{opacity:.8;margin-left:4px}
+  .dchip .full{color:var(--green)}
+
+  .add-row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:12px}
+  .add-row .g1{flex:1;min-width:220px}
+  .add-row .g2{width:220px}
+  .match-info{font-size:12px;color:var(--text2);margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+  /* v2 新增 */
+  .roster{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;align-items:center}
+  .roster .rc{display:flex;gap:8px;flex-wrap:wrap}
+  .roster .rc .rc-item{flex:1;min-width:88px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:8px;padding:10px 8px;text-align:center}
+  .roster .rc .rc-item .n{font-size:22px;font-weight:700;line-height:1.2}
+  .roster .rc .rc-item .l{font-size:11px;color:var(--text3)}
+  .progress{height:10px;background:var(--trackbg);border-radius:6px;overflow:hidden;margin-top:8px}
+  .progress .pf{height:100%;border-radius:6px;transition:width .4s}
+  .prog-lab{display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-top:6px}
+  .banner{display:flex;align-items:center;gap:8px;background:var(--gold-bg);border:1px solid var(--gold-bd);
+    color:#8a6100;border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:12px}
+  .banner .bx{cursor:pointer;font-weight:600;text-decoration:underline}
+  .time-tag{font-size:11px;color:var(--text3);font-variant-numeric:tabular-nums}
+
+  .legend{display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--text2)}
+  .legend .li{display:flex;align-items:center;gap:8px}
+  .barrow{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:12px}
+  .barrow .name{width:130px;text-align:right;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .barrow .track{flex:1;background:var(--trackbg);border-radius:5px;height:18px;overflow:hidden}
+  .barrow .fill{height:100%;background:linear-gradient(90deg,#7c5cd6,#5d9df7);border-radius:5px;transition:.4s}
+  .barrow .val{width:60px;color:var(--text);font-variant-numeric:tabular-nums}
+
+  .mod-chip{display:inline-flex;align-items:center;gap:6px;background:var(--purple-bg);color:var(--purple);
+    border:1px solid var(--purple-bd);border-radius:16px;padding:5px 12px;margin:0 8px 8px 0;font-size:13px}
+  .mod-chip .x{cursor:pointer;font-weight:700;padding:0 2px}
+  .mod-chip .x:hover{color:var(--red)}
+  .danger-zone{border:1px solid var(--red-bd);border-radius:var(--radius);padding:16px;background:var(--red-bg)}
+
+  .mask{position:fixed;inset:0;background:rgba(9,13,20,.55);display:none;align-items:center;justify-content:center;z-index:99;backdrop-filter:blur(2px)}
+  .mask.show{display:flex}
+  .modal{background:var(--panel);border-radius:12px;width:540px;max-width:92vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.28);animation:pop .18s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+  .modal-head{padding:18px 22px;border-bottom:1px solid var(--line);font-size:15px;font-weight:600}
+  .modal-body{padding:20px 22px;overflow-y:auto}
+  .modal-foot{padding:14px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;background:var(--panel2);border-radius:0 0 12px 12px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
+  .form-grid .full{grid-column:1/3}
+  .empty{text-align:center;color:var(--text3);padding:40px 0;font-size:13px}
+  .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-12px);background:#1f2937;color:#fff;padding:10px 20px;border-radius:8px;z-index:200;font-size:13px;opacity:0;transition:.22s;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .hidden{display:none!important}
+  .menu-btn{display:none;align-items:center;justify-content:center;width:38px;height:38px;border-radius:8px;border:1px solid var(--gray-bd);background:var(--panel);cursor:pointer;flex-shrink:0}
+  .menu-btn svg{width:18px;height:18px;fill:var(--text2)}
+  .side-mask{display:none}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  @media (max-width:1100px){.stat-row{grid-template-columns:repeat(2,1fr)}.roster{grid-template-columns:1fr}}
+  @media (max-width:900px){
+    .menu-btn{display:inline-flex}
+    .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:80;transform:translateX(-100%);transition:transform .25s ease}
+    .sidebar.open{transform:translateX(0);box-shadow:0 0 40px rgba(0,0,0,.4)}
+    .side-mask{display:block;position:fixed;inset:0;background:rgba(9,13,20,.5);z-index:70;opacity:0;pointer-events:none;transition:opacity .25s}
+    .side-mask.show{opacity:1;pointer-events:auto}
+    .topbar{height:52px;padding:0 12px}
+    .crumb .sub{display:none}
+    .content{padding:12px}
+    .stat-row{grid-template-columns:repeat(2,1fr);gap:10px}
+    .stat .num{font-size:24px}
+    .grid2{grid-template-columns:1fr!important}
+    .add-row{flex-direction:column;align-items:stretch}
+    .add-row .g1,.add-row .g2{width:100%;min-width:0}
+    .add-row .btn{width:100%}
+    .add-row select{width:100%}
+    .date-bar{flex-direction:column;align-items:stretch}
+    .date-bar input{width:100%}
+    .card{padding:14px}
+    .modal{width:94vw}
+  }
+  @media (max-width:600px){
+    input,select,textarea{font-size:16px}
+    .modal{width:100vw;max-width:100vw;height:100vh;max-height:100vh;border-radius:0}
+    .form-grid{grid-template-columns:1fr}
+    .form-grid .full{grid-column:1}
+    .user span:first-child{display:none}
+    .roster .rc .rc-item{min-width:72px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo"><span class="mark">烬</span><div>烬羽阁 · 周本排表<small>燕云十六声 · 百叶本周本</small></div></div>
+    <nav class="nav" id="nav">
+      <div class="nav-group">排表</div>
+      <div class="nav-item active" data-view="signup">
+        <svg class="nav-ico" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="4" height="14" rx="1"/><rect x="6" y="1" width="4" height="10" rx="1"/><rect x="11" y="1" width="4" height="12" rx="1"/></svg>
+        接龙排表
+      </div>
+      <div class="nav-group">资料库</div>
+      <div class="nav-item" data-view="members">
+        <svg class="nav-ico" viewBox="0 0 16 16" fill="currentColor"><circle cx="5" cy="5" r="2.4"/><circle cx="11" cy="5" r="2.4"/><path d="M5 9c2.2 0 4 1 4 2.4V13H1v-1.6C1 10 2.8 9 5 9zM11 9c.4 0 .9.05 1.3.15C11.5 9.9 11 10.9 11 12v1h4v-1.6c0-1-1-1.9-2.4-2.2-.5-.12-1-.2-1.6-.2z"/></svg>
+        人员管理
+      </div>
+      <div class="nav-item" data-view="schools">
+        <svg class="nav-ico" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l7 3-7 3-7-3z"/><path d="M3 6.5V11c0 1 2.2 2 5 2s5-1 5-2V6.5l-5 2z"/></svg>
+        流派管理
+      </div>
+      <div class="nav-group">分析</div>
+      <div class="nav-item" data-view="stats">
+        <svg class="nav-ico" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="9" width="3" height="6" rx="1"/><rect x="6.5" y="5" width="3" height="10" rx="1"/><rect x="12" y="1" width="3" height="14" rx="1"/></svg>
+        统计报表
+      </div>
+      <div class="nav-group">系统</div>
+      <div class="nav-item" data-view="settings">
+        <svg class="nav-ico" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="2.2"/><path d="M8 1l1.2 2 2.2-.5.6 2.1 2 1-1.2 1.9 1.2 1.9-2 1-.6 2.1-2.2-.5L8 15l-1.2-2-2.2.5-.6-2.1-2-1 1.2-1.9L1 6.6l2-1 .6-2.1 2.2.5z" opacity=".55"/></svg>
+        系统设置
+      </div>
+    </nav>
+    <div class="side-foot">烬羽阁 · 百叶本周本<br>排表接龙 v2.0</div>
+  </aside>
+
+  <div class="side-mask" id="sideMask" data-act="closeNav"></div>
+
+  <section class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0">
+        <button class="menu-btn" data-act="toggleNav" title="菜单"><svg viewBox="0 0 24 24"><path d="M3 6h18v2H3zM3 11h18v2H3zM3 16h18v2H3z"/></svg></button>
+        <div class="crumb"><span id="crumbMain">接龙排表</span> <span class="sub" id="crumbSub">百叶本周本 · 选日期接龙</span></div>
+      </div>
+      <div class="user"><span>烬羽阁 · 排表</span><span class="avatar">烬</span></div>
+    </header>
+    <div class="content" id="content"></div>
+  </section>
+</div>
+
+<div class="mask" id="mask">
+  <div class="modal">
+    <div class="modal-head" id="modalTitle">新增成员</div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="full">
+          <label class="fld">游戏昵称<span class="req">*</span></label>
+          <input id="m_name" placeholder="如：一蓑烟雨">
+        </div>
+        <div>
+          <label class="fld">流派</label>
+          <select id="m_school"></select>
+        </div>
+        <div>
+          <label class="fld">定位</label>
+          <select id="m_role">
+            <option value="输出">输出</option><option value="防御">防御</option>
+            <option value="辅助">辅助</option><option value="指挥">指挥</option><option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="full">
+          <label class="fld">备注</label>
+          <input id="m_remark" placeholder="如：主C / 前排 / 治疗">
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="btnCancel">取消</button>
+      <button class="btn primary" id="btnSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="mask2">
+  <div class="modal">
+    <div class="modal-head">批量添加成员</div>
+    <div class="modal-body">
+      <label class="fld">每行一个：<b>昵称 流派 定位 备注</b>（流派/定位可省略）</label>
+      <textarea id="mb_text" placeholder="一蓑烟雨 剑 输出 主C&#10;醉里挑灯 拳(手甲)&#10;断水无痕 双刀"></textarea>
+      <div style="font-size:12px;color:var(--text3);margin-top:8px">自动识别流派与定位；识别不到的流派记为「—」，可之后编辑。</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="btnMB2">取消</button>
+      <button class="btn primary" id="btnMB">批量添加</button>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="mask3">
+  <div class="modal">
+    <div class="modal-head">批量报名到当前组</div>
+    <div class="modal-body">
+      <label class="fld">每行一个成员，支持「名字 备注」<span class="r" style="float:right">当前组：<b id="bsGroup"></b></span></label>
+      <textarea id="bs_text" placeholder="一蓑烟雨 指挥&#10;醉里挑灯&#10;墨染山河 控场"></textarea>
+      <div style="font-size:12px;color:var(--text3);margin-top:8px">已在本组报过的成员会自动跳过，不重复。</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="btnBS2">取消</button>
+      <button class="btn primary" id="btnBS">批量报名</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== 常量 ===================== */
+const LS_KEY='byzb_v2';
+const ROLES=['输出','防御','辅助','指挥','其他'];
+const ROLE_TAG={'输出':'tag red','防御':'tag blue','辅助':'tag green','指挥':'tag gold','其他':'tag gray'};
+const SCHOOL_COLORS=['var(--primary)','var(--green)','var(--red)','var(--gold)','var(--purple)','var(--gray)','#2f9e9e','#e0567c'];
+const SCHOOL_BG=['var(--primary-bg)','var(--green-bg)','var(--red-bg)','var(--gold-bg)','var(--purple-bg)','var(--gray-bg)','#e4f6f6','#fdeaf1'];
+
+function todayStr(){const d=new Date();return d.toISOString().slice(0,10);}
+function daysFrom(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+function nowHM(){const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes());}
+function pad(n){return String(n).padStart(2,'0');}
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1900);}
+function $(id){return document.getElementById(id);}
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function schIdx(school){const i=state.schools.indexOf(school);return i<0?5:i%SCHOOL_COLORS.length;}
+function schoolTag(school){const i=schIdx(school);return `<span class="tag" style="background:${SCHOOL_BG[i]};color:${SCHOOL_COLORS[i]};border-color:transparent">${esc(school||'—')}</span>`;}
+function roleTag(role){const c=ROLE_TAG[role]||'tag gray';return `<span class="${c}">${esc(role||'—')}</span>`;}
+
+/* ===================== 数据层 ===================== */
+function seedData(){
+  const schools=['剑','双刀','长枪','伞','扇','鞭','棍','拳(手甲)','暗器'];
+  const members=[
+    {id:'M1',name:'一蓑烟雨',school:'剑',role:'输出',remark:'主C'},
+    {id:'M2',name:'醉里挑灯',school:'拳(手甲)',role:'输出',remark:'醉拳'},
+    {id:'M3',name:'断水无痕',school:'双刀',role:'输出',remark:''},
+    {id:'M4',name:'山河故人',school:'长枪',role:'防御',remark:'前排'},
+    {id:'M5',name:'青衫客',school:'伞',role:'辅助',remark:'治疗'},
+    {id:'M6',name:'仗剑天涯',school:'剑',role:'输出',remark:''},
+    {id:'M7',name:'墨染山河',school:'扇',role:'辅助',remark:'控场'},
+    {id:'M8',name:'流云听风',school:'暗器',role:'输出',remark:''},
+  ];
+  const t=todayStr();
+  const dateGroups={[t]:['20:30组','21:00组','22:00组']};
+  const signups=[
+    {id:'S1',date:t,group:'20:30组',name:'一蓑烟雨',memberId:'M1',note:'指挥',time:'20:10'},
+    {id:'S2',date:t,group:'20:30组',name:'醉里挑灯',memberId:'M2',note:'',time:'20:12'},
+    {id:'S3',date:t,group:'21:00组',name:'断水无痕',memberId:'M3',note:'',time:'20:15'},
+    {id:'S4',date:t,group:'21:00组',name:'山河故人',memberId:'M4',note:'前排',time:'20:18'},
+    {id:'S5',date:t,group:'22:00组',name:'青衫客',memberId:'M5',note:'',time:'20:20'},
+    {id:'S6',date:t,group:'22:00组',name:'仗剑天涯',memberId:'M6',note:'',time:'20:22'},
+  ];
+  return {schools,members,signups,dateGroups,target:10,meta:{v:2}};
+}
+function migrate(s){
+  if(!s.dateGroups||typeof s.dateGroups!=='object'||Array.isArray(s.dateGroups))s.dateGroups={};
+  s.signups=s.signups||[];
+  s.signups.forEach(x=>{if(x.group===undefined)x.group='';if(x.time===undefined)x.time='';});
+  [...new Set(s.signups.map(x=>x.date))].forEach(d=>{
+    if(!s.dateGroups[d]||!s.dateGroups[d].length){s.dateGroups[d]=['20:00组'];s.signups.forEach(x=>{if(x.date===d&&!x.group)x.group='20:00组';});}
+  });
+  if(!s.target)s.target=10;
+  return s;
+}
+let state=null;
+function load(){
+  try{const s=JSON.parse(localStorage.getItem(LS_KEY));
+    if(s&&s.tasks===undefined&&(s.members||s.signups))return migrate(s);}catch(e){}
+  try{const v1=JSON.parse(localStorage.getItem('byzb_v1'));
+    if(v1&&v1.tasks===undefined&&(v1.members||v1.signups)){
+      const s=migrate(JSON.parse(JSON.stringify(v1)));
+      s.meta={v:2};return s;}}catch(e){}
+  return seedData();
+}
+state=load();
+function save(){localStorage.setItem(LS_KEY,JSON.stringify(state));}
+save();
+
+let curDate=todayStr();
+let curGroup='';
+function groupsOf(d){return (state.dateGroups&&state.dateGroups[d])||[];}
+function firstGroup(d){const g=groupsOf(d);return g.length?g[0]:'';}
+curGroup=firstGroup(curDate);
+
+/* ===================== 导航 ===================== */
+const VIEWS={
+  signup:{t:'接龙排表',s:'百叶本周本 · 选日期接龙'},
+  members:{t:'人员管理',s:'烬羽阁成员资料库 · 名字自动联想来源'},
+  schools:{t:'流派管理',s:'维护可选的流派列表'},
+  stats:{t:'统计报表',s:'场次 · 流派 · 出席率 · 分组分析'},
+  settings:{t:'系统设置',s:'数据备份与恢复'},
+};
+let curView='signup';
+function goView(v){
+  curView=v;document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===v));
+  $('crumbMain').textContent=VIEWS[v].t;$('crumbSub').textContent=VIEWS[v].s;
+  closeNav();render();
+}
+function toggleNav(){const sb=document.querySelector('.sidebar');sb.classList.toggle('open');$('sideMask').classList.toggle('show',sb.classList.contains('open'));}
+function closeNav(){document.querySelector('.sidebar').classList.remove('open');$('sideMask').classList.remove('show');}
+function applyTheme(){const t=localStorage.getItem('byzb_theme')||'';document.documentElement.setAttribute('data-theme',t);}
+applyTheme();
+$('nav').addEventListener('click',e=>{const it=e.target.closest('.nav-item');if(it)goView(it.dataset.view);});
+
+/* ===================== 渲染分发 ===================== */
+function render(){const c=$('content');
+  if(curView==='signup')c.innerHTML=viewSignup();
+  else if(curView==='members')c.innerHTML=viewMembers();
+  else if(curView==='schools')c.innerHTML=viewSchools();
+  else if(curView==='stats')c.innerHTML=viewStats();
+  else if(curView==='settings')c.innerHTML=viewSettings();
+  bindView();}
+
+/* ---------- 接龙排表 ---------- */
+function viewSignup(){
+  const groups=groupsOf(curDate);
+  const gs=groups.includes(curGroup)?curGroup:firstGroup(curDate);
+  const list=state.signups.filter(s=>s.date===curDate&&s.group===gs);
+  const allCnt=state.signups.filter(s=>s.date===curDate).length;
+  const dates=[...new Set(state.signups.map(s=>s.date))].sort().reverse();
+  const schCount={};
+  list.forEach(s=>{const m=state.members.find(x=>x.id===s.memberId);const k=(m?m.school:'—')||'—';schCount[k]=(schCount[k]||0)+1;});
+  const chips=dates.map(d=>{const n=state.signups.filter(s=>s.date===d).length;
+    return `<span class="dchip ${d===curDate?'on':''}" data-act="setDate" data-date="${d}">${d.slice(5).replace('-','/')}<span class="n">${n}人</span></span>`;}).join('');
+  const gchips=groups.map(g=>{const n=state.signups.filter(s=>s.date===curDate&&s.group===g).length;
+    return `<span class="dchip ${g===gs?'on':''} ${n>=state.target?'full':''}" data-act="setGroup" data-g="${esc(g)}">${esc(g)}<span class="n">${n}/${state.target}</span></span>`;}).join('');
+  return `
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">选择日期 <span class="r">每天可开多个分组</span></div>
+    <div class="date-bar">
+      <input type="date" id="sd_date" value="${curDate}">
+      <button class="btn" data-act="setToday">今天</button>
+      <button class="btn" data-act="setTomorrow">明天</button>
+      <button class="btn ghost" data-act="copyList">复制本组</button>
+      <button class="btn ghost" data-act="copyAll">复制全天汇总</button>
+    </div>
+    ${dates.length?`<div class="date-chips">${chips}</div>`:''}
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">分组 <span class="r">同一天分时段开组 · 已报/目标 ${state.target}人</span></div>
+    ${groups.length?`<div class="date-chips" style="margin-bottom:10px">${gchips}</div>`:'<div style="color:var(--text3);font-size:12px;margin-bottom:10px">这一天还没分组，先添加一个吧（如 20:30组）</div>'}
+    <div class="add-row" style="margin-bottom:0">
+      <div class="g1"><input id="newGroup" placeholder="如：20:30组 / 21:00组 / 22:00组"></div>
+      <button class="btn primary" data-act="addGroup">+ 新建分组</button>
+      ${gs?`<button class="btn danger" data-act="delGroup" data-g="${esc(gs)}">删除「${esc(gs)}」</button>`:''}
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">${gs?esc(gs):'未分组'} · 报名接龙 <span class="r">本组 ${list.length}/${state.target} · 全天 ${allCnt} 人</span></div>
+    <div class="add-row">
+      <div class="g1">
+        <input id="add_name" list="dl_members" placeholder="输入游戏昵称，自动联想（支持 名字 备注）" autocomplete="off">
+        <datalist id="dl_members">${state.members.map(m=>`<option value="${esc(m.name)}">${esc(m.school)} · ${esc(m.role)}</option>`).join('')}</datalist>
+        <div class="match-info" id="matchInfo"></div>
+      </div>
+      <div class="g2"><input id="add_note" placeholder="备注（指挥/前排/治疗…）"></div>
+      <button class="btn primary" data-act="addSignup">+ 报名到${gs?esc(gs):'本组'}</button>
+      <button class="btn" data-act="openBatchS">批量粘贴</button>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+      ${Object.keys(schCount).map(k=>`<span class="tag gray">${esc(k)} ${schCount[k]}人</span>`).join('')||'<span style="color:var(--text3);font-size:12px">本组暂无报名</span>'}
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">阵容编成 <span class="r">缺什么一眼可见</span></div>
+    ${rosterHTML(list,gs)}
+  </div>
+  <div class="card">
+    <div class="card-title">${curDate} ${gs?esc(gs):''} 出战名单 <span class="r">本组 ${list.length} 人 · 按报名顺序</span></div>
+    ${list.length?`<div class="tbl-wrap"><table><thead><tr><th style="width:52px">序号</th><th>昵称</th><th>流派</th><th>定位</th><th>报名</th><th>备注</th><th style="width:80px">操作</th></tr></thead><tbody>
+    ${list.map((s,i)=>{const m=state.members.find(x=>x.id===s.memberId);
+      return `<tr><td>${i+1}</td><td style="font-weight:600">${esc(s.name)}</td>
+      <td>${schoolTag(m?m.school:(s.school||'—'))}</td><td>${roleTag(m?m.role:(s.role||''))}</td>
+      <td><span class="time-tag">${s.time||'—'}</span></td>
+      <td>${esc(s.note||'')}</td>
+      <td><button class="btn sm danger" data-act="delSignup" data-id="${s.id}">删除</button></td></tr>`;}).join('')}
+    </tbody></table></div>`
+    :'<div class="empty">本组还没有人报名，先在上方切换分组或输入名字接龙吧</div>'}
+  </div>`;
+}
+function rosterHTML(list,gs){
+  if(!list.length)return '<div class="empty" style="padding:16px 0;font-size:12px">报名后这里自动统计输出/防御/辅助缺口</div>';
+  const rc={输出:0,防御:0,辅助:0,指挥:0,其他:0};
+  list.forEach(s=>{const m=state.members.find(x=>x.id===s.memberId);const r=(m?m.role:(s.role||''))||'其他';rc[r]=(rc[r]||0)+1;});
+  const pct=Math.min(100,Math.round(list.length/state.target*100));
+  const over=list.length>state.target;
+  const fill=over?'var(--red)':list.length>=state.target?'var(--green)':'var(--primary)';
+  const items=[['输出',rc['输出'],'var(--red)'],['防御',rc['防御'],'var(--blue-tag)'],['辅助',rc['辅助'],'var(--green)'],['指挥',rc['指挥'],'var(--gold)']];
+  return `<div class="roster">
+    <div class="rc">${items.map(([l,n,c])=>`<div class="rc-item"><div class="n" style="color:${c}">${n}</div><div class="l">${l}</div></div>`).join('')}</div>
+    <div>
+      <div style="font-size:12px;color:var(--text2)">${gs?esc(gs):''} 满员进度（目标 ${state.target} 人）${over?'<span style="color:var(--red);font-weight:600"> · 已超编 '+ (list.length-state.target) +' 人</span>':''}</div>
+      <div class="progress"><div class="pf" style="width:${pct}%;background:${fill}"></div></div>
+      <div class="prog-lab"><span>已报 ${list.length} 人</span><span>${list.length>=state.target?'目标达成':'还差 '+(state.target-list.length)+' 人'}</span></div>
+    </div>
+  </div>`;
+}
+
+/* ---------- 人员管理 ---------- */
+let mf={q:'',school:''};
+function viewMembers(){
+  const sel=s=>`<option value="">全部</option>`+s;
+  const dates=[...new Set(state.signups.map(x=>x.date))];
+  const cards=`<div class="stat-row">
+    <div class="stat"><div class="lab">成员总数</div><div class="num" style="color:var(--primary)">${state.members.length}</div><div class="bar" style="background:var(--primary)"></div></div>
+    <div class="stat"><div class="lab">流派数</div><div class="num" style="color:var(--purple)">${state.schools.length}</div><div class="bar" style="background:var(--purple)"></div></div>
+    <div class="stat"><div class="lab">累计报名人次</div><div class="num" style="color:var(--green)">${state.signups.length}</div><div class="bar" style="background:var(--green)"></div></div>
+    <div class="stat"><div class="lab">累计场次</div><div class="num" style="color:var(--gold)">${dates.length}</div><div class="bar" style="background:var(--gold)"></div></div>
+  </div>`;
+  return `${cards}<div class="card">
+    <div class="card-title">成员资料 <span class="r">人员模板 = 接龙名字联想数据源</span></div>
+    <div class="add-row" style="margin-bottom:12px">
+      <div class="g1"><input id="mf_q" placeholder="搜索昵称 / 备注" value="${esc(mf.q)}"></div>
+      <div><select id="mf_s">${sel(state.schools.map(s=>`<option ${mf.school===s?'selected':''}>${esc(s)}</option>`).join(''))}</select></div>
+      <button class="btn primary" data-act="openMember">+ 新增成员</button>
+      <button class="btn" data-act="openMBatch">批量添加</button>
+    </div>
+    <div id="mb"></div>
+  </div>`;
+}
+function renderMembers(){
+  const b=$('mb');if(!b)return;
+  const dates=[...new Set(state.signups.map(x=>x.date))].length;
+  let rows=state.members.filter(m=>(!mf.school||m.school===mf.school)&&
+    (!mf.q||(m.name+m.remark).toLowerCase().includes(mf.q.toLowerCase())));
+  if(!rows.length){b.innerHTML='<div class="empty">没有符合条件的成员</div>';return;}
+  b.innerHTML=`<div class="tbl-count">共 <b>${rows.length}</b> 人</div>
+  <div class="tbl-wrap"><table><thead><tr><th>昵称</th><th>流派</th><th>定位</th><th>备注</th><th>出勤</th><th style="width:110px">操作</th></tr></thead><tbody>
+  ${rows.map(m=>{const cnt=state.signups.filter(s=>s.memberId===m.id).length;
+    const rate=dates?Math.round(cnt/dates*100):0;
+    return `<tr><td style="font-weight:600">${esc(m.name)}</td><td>${schoolTag(m.school)}</td><td>${roleTag(m.role)}</td>
+    <td>${esc(m.remark||'')}</td><td><span class="tag blue">${cnt} 次</span> <span class="time-tag">${rate}%</span></td>
+    <td><button class="btn sm ghost" data-act="openMember" data-id="${m.id}">编辑</button>
+        <button class="btn sm danger" data-act="delMember" data-id="${m.id}">删除</button></td></tr>`;}).join('')}
+  </tbody></table></div>`;
+}
+
+/* ---------- 流派管理 ---------- */
+function viewSchools(){
+  const chips=state.schools.map(s=>`<span class="mod-chip" style="background:${SCHOOL_BG[schIdx(s)]};color:${SCHOOL_COLORS[schIdx(s)]};border-color:transparent">${esc(s)}<span class="x" data-act="delSchool" data-sch="${esc(s)}">×</span></span>`).join('');
+  return `<div class="card" style="margin-bottom:16px">
+    <div class="card-title">流派列表 <span class="r">人员录入与接龙时可选 · 已用 ${state.schools.length} 种</span></div>
+    <div style="margin-bottom:12px">${chips||'<span style="color:var(--text3)">暂无流派</span>'}</div>
+    <div style="display:flex;gap:10px;max-width:420px">
+      <input id="newSchool" placeholder="输入流派名，如：双刀">
+      <button class="btn primary" data-act="addSchool">添加</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">流派速查 <span class="r">燕云十六声主流流派参考</span></div>
+    <div style="font-size:12px;color:var(--text2);line-height:2">
+      剑、双刀、长枪、伞、扇、鞭、棍、拳(手甲)、暗器 —— 按烬羽阁实际配置增删即可。<br>
+      删除流派不会删除人员，对应人员流派显示「—」，需手动改回。
+    </div>
+  </div>`;
+}
+
+/* ---------- 统计 ---------- */
+function viewStats(){
+  const s=state.signups;
+  const dates=[...new Set(s.map(x=>x.date))].sort();
+  const dateCnt=dates.map(d=>({d,c:s.filter(x=>x.date===d).length}));
+  const sch={};
+  s.forEach(x=>{const m=state.members.find(y=>y.id===x.memberId);const k=(m?m.school:'—')||'—';sch[k]=(sch[k]||0)+1;});
+  const att={};
+  s.forEach(x=>{if(x.memberId){att[x.memberId]=(att[x.memberId]||0)+1;}});
+  const nDates=dates.length||1;
+  const rank=Object.entries(att).sort((a,b)=>b[1]-a[1]).slice(0,10)
+    .map(([id,cnt])=>{const m=state.members.find(y=>y.id===id);if(!m)return null;return {name:m.name,cnt,rate:Math.round(cnt/nDates*100)};}).filter(Boolean);
+  const maxD=Math.max(1,...dateCnt.map(x=>x.c));
+  const maxR=Math.max(1,...rank.map(x=>x.cnt));
+  const donut=donutSVG(Object.entries(sch).map(([k,v])=>({label:k,val:v,color:SCHOOL_COLORS[schIdx(k)]})));
+  const gAvg=(()=>{let gs=0,gc=0;Object.keys(state.dateGroups||{}).forEach(d=>{(state.dateGroups[d]||[]).forEach(g=>{gc++;gs+=s.filter(x=>x.date===d&&x.group===g).length;});});return gc?Math.round(gs/gc*10)/10:0;})();
+  return `<div class="stat-row">
+    <div class="stat"><div class="lab">累计场次</div><div class="num" style="color:var(--primary)">${dates.length}</div><div class="bar" style="background:var(--primary)"></div></div>
+    <div class="stat"><div class="lab">报名总人次</div><div class="num" style="color:var(--green)">${s.length}</div><div class="bar" style="background:var(--green)"></div></div>
+    <div class="stat"><div class="lab">单场最多</div><div class="num" style="color:var(--gold)">${dateCnt.length?Math.max(...dateCnt.map(x=>x.c)):0}</div><div class="bar" style="background:var(--gold)"></div></div>
+    <div class="stat"><div class="lab">每组平均</div><div class="num" style="color:var(--purple)">${gAvg}</div><div class="bar" style="background:var(--purple)"></div></div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">各场次报名人数</div>
+    ${dateCnt.map(x=>barRow(x.d, x.c, maxD)).join('')||'<div class="empty">暂无接龙记录</div>'}
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="card-title">流派分布（按报名人次）</div>
+      <div style="display:flex;gap:20px;align-items:center">
+        ${donut}
+        <div class="legend">${Object.entries(sch).map(([k,v])=>`<div class="li"><span class="dot" style="background:${SCHOOL_COLORS[schIdx(k)]};margin:0"></span>${esc(k)} <b style="margin-left:auto;color:var(--text)">${v}</b></div>`).join('')}</div>
+      </div></div>
+    <div class="card"><div class="card-title">出勤榜 Top10 <span class="r">按报名次数 · 含出席率</span></div>
+      ${rank.map(x=>barRow(x.name+'（'+x.cnt+'次/'+x.rate+'%）',x.cnt,maxR)).join('')||'<div class="empty">暂无数据</div>'}
+    </div>
+  </div>`;
+}
+function barRow(name,val,max){
+  const w=max?Math.round(val/max*100):0;
+  return `<div class="barrow"><span class="name">${esc(name)}</span>
+    <span class="track"><span class="fill" style="width:${w}%"></span></span>
+    <span class="val">${val}</span></div>`;
+}
+function donutSVG(data){
+  const total=data.reduce((s,d)=>s+d.val,0)||1;const r=52,c=2*Math.PI*r;let off=0;
+  const segs=data.map(d=>{const len=c*d.val/total;const s=`<circle cx="70" cy="70" r="${r}" fill="none" stroke="${d.color}" stroke-width="16" stroke-dasharray="${len} ${c-len}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"/>`;off+=len;return s;}).join('');
+  return `<svg width="140" height="140" viewBox="0 0 140 140">${segs}
+    <text x="70" y="66" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)">${total}</text>
+    <text x="70" y="86" text-anchor="middle" font-size="11" fill="var(--text3)">人次</text></svg>`;
+}
+
+/* ---------- 设置 ---------- */
+function viewSettings(){
+  const last=localStorage.getItem('byzb_backup');
+  const days=last?Math.floor((Date.now()-new Date(last).getTime())/86400000):-1;
+  const cur=localStorage.getItem('byzb_theme')||'';
+  return `<div class="card" style="margin-bottom:16px">
+    <div class="card-title">外观主题 <span class="r">点击切换，立即生效</span></div>
+    <div class="theme-pick">
+      ${[['','青黛','#1668dc','#7c5cd6'],['ink','水墨','#3f3a33','#6d5c8c'],['teal','碧波','#0d8a83','#4fc3bb'],['fire','炽焰','#c94f3b','#e58a6f'],['dark','暗夜','#4d8df0','#9d7cf0']].map(x=>`<div class="tp ${cur===x[0]?'on':''}" data-act="theme" data-t="${x[0]}"><div class="sw" style="background:linear-gradient(135deg,${x[2]},${x[3]})"></div>${x[1]}</div>`).join('')}
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">排表参数 <span class="r">编成概览用</span></div>
+    <div style="display:flex;gap:10px;align-items:flex-end;max-width:420px">
+      <div style="flex:1"><label class="fld">每组目标人数</label><input id="tg" type="number" min="1" max="50" value="${state.target}"></div>
+      <button class="btn primary" data-act="saveTarget">保存</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">数据管理 <span class="r">数据保存在本机浏览器</span></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn" data-act="exportJSON">导出全部数据(JSON)</button>
+      <button class="btn" data-act="importClick">导入数据(JSON)</button>
+      <input id="imp" type="file" accept=".json" style="display:none">
+      <button class="btn" data-act="resetSeed">恢复示例数据</button>
+    </div>
+    <p style="color:var(--text3);font-size:12px;margin-top:10px">
+      ${days<0?'从未导出过备份':'上次导出 '+days+' 天前'}<b>${days>7?'，建议立即导出！':''}</b> · 换电脑/清缓存前先导出。
+    </p>
+  </div>
+  <div class="card danger-zone">
+    <div class="card-title" style="color:var(--red)">危险操作</div>
+    <p style="font-size:12px;color:var(--red);margin-bottom:10px">清空后所有成员、流派与接龙记录将永久删除。</p>
+    <button class="btn danger" data-act="clearAll">清空全部数据</button>
+  </div>`;
+}
+
+/* ===================== 接龙操作 ===================== */
+function setDate(d){curDate=d;curGroup=firstGroup(d);render();}
+function setGroup(g){curGroup=g;render();}
+function addGroup(){
+  const v=$('newGroup').value.trim();if(!v){toast('请输入分组名');return;}
+  const groups=groupsOf(curDate);
+  if(groups.includes(v)){toast('该分组已存在');return;}
+  if(!state.dateGroups[curDate])state.dateGroups[curDate]=[];
+  state.dateGroups[curDate].push(v);curGroup=v;save();render();toast('已新建分组：'+v);
+}
+function delGroup(g){
+  if(!confirm('删除分组「'+g+'」？组内报名记录将并入剩余第一个分组'))return;
+  state.dateGroups[curDate]=(state.dateGroups[curDate]||[]).filter(x=>x!==g);
+  const rest=state.dateGroups[curDate]||[];
+  const target=rest.length?rest[0]:'';
+  state.signups.forEach(s=>{if(s.date===curDate&&s.group===g)s.group=target;});
+  curGroup=target;save();render();toast('已删除分组');
+}
+function parseLine(line){
+  line=line.trim();
+  let name=line,note='';
+  const m=line.match(/^(\S+)[\s,，]+(.*)$/);
+  if(m){name=m[1];note=m[2].trim();}
+  return {name,note};
+}
+function addSignup(){
+  const raw=$('add_name').value.trim();
+  if(!raw){toast('请输入昵称');return;}
+  if(!curGroup){toast('请先新建分组再报名');return;}
+  const {name,note}=parseLine(raw);
+  if(!name){toast('请输入昵称');return;}
+  if(state.signups.some(s=>s.date===curDate&&s.group===curGroup&&s.name===name)){toast('该成员本组已报名');return;}
+  const m=state.members.find(x=>x.name===name);
+  state.signups.push({id:'S'+Date.now(),date:curDate,group:curGroup,name,
+    memberId:m?m.id:'',school:m?m.school:'',role:m?m.role:'',note:note||$('add_note').value.trim(),time:nowHM()});
+  $('add_name').value='';$('add_note').value='';
+  save();render();toast('已报名到'+curGroup+'：'+name);
+}
+/* 批量报名弹窗 */
+function openBatchS(){const b=$('bsGroup');if(b)b.textContent=curGroup||'未分组';$('bs_text').value='';$('mask3').classList.add('show');setTimeout(()=>$('bs_text').focus(),60);}
+function closeBatchS(){$('mask3').classList.remove('show');}
+$('btnBS').onclick=function(){
+  const lines=$('bs_text').value.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(!lines.length){toast('请输入内容');return;}
+  if(!curGroup){toast('请先新建分组');return;}
+  let ok=0,dup=0;
+  lines.forEach(l=>{
+    const {name,note}=parseLine(l);
+    if(!name)return;
+    if(state.signups.some(s=>s.date===curDate&&s.group===curGroup&&s.name===name)){dup++;return;}
+    const m=state.members.find(x=>x.name===name);
+    state.signups.push({id:'S'+Date.now()+Math.random().toString(36).slice(2,4),date:curDate,group:curGroup,name,
+      memberId:m?m.id:'',school:m?m.school:'',role:m?m.role:'',note,time:nowHM()});
+    ok++;
+  });
+  save();render();toast('批量报名 '+ok+' 人'+(dup?'，跳过重复 '+dup:''));
+  closeBatchS();
+};
+$('btnBS2').onclick=closeBatchS;
+$('mask3').addEventListener('click',e=>{if(e.target===$('mask3'))closeBatchS();});
+function delSignup(id){state.signups=state.signups.filter(s=>s.id!==id);save();render();toast('已取消报名');}
+function fmtLine(s,i){
+  const m=state.members.find(x=>x.id===s.memberId);
+  return `${i+1}.${s.name}${m?'('+(m.school||'')+')':''}${s.note?'【'+s.note+'】':''}`;
+}
+function copyList(){
+  const list=state.signups.filter(s=>s.date===curDate&&s.group===curGroup);
+  if(!list.length){toast('本组还没有名单');return;}
+  const txt=`${curDate} ${curGroup||''} 百叶本名单（${list.length}人）：\n`+list.map(fmtLine).join('\n');
+  copyText(txt);toast('本组名单已复制');
+}
+function copyAll(){
+  const groups=groupsOf(curDate);
+  if(!groups.length){toast('这一天还没有分组');return;}
+  const parts=[`${curDate} 百叶本全天汇总：`];
+  groups.forEach(g=>{
+    const list=state.signups.filter(s=>s.date===curDate&&s.group===g);
+    parts.push(`\n【${g}】${list.length}人`+(list.length?'：':'（未开组）'));
+    parts.push(list.map(fmtLine).join('\n'));
+  });
+  copyText(parts.join('\n'));toast('全天汇总已复制');
+}
+function copyText(txt){
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).catch(()=>fallbackCopy(txt));}
+  else fallbackCopy(txt);
+}
+function fallbackCopy(txt){
+  const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);
+}
+
+/* ===================== 成员弹窗 ===================== */
+let editMid=null;
+function fillSchoolSelect(sel,val){sel.innerHTML=state.schools.map(s=>`<option ${s===val?'selected':''}>${esc(s)}</option>`).join('')||'<option value="">（先添加流派）</option>';}
+function openMember(id){
+  editMid=id||null;
+  const sel=$('m_school');
+  if(id){const m=state.members.find(x=>x.id===id);if(!m)return;
+    $('modalTitle').textContent='编辑成员';
+    $('m_name').value=m.name;fillSchoolSelect(sel,m.school);$('m_school').value=m.school;
+    $('m_role').value=m.role;$('m_remark').value=m.remark||'';
+  }else{
+    $('modalTitle').textContent='新增成员';
+    $('m_name').value='';fillSchoolSelect(sel,state.schools[0]);$('m_school').value=state.schools[0];
+    $('m_role').value='输出';$('m_remark').value='';
+  }
+  $('mask').classList.add('show');setTimeout(()=>$('m_name').focus(),60);
+}
+function saveMember(){
+  const name=$('m_name').value.trim();if(!name){toast('请填写昵称');return;}
+  const school=$('m_school').value||'—';
+  const data={name,school,role:$('m_role').value,remark:$('m_remark').value.trim()};
+  if(editMid){const m=state.members.find(x=>x.id===editMid);Object.assign(m,data);toast('已保存');}
+  else{data.id='M'+Date.now();state.members.push(data);toast('已新增成员');}
+  save();closeModal();render();
+}
+function delMember(id){if(!confirm('删除该成员？其报名记录会保留但不再关联'))return;
+  state.members=state.members.filter(m=>m.id!==id);save();render();toast('已删除');}
+$('btnCancel').onclick=closeModal;
+$('btnSave').onclick=saveMember;
+$('mask').addEventListener('click',e=>{if(e.target===$('mask'))closeModal();});
+function closeModal(){$('mask').classList.remove('show');}
+
+/* 批量添加成员 */
+function openMBatch(){ $('mb_text').value='';$('mask2').classList.add('show');setTimeout(()=>$('mb_text').focus(),60); }
+function closeMBatch(){ $('mask2').classList.remove('show'); }
+$('btnMB').onclick=function(){
+  const lines=$('mb_text').value.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(!lines.length){toast('请输入内容');return;}
+  const tk=l=>l.split(/\s+/);
+  let ok=0,dup=0;
+  lines.forEach(l=>{
+    const p=tk(l);const name=p[0];
+    if(state.members.some(m=>m.name===name)){dup++;return;}
+    const rest=p.slice(1);
+    const school=rest.find(t=>state.schools.includes(t))||'';
+    const role=rest.find(t=>ROLES.includes(t))||'输出';
+    const remark=rest.filter(t=>t!==school&&!ROLES.includes(t)).join(' ');
+    state.members.push({id:'M'+Date.now()+Math.random().toString(36).slice(2,4),name,school:school||'—',role,remark});
+    ok++;
+  });
+  save();render();toast('批量添加 '+ok+' 人'+(dup?'，跳过重复 '+dup:''));
+  closeMBatch();
+};
+$('btnMB2').onclick=closeMBatch;
+$('mask2').addEventListener('click',e=>{if(e.target===$('mask2'))closeMBatch();});
+
+/* ===================== 流派操作 ===================== */
+function addSchool(){const v=$('newSchool').value.trim();if(!v){toast('请输入流派名');return;}
+  if(state.schools.includes(v)){toast('流派已存在');return;}
+  state.schools.push(v);save();render();toast('已添加：'+v);}
+function delSchool(s){if(!confirm('删除流派「'+s+'」？已关联人员需手动改回'))return;
+  state.schools=state.schools.filter(x=>x!==s);save();render();toast('已删除');}
+
+/* ===================== 数据 ===================== */
+function saveTarget(){const v=parseInt($('tg').value,10);if(!v||v<1){toast('请输入有效人数');return;}
+  state.target=v;save();render();toast('目标人数已设为 '+v);}
+function resetSeed(){if(!confirm('将用示例数据覆盖当前数据，确定？'))return;state=seedData();save();render();toast('已恢复示例数据');}
+function clearAll(){if(!confirm('确定清空全部数据？此操作不可恢复！'))return;
+  state={schools:[],members:[],signups:[],dateGroups:{},target:10,meta:{v:2}};save();render();toast('已清空');}
+function exportJSON(){
+  localStorage.setItem('byzb_backup',new Date().toISOString());
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='烬羽阁百叶本数据_'+todayStr()+'.json';a.click();toast('已导出，备份时间已更新');}
+function importJSON(e){const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!d.members&&!d.signups)throw 0;
+    if(!confirm('导入将覆盖当前数据，确定？'))return;state=migrate(d);
+    if(!state.schools)state.schools=['剑','双刀','长枪','伞','扇','鞭','棍','拳(手甲)','暗器'];
+    if(!state.members)state.members=[];if(!state.signups)state.signups=[];
+    save();render();toast('导入成功');}catch(err){toast('文件格式错误');}};
+  rd.readAsText(f);e.target.value='';}
+
+/* ===================== 事件委托 ===================== */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');if(!el)return;
+  const a=el.dataset.act,id=el.dataset.id,d=el.dataset.date,sch=el.dataset.sch,g=el.dataset.g;
+  if(a==='setDate')setDate(d);
+  else if(a==='setToday')setDate(todayStr());
+  else if(a==='setTomorrow')setDate(daysFrom(1));
+  else if(a==='setGroup')setGroup(g);
+  else if(a==='addGroup')addGroup();
+  else if(a==='delGroup')delGroup(g);
+  else if(a==='toggleNav')toggleNav();
+  else if(a==='closeNav')closeNav();
+  else if(a==='addSignup')addSignup();
+  else if(a==='openBatchS')openBatchS();
+  else if(a==='pickName'){const inp=$('add_name');inp.value=el.dataset.name;updateMatch();inp.focus();}
+  else if(a==='delSignup')delSignup(id);
+  else if(a==='copyList')copyList();
+  else if(a==='copyAll')copyAll();
+  else if(a==='openMember')openMember(id||null);
+  else if(a==='delMember')delMember(id);
+  else if(a==='openMBatch')openMBatch();
+  else if(a==='addSchool')addSchool();
+  else if(a==='delSchool')delSchool(sch);
+  else if(a==='saveTarget')saveTarget();
+  else if(a==='theme'){localStorage.setItem('byzb_theme',el.dataset.t||'');applyTheme();render();}
+  else if(a==='exportJSON')exportJSON();
+  else if(a==='importClick')$('imp').click();
+  else if(a==='resetSeed')resetSeed();
+  else if(a==='clearAll')clearAll();
+});
+document.addEventListener('change',e=>{
+  if(e.target.id==='imp')importJSON(e);
+  else if(e.target.id==='sd_date')setDate(e.target.value);
+  else if(e.target.id==='mf_s'){mf.school=e.target.value;renderMembers();}
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='mf_q'){mf.q=e.target.value.trim().toLowerCase();renderMembers();}
+  else if(e.target.id==='add_name'){updateMatch();}
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeModal();closeMBatch();closeBatchS();return;}
+  if(e.key==='Enter'&&e.target&&(e.target.id==='add_name'||e.target.id==='add_note')){e.preventDefault();addSignup();return;}
+  if(e.key==='Enter'&&e.target&&e.target.id==='newSchool'){addSchool();return;}
+  if(e.key==='Enter'&&e.target&&e.target.id==='m_name'){saveMember();}
+});
+
+/* ===================== 名字联想 ===================== */
+function updateMatch(){
+  const mi=$('matchInfo');if(!mi)return;
+  const v=$('add_name').value.trim();
+  if(!v){mi.innerHTML='';return;}
+  const m=state.members.find(x=>x.name===v);
+  if(m)mi.innerHTML='已匹配成员：'+schoolTag(m.school)+' '+roleTag(m.role);
+  else{const cand=state.members.filter(x=>x.name.includes(v)).slice(0,3);
+    mi.innerHTML=cand.length?('联想：'+cand.map(c=>`<span class="tag gray" style="cursor:pointer" data-act="pickName" data-name="${esc(c.name)}">${esc(c.name)}</span>`).join(' ')):'';}
+}
+
+/* ===================== 启动 ===================== */
+function bindView(){
+  if(curView==='members')renderMembers();
+  if(curView==='signup')updateMatch();
+}
+render();
+/* 备份提醒 */
+setTimeout(()=>{
+  const last=localStorage.getItem('byzb_backup');
+  if(!last)return;
+  const days=Math.floor((Date.now()-new Date(last).getTime())/86400000);
+  if(days>7)toast('距上次备份已 '+days+' 天，记得去 系统设置 导出！');
+},1200);
+</script>
+</body>
+</html>
