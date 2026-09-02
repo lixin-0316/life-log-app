@@ -524,23 +524,38 @@ const VIEWS={
   settings:{t:'系统设置',s:'数据备份与恢复'},
 };
 let curView='signup';
-/* ── 管理密码门：接龙排表开放，管理页需密码 ── */
-const VIEW_PW={members:'7890',schools:'7890',stats:'7890',settings:'222316'};
+/* ── 管理密码门：接龙/统计/设置开放；人员/流派需7890；清空数据需222316 ── */
+const VIEW_PW={members:'7890',schools:'7890'};
+const ADMIN_PW='222316';
 const PW_KEY='pb_auth';
 function isUnlocked(v){try{return (JSON.parse(sessionStorage.getItem(PW_KEY))||[]).includes(v);}catch(e){return false;}}
 function doUnlock(v){try{const a=JSON.parse(sessionStorage.getItem(PW_KEY))||[];if(!a.includes(v))a.push(v);sessionStorage.setItem(PW_KEY,JSON.stringify(a));}catch(e){}}
-let pendingView=null;
-function requirePw(v){
-  pendingView=v;
-  $('pwHint').textContent='进入「'+VIEWS[v].t+'」需要管理密码';
+let pending={type:null,v:null,cb:null};
+function showPw(hint){
+  $('pwHint').textContent=hint;
   $('pw_input').value='';
   $('mask4').classList.add('show');setTimeout(()=>$('pw_input').focus(),60);
 }
-function closePw(){$('mask4').classList.remove('show');pendingView=null;}
+function requirePw(v){
+  if(isUnlocked(v)){goView(v);return;}
+  pending={type:'view',v:v,cb:null};
+  showPw('进入「'+VIEWS[v].t+'」需要管理密码（7890）');
+}
+function requireAdmin(label,cb){
+  if(isUnlocked('admin')){cb();return;}
+  pending={type:'admin',v:'admin',cb:cb};
+  showPw(label+'需要管理员密码');
+}
+function closePw(){$('mask4').classList.remove('show');pending={type:null,v:null,cb:null};}
 function submitPw(){
-  const v=pendingView;if(!v)return;
-  if($('pw_input').value===VIEW_PW[v]){doUnlock(v);closePw();goView(v);}
-  else{toast('密码错误');$('pw_input').value='';$('pw_input').focus();}
+  const t=pending.type;if(!t)return;
+  const need=t==='view'?VIEW_PW[pending.v]:ADMIN_PW;
+  if($('pw_input').value===need){
+    const v=pending.v, cb=pending.cb;
+    doUnlock(v);
+    closePw();
+    if(t==='view'&&v)goView(v);else if(cb)cb();
+  }else{toast('密码错误');$('pw_input').value='';$('pw_input').focus();}
 }
 $('btnPW').onclick=submitPw;
 $('btnPW2').onclick=closePw;
@@ -958,7 +973,7 @@ function delSchool(s){if(!confirm('删除流派「'+s+'」？已关联人员需�
 function saveTarget(){const v=parseInt($('tg').value,10);if(!v||v<1){toast('请输入有效人数');return;}
   state.target=v;save();render();toast('目标人数已设为 '+v);}
 function resetSeed(){if(!confirm('将用示例数据覆盖当前数据，确定？'))return;state=seedData();save();render();toast('已恢复示例数据');}
-function clearAll(){if(!confirm('确定清空全部数据？此操作不可恢复！'))return;
+function doClearAll(){if(!confirm('确定清空全部数据？此操作不可恢复！'))return;
   state={schools:[],members:[],signups:[],dateGroups:{},target:10,meta:{v:2}};save();render();toast('已清空');}
 function exportJSON(){
   localStorage.setItem('byzb_backup',new Date().toISOString());
@@ -1001,7 +1016,7 @@ document.addEventListener('click',e=>{
   else if(a==='exportJSON')exportJSON();
   else if(a==='importClick')$('imp').click();
   else if(a==='resetSeed')resetSeed();
-  else if(a==='clearAll')clearAll();
+  else if(a==='clearAll')requireAdmin('清空全部数据',doClearAll);
 });
 document.addEventListener('change',e=>{
   if(e.target.id==='imp')importJSON(e);
