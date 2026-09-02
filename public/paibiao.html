@@ -540,7 +540,7 @@ function showPw(hint){
 function requirePw(v){
   if(isUnlocked(v)){goView(v);return;}
   pending={type:'view',v:v,cb:null};
-  showPw('进入「'+VIEWS[v].t+'」需要管理密码（7890）');
+  showPw('进入「'+VIEWS[v].t+'」需要管理密码');
 }
 function requireAdmin(label,cb){
   if(isUnlocked('admin')){cb();return;}
