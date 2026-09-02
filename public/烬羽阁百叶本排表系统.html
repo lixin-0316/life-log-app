@@ -232,6 +232,9 @@
   .side-mask{display:none}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .act{display:flex;gap:10px}
+  .act .btn{flex:1;justify-content:center}
+  .donut-flex{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
   @media (max-width:1100px){.stat-row{grid-template-columns:repeat(2,1fr)}.roster{grid-template-columns:1fr}}
   @media (max-width:900px){
     .menu-btn{display:inline-flex}
@@ -248,11 +251,16 @@
     .add-row{flex-direction:column;align-items:stretch}
     .add-row .g1,.add-row .g2{width:100%;min-width:0}
     .add-row .btn{width:100%}
+    .add-row .act{width:100%}
+    .add-row .act .btn{width:auto;flex:1}
     .add-row select{width:100%}
     .date-bar{flex-direction:column;align-items:stretch}
     .date-bar input{width:100%}
     .card{padding:14px}
     .modal{width:94vw}
+    .date-chips{gap:6px}
+    .dchip{padding:7px 12px}
+    .card-title .r{display:block;margin-top:2px}
   }
   @media (max-width:600px){
     input,select,textarea{font-size:16px}
@@ -260,7 +268,16 @@
     .form-grid{grid-template-columns:1fr}
     .form-grid .full{grid-column:1}
     .user span:first-child{display:none}
-    .roster .rc .rc-item{min-width:72px}
+    .roster .rc{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .roster .rc .rc-item{min-width:0;padding:8px 4px}
+    .roster .rc .rc-item .n{font-size:20px}
+    .tbl-wrap table{min-width:520px}
+    .btn.sm{min-height:28px;padding:5px 10px}
+    .barrow .name{width:96px;font-size:11px}
+    .barrow .val{width:52px}
+    .dchip{font-size:12px}
+    .donut-flex{justify-content:center}
+    .theme-pick .tp{width:44%;box-sizing:border-box}
   }
 </style>
 </head>
@@ -522,8 +539,10 @@ function viewSignup(){
         <div class="match-info" id="matchInfo"></div>
       </div>
       <div class="g2"><input id="add_note" placeholder="备注（指挥/前排/治疗…）"></div>
-      <button class="btn primary" data-act="addSignup">+ 报名到${gs?esc(gs):'本组'}</button>
-      <button class="btn" data-act="openBatchS">批量粘贴</button>
+      <div class="act">
+        <button class="btn primary" data-act="addSignup">+ 报名到${gs?esc(gs):'本组'}</button>
+        <button class="btn" data-act="openBatchS">批量粘贴</button>
+      </div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
       ${Object.keys(schCount).map(k=>`<span class="tag gray">${esc(k)} ${schCount[k]}人</span>`).join('')||'<span style="color:var(--text3);font-size:12px">本组暂无报名</span>'}
@@ -651,7 +670,7 @@ function viewStats(){
   </div>
   <div class="grid2">
     <div class="card"><div class="card-title">流派分布（按报名人次）</div>
-      <div style="display:flex;gap:20px;align-items:center">
+      <div class="donut-flex">
         ${donut}
         <div class="legend">${Object.entries(sch).map(([k,v])=>`<div class="li"><span class="dot" style="background:${SCHOOL_COLORS[schIdx(k)]};margin:0"></span>${esc(k)} <b style="margin-left:auto;color:var(--text)">${v}</b></div>`).join('')}</div>
       </div></div>
