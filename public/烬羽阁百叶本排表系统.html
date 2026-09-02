@@ -221,6 +221,7 @@
   .mask{position:fixed;inset:0;background:rgba(9,13,20,.55);display:none;align-items:center;justify-content:center;z-index:99;backdrop-filter:blur(2px)}
   .mask.show{display:flex}
   .modal{background:var(--panel);border-radius:12px;width:540px;max-width:92vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.28);animation:pop .18s ease}
+  .modal.modal-sm{width:340px!important;max-width:86vw!important;height:auto!important;min-height:0!important;max-height:88vh!important;border-radius:14px!important}
   @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
   .modal-head{padding:18px 22px;border-bottom:1px solid var(--line);font-size:15px;font-weight:600}
   .modal-body{padding:20px 22px;overflow-y:auto}
@@ -398,12 +399,12 @@
 </div>
 
 <div class="mask" id="mask4">
-  <div class="modal" style="width:360px">
+  <div class="modal modal-sm">
     <div class="modal-head">输入管理密码</div>
     <div class="modal-body">
       <label class="fld" id="pwHint">进入「人员管理」需要密码</label>
       <input id="pw_input" type="password" inputmode="numeric" placeholder="请输入密码" autocomplete="off" style="letter-spacing:4px">
-      <div style="font-size:12px;color:var(--text3);margin-top:8px">密码验证通过后，本浏览器会话内可免重复输入；关闭浏览器后自动重新上锁。</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:8px">本会话内免重复输入，关闭浏览器后自动上锁。</div>
     </div>
     <div class="modal-foot">
       <button class="btn" id="btnPW2">取消</button>
