@@ -1,9 +1,16 @@
 #!/bin/bash
-# 烬羽阁 paibiao 同步脚本 v3 —— 多源下载 + GitHub API 兜底 + 内容校验
-# 用法: bash ~/sync-paibiao.sh [commit号]   （不传用默认号）
+# 烬羽阁 paibiao 同步脚本 v4 —— 自动获取最新版本号 + 多源下载 + GitHub API 兜底 + 内容校验
+# 用法: bash ~/sync-paibiao.sh [commit号]   （不传自动用 GitHub 最新 main）
 cd /opt/apps/life-log-app || { echo "目录不存在: /opt/apps/life-log-app"; exit 1; }
-SHA=${1:-5ad3f6f}
 REPO="lixin-0316/life-log-app"
+DEF_SHA="672f3f3"
+if [ -n "$1" ]; then
+  SHA=$1
+else
+  SHA=$(curl -s --max-time 15 "https://api.github.com/repos/$REPO/commits/main" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).sha.slice(0,7))}catch(e){console.log('')}})" 2>/dev/null)
+  [ -z "$SHA" ] && SHA=$DEF_SHA
+  echo "[版本] 自动获取最新 commit: $SHA"
+fi
 FAIL=0
 
 # 1) 若是 git 仓库，优先 git pull
