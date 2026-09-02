@@ -254,9 +254,11 @@
     .add-row .act{width:100%}
     .add-row .act .btn{width:auto;flex:1}
     .add-row select{width:100%}
-    .date-bar{flex-direction:column;align-items:stretch}
-    .date-bar input{width:100%}
-    .card{padding:14px}
+    .date-bar{flex-direction:column;align-items:stretch;gap:8px}
+    .date-bar input{width:100%!important;min-width:0!important;max-width:100%}
+    .card{padding:14px;min-width:0;max-width:100%}
+    .content{overflow-x:hidden;min-width:0}
+    .main{min-width:0;overflow-x:hidden}
     .modal{width:94vw}
     .date-chips{gap:6px}
     .dchip{padding:7px 12px}
@@ -311,7 +313,7 @@
         系统设置
       </div>
     </nav>
-    <div class="side-foot">烬羽阁 · 百叶本周本<br>排表接龙 v2.0</div>
+    <div class="side-foot">烬羽阁 · 百叶本周本<br>排表接龙 v2.1</div>
   </aside>
 
   <div class="side-mask" id="sideMask" data-act="closeNav"></div>
