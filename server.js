@@ -508,6 +508,37 @@ app.post('/api/goto-admin', (req, res) => {
 // ── Health ──
 app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
 
+// ── 百叶排表共享数据（烬羽阁）──
+db.exec(`CREATE TABLE IF NOT EXISTS paibiao_kv (
+  k TEXT PRIMARY KEY,
+  v TEXT NOT NULL,
+  updated_at INTEGER NOT NULL
+);`);
+const paibiaoGet = db.prepare('SELECT v, updated_at FROM paibiao_kv WHERE k = ?');
+const paibiaoSet = db.prepare(
+  'INSERT INTO paibiao_kv (k, v, updated_at) VALUES (?, ?, ?) ' +
+  'ON CONFLICT(k) DO UPDATE SET v = excluded.v, updated_at = excluded.updated_at'
+);
+app.get('/api/paibiao', (req, res) => {
+  try {
+    const row = paibiaoGet.get('state');
+    res.json({ ok: true, state: row ? JSON.parse(row.v) : null, updatedAt: row ? row.updated_at : null });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: String(e && e.message || e) });
+  }
+});
+app.post('/api/paibiao', (req, res) => {
+  try {
+    const state = req.body && req.body.state;
+    if (!state || typeof state !== 'object') return res.status(400).json({ ok: false, error: 'state 缺失或格式错误' });
+    const now = Date.now();
+    paibiaoSet.run('state', JSON.stringify(state), now);
+    res.json({ ok: true, updatedAt: now });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: String(e && e.message || e) });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`\n  星记服务 → http://localhost:${PORT}`);
   console.log(`  管理员账号: admin / admin123`);
