@@ -397,6 +397,21 @@
   </div>
 </div>
 
+<div class="mask" id="mask4">
+  <div class="modal" style="width:360px">
+    <div class="modal-head">输入管理密码</div>
+    <div class="modal-body">
+      <label class="fld" id="pwHint">进入「人员管理」需要密码</label>
+      <input id="pw_input" type="password" inputmode="numeric" placeholder="请输入密码" autocomplete="off" style="letter-spacing:4px">
+      <div style="font-size:12px;color:var(--text3);margin-top:8px">密码验证通过后，本浏览器会话内可免重复输入；关闭浏览器后自动重新上锁。</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="btnPW2">取消</button>
+      <button class="btn primary" id="btnPW">确定</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -509,7 +524,30 @@ const VIEWS={
   settings:{t:'系统设置',s:'数据备份与恢复'},
 };
 let curView='signup';
+/* ── 管理密码门：接龙排表开放，管理页需密码 ── */
+const VIEW_PW={members:'7890',schools:'7890',stats:'7890',settings:'222316'};
+const PW_KEY='pb_auth';
+function isUnlocked(v){try{return (JSON.parse(sessionStorage.getItem(PW_KEY))||[]).includes(v);}catch(e){return false;}}
+function doUnlock(v){try{const a=JSON.parse(sessionStorage.getItem(PW_KEY))||[];if(!a.includes(v))a.push(v);sessionStorage.setItem(PW_KEY,JSON.stringify(a));}catch(e){}}
+let pendingView=null;
+function requirePw(v){
+  pendingView=v;
+  $('pwHint').textContent='进入「'+VIEWS[v].t+'」需要管理密码';
+  $('pw_input').value='';
+  $('mask4').classList.add('show');setTimeout(()=>$('pw_input').focus(),60);
+}
+function closePw(){$('mask4').classList.remove('show');pendingView=null;}
+function submitPw(){
+  const v=pendingView;if(!v)return;
+  if($('pw_input').value===VIEW_PW[v]){doUnlock(v);closePw();goView(v);}
+  else{toast('密码错误');$('pw_input').value='';$('pw_input').focus();}
+}
+$('btnPW').onclick=submitPw;
+$('btnPW2').onclick=closePw;
+$('pw_input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitPw();}});
+$('mask4').addEventListener('click',e=>{if(e.target===$('mask4'))closePw();});
 function goView(v){
+  if(v!=='signup'&&VIEW_PW[v]&&!isUnlocked(v)){requirePw(v);return;}
   curView=v;document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===v));
   $('crumbMain').textContent=VIEWS[v].t;$('crumbSub').textContent=VIEWS[v].s;
   closeNav();render();
@@ -975,7 +1013,7 @@ document.addEventListener('input',e=>{
   else if(e.target.id==='add_name'){updateMatch();}
 });
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeModal();closeMBatch();closeBatchS();return;}
+  if(e.key==='Escape'){closeModal();closeMBatch();closeBatchS();closePw();return;}
   if(e.key==='Enter'&&e.target&&(e.target.id==='add_name'||e.target.id==='add_note')){e.preventDefault();addSignup();return;}
   if(e.key==='Enter'&&e.target&&e.target.id==='newSchool'){addSchool();return;}
   if(e.key==='Enter'&&e.target&&e.target.id==='m_name'){saveMember();}
