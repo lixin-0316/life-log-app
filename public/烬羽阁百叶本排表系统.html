@@ -667,10 +667,10 @@ function viewSchools(){
     </div>
   </div>
   <div class="card">
-    <div class="card-title">流派速查 <span class="r">燕云十六声主流流派参考</span></div>
-    <div style="font-size:12px;color:var(--text2);line-height:2">
-      剑、双刀、长枪、伞、扇、鞭、棍、拳(手甲)、暗器 —— 按烬羽阁实际配置增删即可。<br>
-      删除流派不会删除人员，对应人员流派显示「—」，需手动改回。
+    <div class="card-title">当前流派 <span class="r">自动跟随上方列表（共 ${state.schools.length} 个）</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">${state.schools.map(s=>schoolTag(s)).join('')||'<span style="color:var(--text3)">暂无流派，先在上方添加</span>'}</div>
+    <div style="font-size:12px;color:var(--text3);margin-top:10px;line-height:1.8">
+      人员录入与接龙时从这里选择；删除流派不会删除人员，对应人员的流派会显示「—」，需手动改回。
     </div>
   </div>`;
 }
