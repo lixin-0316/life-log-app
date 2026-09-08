@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>顾问跟进事项柱状图（6月-7月）</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+  body{font-family:-apple-system,"Microsoft YaHei",sans-serif;margin:0;background:#f5f6f8;color:#222;padding:24px;}
+  .card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);padding:20px 24px;max-width:1100px;margin:0 auto;}
+  h2{margin:0 0 4px;font-size:20px;}
+  .sub{color:#888;font-size:13px;margin-bottom:16px;}
+  .kpis{display:flex;gap:16px;margin-bottom:18px;}
+  .kpi{flex:1;background:#f7f9fc;border:1px solid #eef1f6;border-radius:10px;padding:12px 16px;}
+  .kpi .v{font-size:26px;font-weight:700;}
+  .kpi .l{font-size:12px;color:#888;}
+  .c6{color:#3a8dde;} .c7{color:#91cc75;}
+  .chart-wrap{position:relative;height:460px;}
+  table{width:100%;border-collapse:collapse;margin-top:20px;font-size:13px;}
+  th,td{border:1px solid #eef1f6;padding:7px 10px;text-align:center;}
+  th{background:#f7f9fc;color:#555;}
+  td.name{text-align:left;font-weight:600;}
+  tr:hover{background:#fafbfe;}
+  .note{margin-top:14px;font-size:12px;color:#999;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>顾问跟进事项数：6月-7月</h2>
+  <div class="sub">数据源：实时上报任务信息表 → <b>7.30阶段顾问完成情况与分工明细表</b> ｜ 口径：排除"无/待分配/空"，同格多人分别+1</div>
+  <div class="kpis">
+    <div class="kpi"><div class="v c6" id="k6">--</div><div class="l">6月合计（630列）</div></div>
+    <div class="kpi"><div class="v c7" id="k7">--</div><div class="l">7月合计（730列）</div></div>
+    <div class="kpi"><div class="v" id="kt">--</div><div class="l">合计</div></div>
+    <div class="kpi"><div class="v" id="ka">--</div><div class="l">顾问人数</div></div>
+  </div>
+  <div class="chart-wrap"><canvas id="chart"></canvas></div>
+  <table id="tbl">
+    <thead><tr><th>顾问</th><th>6月</th><th>7月</th><th>合计</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <div class="note">说明：横轴为各顾问姓名（按合计降序），每组两根柱子分别对应 6月(630顾问跟进人) 与 7月(730顾问跟进人)。如需调整口径、排序或配色，告诉我即可。</div>
+</div>
+<script>
+const DATA = [{"name": "杨洪达", "jun": 159, "jul": 20, "total": 179}, {"name": "林国豪", "jun": 145, "jul": 0, "total": 145}, {"name": "黄秋斌", "jun": 78, "jul": 19, "total": 97}, {"name": "李海涛", "jun": 67, "jul": 26, "total": 93}, {"name": "邓碧霞", "jun": 36, "jul": 23, "total": 59}, {"name": "刘蕴慧", "jun": 44, "jul": 7, "total": 51}, {"name": "卫苗苗", "jun": 13, "jul": 36, "total": 49}, {"name": "饶神峰", "jun": 37, "jul": 11, "total": 48}, {"name": "陈旺超", "jun": 24, "jul": 15, "total": 39}, {"name": "魏艳萍", "jun": 19, "jul": 18, "total": 37}, {"name": "吴嘉欢", "jun": 22, "jul": 15, "total": 37}, {"name": "杨婷", "jun": 25, "jul": 7, "total": 32}, {"name": "李鑫", "jun": 0, "jul": 30, "total": 30}, {"name": "唐玉源", "jun": 16, "jul": 13, "total": 29}, {"name": "田丹", "jun": 10, "jul": 18, "total": 28}, {"name": "倪艺文", "jun": 10, "jul": 14, "total": 24}, {"name": "曾武君", "jun": 0, "jul": 23, "total": 23}, {"name": "王雪斌", "jun": 0, "jul": 20, "total": 20}, {"name": "张卓帆", "jun": 6, "jul": 0, "total": 6}];
+document.getElementById('k6').textContent = DATA.reduce((a,d)=>a+d.jun,0);
+document.getElementById('k7').textContent = DATA.reduce((a,d)=>a+d.jul,0);
+document.getElementById('kt').textContent = DATA.reduce((a,d)=>a+d.total,0);
+document.getElementById('ka').textContent = DATA.length;
+const tbody = document.querySelector('#tbl tbody');
+DATA.forEach(d=>{
+  const tr=document.createElement('tr');
+  tr.innerHTML='<td class="name">'+d.name+'</td><td>'+d.jun+'</td><td>'+d.jul+'</td><td>'+d.total+'</td>';
+  tbody.appendChild(tr);
+});
+new Chart(document.getElementById('chart'),{
+  type:'bar',
+  data:{
+    labels:DATA.map(d=>d.name),
+    datasets:[
+      {label:'6月(630)',data:DATA.map(d=>d.jun),backgroundColor:'#3a8dde',borderRadius:4},
+      {label:'7月(730)',data:DATA.map(d=>d.jul),backgroundColor:'#91cc75',borderRadius:4}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top'},tooltip:{mode:'index',intersect:false}},
+    scales:{x:{ticks:{maxRotation:60,minRotation:30,font:{size:11}}},y:{beginAtZero:true,title:{display:true,text:'事项数'}}}
+  }
+});
+</script>
+</body></html>
