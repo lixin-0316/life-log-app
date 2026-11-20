@@ -626,6 +626,8 @@ KM.core = (function(){
     d.pantry = d.pantry||[];
     d.history = d.history||[];
     d.aliasMap = d.aliasMap||[];
+    if(!d._meta) d._meta = { updatedAt: 0 };
+    d._meta.updatedAt = Number(d._meta.updatedAt) || 0;
     return d;
   }
 
@@ -694,6 +696,59 @@ KM.core = (function(){
 })();
 
 /* ============================================================
+ * KM.cloud —— 云端共享存储（多端同步）
+ * 服务器提供 /api/kitchen；离线 / file:// / 无此接口时自动降级为纯本地。
+ * ============================================================ */
+KM.cloud = (function(){
+  const API = '/api/kitchen';
+  const PENDING_KEY = 'kitchen_menu_v1__pending';
+  const canFetch = (typeof fetch === 'function');
+  const enabled = canFetch && (location.protocol === 'http:' || location.protocol === 'https:');
+  let timer = null;
+
+  function setPending(v){ try { localStorage.setItem(PENDING_KEY, v ? '1' : '0'); } catch(e){} }
+  function isPending(){ try { return localStorage.getItem(PENDING_KEY) === '1'; } catch(e){ return false; } }
+
+  function push(data){
+    if(!enabled) return;
+    try {
+      fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ data: data }) })
+        .then(function(r){ return r.json(); })
+        .then(function(j){ setPending(!(j && j.ok)); })
+        .catch(function(){ setPending(true); });
+    } catch(e){ setPending(true); }
+  }
+  function schedulePush(data){
+    if(!enabled) return;
+    if(timer) clearTimeout(timer);
+    timer = setTimeout(function(){ push(data); }, 800);
+  }
+  function pull(){
+    if(!enabled) return Promise.resolve(null);
+    return fetch(API, { cache:'no-store' })
+      .then(function(r){ return r.json(); })
+      .catch(function(){ return null; });
+  }
+  // 启动同步：云端空 → 播种；本地更新/pending → 上推；云端更新 → 采纳
+  function sync(localData, onAdopt){
+    if(!enabled) return;
+    pull().then(function(res){
+      if(!res || !res.ok){
+        if(isPending()) push(localData);
+        return;
+      }
+      const serverData = res.data;
+      if(!serverData){ push(localData); return; }
+      const sT = Number(serverData._meta && serverData._meta.updatedAt) || 0;
+      const lT = Number(localData._meta && localData._meta.updatedAt) || 0;
+      if(isPending() || lT > sT){ push(localData); }
+      else if(sT > lT){ onAdopt(serverData); }
+    });
+  }
+  return { enabled: enabled, sync: sync, schedulePush: schedulePush, pull: pull, isPending: isPending };
+})();
+
+/* ============================================================
  * KM.ui —— DOM 渲染与事件
  * ============================================================ */
 KM.ui = (function(){
@@ -710,8 +765,11 @@ KM.ui = (function(){
     clearTimeout(toast._t); toast._t = setTimeout(function(){ t.className='toast'; }, 2600);
   }
   function save(){
+    data._meta = data._meta || { updatedAt: 0 };
+    data._meta.updatedAt = Date.now();
     const r = C.storeSave(data);
     if(!r.ok) toast(r.quota ? '存储空间已满，请到「设置」导出备份' : '保存失败', 'err');
+    if(KM.cloud) KM.cloud.schedulePush(data);
     return r.ok;
   }
   function byId(id){ return data.dishes.find(function(d){ return d.id===id; }); }
@@ -857,7 +915,7 @@ KM.ui = (function(){
         '<div style="display:flex;align-items:center;gap:12px">'+
           '<div style="font-size:34px">'+esc(rec.emoji||'🍽️')+'</div>'+
           '<div style="flex:1"><div style="font-weight:600;font-size:16px">'+esc(rec.name)+'</div>'+
-          '<div style="color:var(--muted);font-size:12px">'+esc(cuisineName(rec))+ ' · '+esc(rec.prepMin||0)+'+'+esc(rec.cookMin||0)+' 分钟 · '+spicyStr(rec.spicy)+'</div></div>'+
+          '<div style="color:var(--muted);font-size:12px">'+esc(cuisineName(rec))+ ' · '+ ((rec.prepMin||0)+(rec.cookMin||0)) +' 分钟 · '+spicyStr(rec.spicy)+'</div></div>'+
           '<button class="btn btn-sm" onclick="KM.ui.nav(\'#/dish/'+esc(rec.id)+'\')">看看</button>'+
         '</div>'+
         '<div style="margin-top:10px"><button class="btn btn-sm" onclick="KM.ui.randomPick()">换一个</button></div>'+
@@ -1363,6 +1421,12 @@ KM.ui = (function(){
       '</div>'+
 
       '<div class="card pad" style="margin-bottom:14px">'+
+        '<div style="font-weight:700;margin-bottom:8px">多端共享（云端同步）</div>'+
+        '<div class="sub" style="margin-bottom:8px">'+(KM.cloud && KM.cloud.enabled ? '✅ 已连接云端：你和家人朋友打开同一个网址，看到的是同一份数据，谁录都能同步。' : '⚠️ 本地模式：用 file:// 或非云端地址打开时，数据只存本机浏览器。')+'</div>'+
+        '<button class="btn btn-sm" onclick="KM.ui.cloudRefresh()">立即从云端同步</button>'+
+        '<div class="sub" style="margin-top:8px">小提示：多人同时改以最后保存为准；想看别人最新改动，刷新页面即可。</div>'+
+      '</div>'+
+      '<div class="card pad" style="margin-bottom:14px">'+
         '<div style="font-weight:700;margin-bottom:8px">数据备份</div>'+
         '<div class="btn-row" style="margin-top:0">'+
           '<button class="btn btn-primary" onclick="KM.ui.doExport()">导出 JSON</button>'+
@@ -1723,7 +1787,7 @@ KM.ui = (function(){
   }
   function doReset(){
     confirmDialog({
-      title:'恢复出厂示例', body:'将清空全部数据并恢复内置 10 道示例菜。确定？', okText:'恢复', danger:true,
+      title:'恢复出厂示例', body:'将清空全部数据并恢复内置 10 道示例菜。<br><b style="color:var(--danger)">注意：这是共享数据，会同时清空家人朋友看到的内容！</b>', okText:'恢复', danger:true,
       onOk:function(){
         data = C.normalizeData(JSON.parse(JSON.stringify(SEED)));
         save(); applyTheme(); toast('已恢复示例数据'); nav('#/home');
@@ -1741,14 +1805,65 @@ KM.ui = (function(){
   }
   function delPantry(i){ data.pantry.splice(i,1); save(); renderSettings(main()); }
 
+  /* ---- 云端同步（自动 / 手动） ---- */
+  let _lastAuto = 0;
+  function maybeAutoSync(){
+    if(!KM.cloud || !KM.cloud.enabled) return;
+    const now = Date.now();
+    if(now - _lastAuto < 12000) return;
+    _lastAuto = now;
+    KM.cloud.pull().then(function(res){
+      if(!res || !res.ok || !res.data) return;
+      const name = parseHash().name;
+      if(['home','library','shopping'].indexOf(name) < 0) return;
+      const sT = Number(res.data._meta && res.data._meta.updatedAt) || 0;
+      const lT = Number(data._meta && data._meta.updatedAt) || 0;
+      if(sT > lT){
+        data = C.normalizeData(res.data);
+        C.storeSave(data);
+        applyTheme();
+        route();
+        toast('已同步云端最新数据');
+      }
+    });
+  }
+  function cloudRefresh(){
+    if(!KM.cloud || !KM.cloud.enabled){ toast('当前是本地模式（非云端环境）'); return; }
+    KM.cloud.pull().then(function(res){
+      if(!res || !res.ok){ toast('云端不可用，请检查服务器'); return; }
+      if(!res.data){ toast('云端还没有数据，先在任意设备录一次即可'); return; }
+      confirmDialog({ title:'从云端同步', body:'将用云端数据覆盖本机当前数据（本机未上传的改动会丢失）。确定？', okText:'同步', onOk:function(){
+        data = C.normalizeData(res.data);
+        C.storeSave(data);
+        applyTheme();
+        route();
+        toast('已从云端同步');
+      }});
+    });
+  }
+
   /* ---- 初始化 ---- */
   function init(){
     data = C.storeLoad();
     applyTheme();
     window.addEventListener('hashchange', function(){ route(); });
+    document.addEventListener('visibilitychange', function(){
+      if(document.visibilityState === 'visible') maybeAutoSync();
+    });
     renderSidebar();
     renderTabbar();
     route();
+    _lastAuto = Date.now();
+    if(KM.cloud){
+      KM.cloud.sync(data, function(serverData){
+        data = C.normalizeData(serverData);
+        C.storeSave(data);
+        applyTheme();
+        renderSidebar();
+        route();
+        toast('已同步云端最新数据');
+      });
+    }
   }
 
   return {
@@ -1767,7 +1882,7 @@ KM.ui = (function(){
     saveDish:saveDish, duplicateDish:duplicateDish, deleteDish:deleteDish,
     addCuisine:addCuisine, addCategory:addCategory, deleteCuisine:deleteCuisine, deleteCategory:deleteCategory,
     moveCuisine:moveCuisine, moveCategory:moveCategory,
-    doExport:doExport, doImport:doImport, doReset:doReset,
+    doExport:doExport, doImport:doImport, doReset:doReset, cloudRefresh:cloudRefresh,
     addPantry:addPantry, delPantry:delPantry,
     modalClose:modalClose
   };

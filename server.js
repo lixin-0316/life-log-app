@@ -110,7 +110,7 @@ async function sendSMS(phone, code) {
 }
 
 // ── Middleware ──
-app.use(express.json());
+app.use(express.json({ limit: '4mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 function auth(req, res, next) {
@@ -536,6 +536,29 @@ app.post('/api/paibiao', (req, res) => {
     res.json({ ok: true, updatedAt: now });
   } catch (e) {
     res.status(500).json({ ok: false, error: String(e && e.message || e) });
+  }
+});
+
+// ── 厨房点菜：共享数据（多端同步，复用 paibiao_kv，key = kitchen）──
+app.get('/api/kitchen', (req, res) => {
+  try {
+    const row = paibiaoGet.get('kitchen');
+    res.json({ ok: true, data: row ? JSON.parse(row.v) : null, updatedAt: row ? row.updated_at : null });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: String((e && e.message) || e) });
+  }
+});
+app.post('/api/kitchen', (req, res) => {
+  try {
+    const data = req.body && req.body.data;
+    if (!data || typeof data !== 'object' || !Array.isArray(data.dishes)) {
+      return res.status(400).json({ ok: false, error: 'data 缺失或格式错误' });
+    }
+    const now = Date.now();
+    paibiaoSet.run('kitchen', JSON.stringify(data), now);
+    res.json({ ok: true, updatedAt: now });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: String((e && e.message) || e) });
   }
 });
 
